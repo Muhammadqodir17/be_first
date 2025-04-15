@@ -1,0 +1,204 @@
+from rest_framework.viewsets import ViewSet
+from konkurs.models import (
+    Competition,
+    Participant
+)
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from .models import Assessment
+from .serializers import (
+    ActiveCompetitionSerializer,
+    CompetitionSerializer,
+    ParticipantWorkSerializer,
+    MarkSerializer,
+    AssessmentHistorySerializer, ParticipantSerializer
+)
+from rest_framework.response import Response
+from rest_framework import status
+from authentication.models import User
+
+
+class JuryViewSet(ViewSet):
+    # @swagger_auto_schema(
+    #     operation_description="Active Competitions",
+    #     operation_summary="Active Competitions",
+    #     responses={
+    #         200: ActiveCompetitionSerializer(),
+    #     },
+    #     tags=['jury']
+    # )
+    def get_active_comp(self, request, *args, **kwargs):
+        user = User.objects.filter(id=request.user.id).filter()
+        comps = Competition.objects.filter(status=1, category=user.category)
+        serializer = ActiveCompetitionSerializer(comps, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    # @swagger_auto_schema(
+    #     operation_description="Filter Category",
+    #     operation_summary="Filter Category",
+    #     manual_parameters=[
+    #         openapi.Parameter(
+    #             'category', type=openapi.TYPE_STRING, description='filter_category', in_=openapi.IN_QUERY
+    #         )
+    #     ],
+    #     responses={200: ActiveCompetitionSerializer()},
+    #     tags=['admin'],
+    # )
+    # def filter_comp(self, request, *args, **kwargs):
+    #     data = request.GET
+    #     category = data.get('category')
+    #     competitions = Competition.objects.all()
+    #     if category:
+    #         competitions = Competition.objects.filter(category=category, status=1)
+    #     serializer = ActiveCompetitionSerializer(competitions, many=True)
+    #     return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    # @swagger_auto_schema(
+    #     operation_description="Get Competition By Id",
+    #     operation_summary="Get Competition By Id",
+    #     responses={
+    #         200: CompetitionSerializer(),
+    #     },
+    #     tags=['jury']
+    # )
+    def get_comp_by_id(self, request, *args, **kwargs):
+        comp = Competition.objects.filter(id=kwargs['pk']).first()
+        if comp is None:
+            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CompetitionSerializer(comp)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    # @swagger_auto_schema(
+    #     operation_description="Filter Participants",
+    #     operation_summary="Filter Participants",
+    #     manual_parameters=[
+    #         openapi.Parameter(
+    #             'category', type=openapi.TYPE_STRING, description='filter_participants', in_=openapi.IN_QUERY
+    #         )
+    #     ],
+    #     responses={200: ParticipantSerializer()},
+    #     tags=['admin'],
+    # )
+    def filter_participants(self, request, *args, **kwargs):
+        category = request.GET.get('category')
+        comp = Competition.objects.filter(id=kwargs['pk']).first()
+        if comp is None:
+            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+        participant = Participant.objects.filter(cometition=comp)
+        participant = participant.filter(competition__category=category)
+        serializer = ParticipantSerializer(participant, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    # @swagger_auto_schema(
+    #     operation_description="Get Participant By Id",
+    #     operation_summary="Get Participant By Id",
+    #     responses={
+    #         200: ParticipantWorkSerializer(),
+    #     },
+    #     tags=['jury']
+    # )
+    def get_participant_by_id(self, request, *args, **kwargs):
+        participant = Participant.objects.filter(id=kwargs['pk']).first()
+        if participant is None:
+            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = ParticipantWorkSerializer(participant)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def filter_participant(self, request, *args, **kwargs):
+        pass
+
+    # @swagger_auto_schema(
+    #     operation_description="Upload work files",
+    #     operation_summary="Upload work files",
+    #     request_body=openapi.Schema(
+    #         type=openapi.TYPE_OBJECT,
+    #         properties={
+    #             'jury': openapi.Schema(type=openapi.TYPE_INTEGER, description='jury'),
+    #             'participant': openapi.Schema(type=openapi.TYPE_INTEGER, description='participant'),
+    #             'grade': openapi.Schema(type=openapi.TYPE_INTEGER, description='grade'),
+    #             'comment': openapi.Schema(type=openapi.TYPE_STRING, description='comment'),
+    #             'competition': openapi.Schema(type=openapi.TYPE_INTEGER, description='competition'),
+    #         },
+    #         required=['jury', 'participant', 'grade', 'comment', 'competition']
+    #     ),
+    #     responses={201: MarkSerializer()},
+    #     tags=['child'],
+    # )
+    def mark(self, request, *args, **kwargs):
+        request.data['user'] = request.user
+        participant = Participant.objects.filter(id=request.data['participant']).first()
+        if participant is None:
+            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = MarkSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if participant.marked_status == 2:
+            return Response(data={'error': "You've already marked this participant"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        serializer.validated_data['competition'] = participant.competition
+        participant.marked = 2
+        participant.save()
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    # @swagger_auto_schema(
+    #     operation_description="Get Grade",
+    #     operation_summary="Get Grade",
+    #     responses={
+    #         200: AssessmentHistorySerializer(),
+    #     },
+    #     tags=['jury']
+    # )
+    def get_assessment_history(self, request, *args, **kwargs):
+        assessment = Assessment.objecys.filter(jury=request.user)
+        serializer = AssessmentHistorySerializer(assessment, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    # @swagger_auto_schema(
+    #     operation_description="Get Grade By Id",
+    #     operation_summary="Get Grade By Id",
+    #     responses={
+    #         200: AssessmentHistorySerializer(),
+    #     },
+    #     tags=['jury']
+    # )
+    def get_assessment_by_id(self, request, *args, **kwargs):
+        assessment = Assessment.objects.filter(id=kwargs['pk']).first()
+        if assessment is None:
+            return Response(data={'error': 'Assessment not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = AssessmentHistorySerializer(assessment, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    # @swagger_auto_schema(
+    #     operation_description="Upload work files",
+    #     operation_summary="Upload work files",
+    #     request_body=openapi.Schema(
+    #         type=openapi.TYPE_OBJECT,
+    #         properties={
+    #             'participant': openapi.Schema(type=openapi.TYPE_INTEGER, description='participant'),
+    #             'competition': openapi.Schema(type=openapi.TYPE_INTEGER, description='competition'),
+    #             'grade': openapi.Schema(type=openapi.TYPE_INTEGER, description='grade'),
+    #             'comment': openapi.Schema(type=openapi.TYPE_STRING, description='comment'),
+    #         },
+    #         required=[]
+    #     ),
+    #     responses={200: AssessmentHistorySerializer()},
+    #     tags=['child'],
+    # )
+    def update_assessment_history(self, request, *args, **kwargs):
+        assessment = Assessment.objects.filter(id=kwargs['pk']).first()
+        request.data['jury'] = request.user
+        if assessment is None:
+            return Response(data={'error': 'Assessment not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = AssessmentHistorySerializer(assessment, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if assessment.competition.status == 2:
+            return Response(data={'error': 'You can not change this grade'})
+        serializer.validated_data['competition'] = assessment.competition
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+

@@ -1,0 +1,242 @@
+from datetime import date
+from rest_framework import serializers
+from authentication.models import User
+from child.models import Child
+from jury.models import Assessment
+from konkurs_admin.models import Notification, Winner
+from .models import (
+    Competition,
+    STATUS,
+    APPROVEMENT,
+    MARKED_STATUS,
+    Participant,
+    ChildWork
+)
+
+
+class BannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['id', 'image', 'name', 'description']
+
+
+class CompetitionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['id', 'name', 'category', 'prize', 'description', 'application_start_date',
+                  'application_start_time', 'application_end_date', 'application_end_time',
+                  'rules', 'physical_certificate', 'image', 'status']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['status'] = dict(STATUS).get(instance.status, 'Unknown')
+        return data
+
+
+class GetCompSerializer(serializers.ModelSerializer):
+    participants = serializers.SerializerMethodField(source='get_participants')
+    class Meta:
+        model = Competition
+        fields = ['id', 'name', 'comp_end_date', 'description', 'participants']
+
+    def get_participants(self, obj):
+        return Participant.objects.filter(competition=obj).count()
+
+
+class CompAssessmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assessment
+        fields = ['id', 'grade', 'comment']
+
+
+class FinishedCompetitionSerializer(serializers.ModelSerializer):
+    grade = CompAssessmentSerializer()
+    class Meta:
+        model = Competition
+        fields = ['id', 'name', 'grade', 'category', 'prize', 'description', 'application_start_date',
+                  'application_start_time', 'application_end_date', 'application_end_time',
+                  'rules', 'physical_certificate', 'image', 'status']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['status'] = dict(STATUS).get(instance.status, 'Unknown')
+        return data
+
+
+class HomeCompetitionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['id', 'image', 'name', 'description', 'rules', 'application_end_date', ]
+
+
+class CompetitionForCompetitionPageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['id', 'name', 'description']
+
+
+class PersonalInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'birth_date', 'email', 'phone_number']
+
+
+class ChildrenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Child
+        fields = ['id', 'user', 'first_name', 'last_name', 'middle_name',
+                  'date_of_birth', 'place_of_study', 'degree_of_kinship']
+
+
+class ChildSerializer(serializers.ModelSerializer):
+    age = serializers.SerializerMethodField()
+    class Meta:
+        model = Child
+        fields = ['id', 'first_name', 'last_name', 'middle_name', 'date_of_birth', 'age', 'place_of_study']
+
+    def get_age(self, obj):
+        today = date.today()
+        birthdate = obj.date_of_birth
+        age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+
+        return age
+
+
+class ParticipantSerializer(serializers.ModelSerializer):
+    competition = CompetitionSerializer()
+    child = ChildSerializer()
+    class Meta:
+        model = Participant
+        fields = ['id', 'child', 'action', 'competition', 'physical_certificate', 'marked_status']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['action'] = dict(APPROVEMENT).get(instance.action, 'Unknown')
+        data['marked_status'] = dict(MARKED_STATUS).get(instance.marked_status, 'Unknown')
+        return data
+
+
+class AssessmentSerializer(serializers.ModelSerializer):
+    participant = ParticipantSerializer()
+    class Meta:
+        model = Assessment
+        fields = ['id', 'participant', 'grade', 'comment']
+
+
+class CompSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['id', 'name']
+
+
+class CompParticipantSerializer(serializers.ModelSerializer):
+    competition = CompSerializer()
+    class Meta:
+        model = Participant
+        fields = ['competition']
+
+class ActiveCompSerializer(serializers.ModelSerializer):
+    participants = serializers.SerializerMethodField()
+    class Meta:
+        model = Competition
+        fields = ['id', 'name', 'participants', 'comp_end_date', 'description']
+
+    def get_participants(self, obj):
+        participants = Participant.objects.filter(competition__id=obj.id).count()
+        return participants
+
+class ActiveParticipantSerializer(serializers.ModelSerializer):
+    competition = ActiveCompSerializer()
+    class Meta:
+        model = Participant
+        fields = ['competition']
+
+
+class FinishedCompSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['id', 'name', 'description']
+
+
+class GradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assessment
+        fields = ['id', 'grade', 'comment']
+
+
+class FinishedParticipantSerializer(serializers.ModelSerializer):
+    competition = FinishedCompSerializer()
+    grade = serializers.SerializerMethodField(source='get_grade')
+    certificate = serializers.SerializerMethodField(source='get_certificate')
+
+    class Meta:
+        model = Participant
+        fields = ['competition', 'grade', 'certificate']
+
+    def get_grade(self, obj):
+        grade_instance = Assessment.objects.filter(participant=obj).first()
+        if grade_instance:
+            return GradeSerializer(grade_instance).data
+        return None
+
+    def get_certificate(self, obj):
+        winner = Winner.objects.filter(participant=obj).first()
+        if winner and winner.certificate:
+            try:
+                return winner.certificate.url
+            except ValueError:
+                return None
+        return None
+
+
+class WorksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildWork
+        fields = ['id', 'competition', 'files']
+
+
+class GallerySerializer(serializers.ModelSerializer):
+    # files = WorksSerializer(many=True)
+    class Meta:
+        model = ChildWork
+        fields = ['competition', 'files']
+
+
+class CompGallerySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['name', 'category']
+
+
+class GalleryDetailsSerializer(serializers.ModelSerializer):
+    competition = CompGallerySerializer()
+    files = serializers.SerializerMethodField(source='get_files')
+    class Meta:
+        model = Participant
+        fields = ['competition', 'child', 'files']
+
+    def get_files(self, obj):
+        file_instance = ChildWork.objects.filter(participant__id=obj.id).first()
+        if file_instance:
+            return WorksSerializer(file_instance).data
+        return None
+
+
+class ExpertSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'speciality']
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'child', 'competition', 'grade', 'comment', 'message', 'is_read']
+
+
+class ResultsSerializer(serializers.Serializer):
+    participants = serializers.IntegerField()
+    winners = serializers.IntegerField()
+    awards = serializers.IntegerField()
+    certificates = serializers.IntegerField()
+    creative_works = serializers.IntegerField()
