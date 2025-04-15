@@ -14,6 +14,6 @@ urlpatterns = [
          name='get_assessment_history'),
     path('get_assessment_by_id/<int:pk>/', JuryViewSet.as_view({'get': 'get_assessment_by_id'}),
          name='get_assessment_by_id'),
-    path('update_assessment/', JuryViewSet.as_view({'patch': 'update_assessment_history'}),
+    path('update_assessment/<int:pk>/', JuryViewSet.as_view({'patch': 'update_assessment_history'}),
          name='update_assessment_history'),
 ]

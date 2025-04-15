@@ -22,7 +22,7 @@ class Notification(BaseModel):
     competition = models.ForeignKey(Competition, on_delete=models.CASCADE, blank=True, null=True)
     grade = models.IntegerField(default=0)
     comment = models.TextField(blank=True)
-    message = models.TextField()
+    message = models.TextField(blank=True)
     is_read = models.BooleanField(default=False)
 
     def __str__(self):

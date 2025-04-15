@@ -19,7 +19,7 @@ from .serializers import (
     GalleryDetailsSerializer,
     ExpertSerializer,
     BannerSerializer,
-    NotificationSerializer, ResultsSerializer
+    NotificationSerializer, ResultsSerializer, GetCompSerializer
 )
 from .models import (
     Competition,
@@ -119,16 +119,18 @@ class CompetitionViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Get competition details",
-        operation_summary="Get competition details",
+        operation_description="Get competition by id",
+        operation_summary="Get competition by id",
         responses={
-            200: CompetitionSerializer(),
+            200: GetCompSerializer(),
         },
         tags=['competition']
     )
     def get_by_id(self, request, *args, **kwargs):
         comp = Competition.objects.filter(id=kwargs['pk']).first()
-        serializer = CompetitionSerializer(comp)
+        if comp is None:
+            return Response(data={'error': 'Comp not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = GetCompSerializer(comp)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -149,7 +151,7 @@ class CompetitionViewSet(ViewSet):
 
 class MyCompetitionViewSet(ViewSet):
     @swagger_auto_schema(
-        operation_description="Get comp details by id",
+        operation_description="Get comp details",
         operation_summary="active or finished",
         responses={
             200: openapi.Schema(
@@ -195,10 +197,12 @@ class MyCompetitionViewSet(ViewSet):
         participant = Participant.objects.filter(id=kwargs['pk']).first()
         if participant is None:
             return Response(data={'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
-        if participant.competition.status == 1:
+        if participant.competition.status == 2:
+            serializer = FinishedParticipantSerializer(participant)
+        elif participant.competition.status == 1:
             serializer = ActiveParticipantSerializer(participant)
         else:
-            serializer = FinishedParticipantSerializer(participant)
+            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -270,7 +274,7 @@ class MyCompetitionViewSet(ViewSet):
 
     @swagger_auto_schema(
         operation_description="Get Notification By Id For Comp",
-        operation_summary="Get all competition By Id For Comp",
+        operation_summary="Get all Notification By Id For Comp",
         responses={
             200: NotificationSerializer(),
         },
