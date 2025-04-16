@@ -6,8 +6,10 @@ from rest_framework import status
 from konkurs.models import (
     Competition,
     Participant,
-    Category, GradeCriteria
+    Category,
+    GradeCriteria
 )
+from rest_framework.parsers import MultiPartParser, FormParser
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from .models import Notification, Winner
@@ -20,24 +22,66 @@ from .serializers import (
     WinnerSerializer,
     CompetitionSerializer,
     ActiveParticipantSerializer,
-    WinnerListSerializer, GetJurySerializer
+    WinnerListSerializer,
+    GetJurySerializer,
+    GetCompetitionByIdSerializer,
+    CreateCompetitionSerializer
 )
 from .pagination import CustomPagination
 
 
 class CategoryViewSet(ViewSet):
+    pagination_class = CustomPagination
+
     @swagger_auto_schema(
         operation_description="Get all Categories",
         operation_summary="Get all Categories",
+        manual_parameters=[
+            openapi.Parameter(
+                'page', openapi.IN_QUERY,
+                description="Page number (e.g., ?page=1)",
+                type=openapi.TYPE_INTEGER
+            ),
+            openapi.Parameter(
+                'page_size', openapi.IN_QUERY,
+                description="Number of items per page (e.g., ?page_size=10)",
+                type=openapi.TYPE_INTEGER
+            ),
+        ],
         responses={
-            200: CategorySerializer(),
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'count': openapi.Schema(type=openapi.TYPE_INTEGER, description='Total competitions'),
+                    'total_pages': openapi.Schema(type=openapi.TYPE_INTEGER, description='Total pages available'),
+                    'current_page': openapi.Schema(type=openapi.TYPE_INTEGER, description='Current page number'),
+                    'page_size': openapi.Schema(type=openapi.TYPE_INTEGER, description='Number of items per page'),
+                    'next': openapi.Schema(type=openapi.TYPE_STRING, nullable=True, description='Next page URL'),
+                    'previous': openapi.Schema(type=openapi.TYPE_STRING, nullable=True,
+                                               description='Previous page URL'),
+                    'results': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(type=openapi.TYPE_OBJECT))
+                }
+            ),
         },
         tags=['admin']
     )
     def get(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        paginator = self.pagination_class()
+        paginated_categories = paginator.paginate_queryset(categories, request)
+        serializer = CategorySerializer(paginated_categories, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
         operation_description="Get Category By Id",
@@ -119,8 +163,8 @@ class CompetitionViewSet(ViewSet):
     pagination_class = CustomPagination
 
     @swagger_auto_schema(
-        operation_description="Get Competition",
-        operation_summary="Get Competition",
+        operation_description="Get Competitions",
+        operation_summary="Get Competitions",
         manual_parameters=[
             openapi.Parameter(
                 'page', openapi.IN_QUERY,
@@ -151,6 +195,17 @@ class CompetitionViewSet(ViewSet):
         tags=['admin']
     )
     def get_comp(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         competitions = Competition.objects.all()
         paginator = self.pagination_class()
         paginated_competitions = paginator.paginate_queryset(competitions, request)
@@ -194,6 +249,17 @@ class CompetitionViewSet(ViewSet):
         tags=['admin'],
     )
     def search_comp(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         search = request.GET.get('search', '')
         comp = Competition.objects.filter(name__icontains=search)
         paginator = self.pagination_class()
@@ -241,14 +307,17 @@ class CompetitionViewSet(ViewSet):
         category = data.get('category')
         page = data.get('page')
         size = data.get('page_size')
-        if not category.isdigit():
-            return Response(data={'error': 'Category must be integer'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
             return Response(data={'error': 'page must be greater than 0 or must be integer'},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
             return Response(data={'error': 'page size must be greater than 0 or must be integer'},
                             status=status.HTTP_400_BAD_REQUEST)
+        cat = Category.objects.filter(id=category).first()
+        if cat is None:
+            return Response(data={'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
         competitions = Competition.objects.all()
         if category:
             competitions = Competition.objects.filter(category=category)
@@ -261,7 +330,7 @@ class CompetitionViewSet(ViewSet):
         operation_description="Get Competition By Id",
         operation_summary="Get Competition By Id",
         responses={
-            200: GetCompetitionSerializer(),
+            200: GetCompetitionByIdSerializer(),
         },
         tags=['admin']
     )
@@ -269,12 +338,12 @@ class CompetitionViewSet(ViewSet):
         competition = Competition.objects.filter(id=kwargs['pk']).first()
         if competition is None:
             return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = GetCompetitionSerializer(competition)
+        serializer = GetCompetitionByIdSerializer(competition)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Search Participants",
-        operation_summary="Search Participants",
+        operation_description="Search Participants for finished comp",
+        operation_summary="Search Participants for finished comp",
         manual_parameters=[
             openapi.Parameter(
                 'search', type=openapi.TYPE_STRING, description='search_participants', in_=openapi.IN_QUERY
@@ -308,10 +377,23 @@ class CompetitionViewSet(ViewSet):
         tags=['admin'],
     )
     def search_participant(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         search = request.GET.get('search', '')
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
             return Response(data={'error': 'Competition not found'}, status=status.HTTP_200_OK)
+        if comp.status != 2:
+            return Response(data={'error': 'This comp is not finished'}, status=status.HTTP_400_BAD_REQUEST)
         participant = Participant.objects.filter(competition=comp)
         participant = participant.filter(
             Q(child__first_name__icontains=search) |
@@ -324,8 +406,8 @@ class CompetitionViewSet(ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
-        operation_description="Get Participants",
-        operation_summary="Get Participants",
+        operation_description="Get Participants for finished comp",
+        operation_summary="Get Participants for finished comp",
         manual_parameters=[
             openapi.Parameter(
                 'page', openapi.IN_QUERY,
@@ -356,18 +438,31 @@ class CompetitionViewSet(ViewSet):
         tags=['admin']
     )
     def participants(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
             return Response(data={'error': 'Competition not found'}, status=status.HTTP_400_BAD_REQUEST)
-        participants = Participant.objects.filter(competition=comp, marked_status=2)
+        if comp.status != 2:
+            return Response(data={'error': 'This comp is not finished'}, status=status.HTTP_400_BAD_REQUEST)
+        participants = Participant.objects.filter(competition=comp, marked_status=2, action=2)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True)
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
-        operation_description="Search Winners",
-        operation_summary="Search Winners",
+        operation_description="Search Winners for finished comp",
+        operation_summary="Search Winners for finished comp",
         manual_parameters=[
             openapi.Parameter(
                 'search', type=openapi.TYPE_STRING, description='search_winners', in_=openapi.IN_QUERY
@@ -401,10 +496,23 @@ class CompetitionViewSet(ViewSet):
         tags=['admin'],
     )
     def search_winners(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         search = request.GET.get('search', '')
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
             return Response(data={'error': 'Competition not found'}, status=status.HTTP_200_OK)
+        if comp.status != 2:
+            return Response(data={'error': 'This com is not finished'}, status=status.HTTP_400_BAD_REQUEST)
         winners = Winner.objects.filter(competition=comp)
         winners = winners.filter(
             Q(participant__child__first_name__icontains=search) |
@@ -417,8 +525,8 @@ class CompetitionViewSet(ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
-        operation_description="Get Winners",
-        operation_summary="Get Winners",
+        operation_description="Get Winners for finished comp",
+        operation_summary="Get Winners for finished comp",
         manual_parameters=[
             openapi.Parameter(
                 'page', openapi.IN_QUERY,
@@ -449,9 +557,22 @@ class CompetitionViewSet(ViewSet):
         tags=['admin']
     )
     def winners(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
             return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+        if comp.status != 2:
+            return Response(data={'error': 'This comp is not finished'}, status=status.HTTP_400_BAD_REQUEST)
         winners = Winner.objects.filter(competition=comp).order_by('place')
         paginator = self.pagination_class()
         paginated_winners = paginator.paginate_queryset(winners, request)
@@ -459,31 +580,28 @@ class CompetitionViewSet(ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     def create_comp(self, request, *args, **kwargs):
-        serializer = CompetitionSerializer(data=request.data)
+        serializer = CreateCompetitionSerializer(data=request.data)
+        # serializer = CompetitionSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        comp = serializer.save()
-        criteria = request.data.get('criteria', [])
-        for criteria_name in criteria:
-            GradeCriteria.objects.create(competition=comp, criteria=criteria_name)
-        updated_serializer = CompetitionSerializer(comp)
-        return Response(data=updated_serializer.data, status=status.HTTP_201_CREATED)
+        serializer.save()
+        # comp = serializer.save()
+        # criteria = request.data.get('criteria', [])
+        # for criteria_name in criteria:
+        #     GradeCriteria.objects.create(competition=comp, criteria=criteria_name)
+        # updated_serializer = CompetitionSerializer(comp)
+        # return Response(data=updated_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def update_comp(self, request, *args, **kwargs):  # not finished
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = CompetitionSerializer(comp, data=request.data, partial=True)
+            return Response(data={'error': 'Comp is not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CreateCompetitionSerializer(comp, data=request.data, partial=True)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        comp = serializer.save()
-        if 'criteria' in request.data:
-            GradeCriteria.objects.filter(competition=comp).delete()
-            criteria = request.data.get('criteria', [])
-            for criteria_name in criteria:
-                GradeCriteria.objects.create(competition=comp, criteria=criteria_name)
-        updated_serializer = CompetitionSerializer(comp)
-        return Response(data=updated_serializer.data, status=status.HTTP_200_OK)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(data={'updated': serializer.data}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Delete Competition",
@@ -501,8 +619,8 @@ class CompetitionViewSet(ViewSet):
         return Response(data={'message': 'Competition successfully deleted'}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Get Participants Requests",
-        operation_summary="Get Participants Requests",
+        operation_description="Get Participants Requests for active comp",
+        operation_summary="Get Participants Requests for active comp",
         manual_parameters=[
             openapi.Parameter(
                 'page', openapi.IN_QUERY,
@@ -533,21 +651,35 @@ class CompetitionViewSet(ViewSet):
         tags=['admin']
     )
     def participants_requests(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         competition = Competition.objects.filter(id=kwargs['pk']).first()
         if competition is None:
             return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
-        participants = Participant.objects.filter(competition=competition)
+        if competition.status != 1:
+            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
+        participants = Participant.objects.filter(competition=competition, action=1)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ParticipantSerializer(paginated_participants, many=True)
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
-        operation_description="Approve",
-        operation_summary="Approve",
+        operation_description="Approve request for active comp",
+        operation_summary="Approve request for active comp",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
+                'participant': openapi.Schema(type=openapi.TYPE_INTEGER, description='participant'),
                 'action': openapi.Schema(
                     type=openapi.TYPE_STRING,
                     description='Action to perform: "accept" or "decline"',
@@ -561,7 +693,12 @@ class CompetitionViewSet(ViewSet):
     )
     def approve(self, request, *args, **kwargs):
         action = request.data['action']
-        participant = Participant.objects.filter(id=kwargs['pk']).first()
+        comp = Competition.objects.filter(id=kwargs['pk']).first()
+        if comp is None:
+            return Response(data={'error': 'Comp is not found'}, status=status.HTTP_404_NOT_FOUND)
+        if comp.status != 1:
+            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
+        participant = Participant.objects.filter(id=request.data['participant']).first()
         if participant is None:
             return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -581,8 +718,8 @@ class CompetitionViewSet(ViewSet):
         return Response(data={'message': f'Request {action}'}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Get Active Participants",
-        operation_summary="Get Active Participants",
+        operation_description="Get Active Participants for active comp",
+        operation_summary="Get Active Participants for active comp",
         manual_parameters=[
             openapi.Parameter(
                 'page', openapi.IN_QUERY,
@@ -613,9 +750,22 @@ class CompetitionViewSet(ViewSet):
         tags=['admin']
     )
     def active_participants(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
             return Response(data={'error': 'Competition not found'}, status=status.HTTP_400_BAD_REQUEST)
+        if comp.status != 1:
+            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
         participants = Participant.objects.filter(competition=comp, marked_status=2)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
@@ -623,12 +773,11 @@ class CompetitionViewSet(ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
-        operation_description="Create Winners",
-        operation_summary="Create Winners",
+        operation_description="Create Winners for active comp",
+        operation_summary="Create Winners for active comp",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                # 'competition': openapi.Schema(type=openapi.TYPE_STRING, description='action'),
                 'place': openapi.Schema(type=openapi.TYPE_INTEGER, description='place'),
                 'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='first_name'),
                 'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='last_name'),
@@ -638,7 +787,7 @@ class CompetitionViewSet(ViewSet):
                 'grade': openapi.Schema(type=openapi.TYPE_INTEGER, description='grade'),
                 'jury_comment': openapi.Schema(type=openapi.TYPE_STRING, description='jury_comment'),
                 'certificate': openapi.Schema(type=openapi.TYPE_FILE, description='certificate'),
-                'address_for_physical_certificate': openapi.Schema(type=openapi.TYPE_STRING           ,
+                'address_for_physical_certificate': openapi.Schema(type=openapi.TYPE_STRING,
                                                                    description='address_for_physical_certificate'),
             },
             required=['place', 'first_name', 'last_name', 'birth_date', 'email', 'phone_number',
@@ -667,8 +816,8 @@ class CompetitionViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
-        operation_description="Get Others",
-        operation_summary="Get Others",
+        operation_description="Get Others for active comp",
+        operation_summary="Get Others for active comp",
         manual_parameters=[
             openapi.Parameter(
                 'page', openapi.IN_QUERY,
@@ -699,9 +848,22 @@ class CompetitionViewSet(ViewSet):
         tags=['admin']
     )
     def others(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
             return Response(data={'error': 'Competition not found'}, status=status.HTTP_400_BAD_REQUEST)
+        if comp.status != 1:
+            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
         participants = Participant.objects.filter(competition=comp, winner=False)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
@@ -709,8 +871,8 @@ class CompetitionViewSet(ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
-        operation_description="Send thank you message",
-        operation_summary="Send thank you message",
+        operation_description="Send thank you message for active comp",
+        operation_summary="Send thank you message for active comp",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -785,6 +947,17 @@ class JuryViewSet(ViewSet):
         tags=['admin']
     )
     def get_all(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         juries = User.objects.filter(role=2)
         paginator = self.pagination_class()
         paginated_juries = paginator.paginate_queryset(juries, request)
@@ -827,6 +1000,17 @@ class JuryViewSet(ViewSet):
         tags=['admin'],
     )
     def search_juries(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+                            status=status.HTTP_400_BAD_REQUEST)
         search = request.GET.get('search', '')
         juries = User.objects.filter(role=2)
         juries = juries.filter(
@@ -888,8 +1072,8 @@ class JuryViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
-        operation_description="Create Winners",
-        operation_summary="Create Winners",
+        operation_description="Update Jury",
+        operation_summary="Update Jury",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={

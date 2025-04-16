@@ -35,12 +35,24 @@ class GetCompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'name', 'category', 'description', 'application_start_date', 'application_start_time',
-                  'application_end_date', 'application_end_time', 'status', 'rules', 'participation_fee', 'image',
-                  'prize']
+                  'application_end_date', 'application_end_time', 'status']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['status'] = dict(STATUS).get(instance.status, 'Unknown')
+        data['category'] = instance.category.name
+        return data
+
+
+class GetCompetitionByIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['id', 'image', 'name', 'category', 'description', 'application_start_date', 'application_start_time',
+                  'application_end_date', 'application_end_time', 'rules']
+
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
         data['category'] = instance.category.name
         return data
 
@@ -60,17 +72,20 @@ class ChildSerializer(serializers.ModelSerializer):
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
-    child = ChildSerializer()
-    works = serializers.SerializerMethodField(source='get_works')
+    # child = ChildSerializer()
+    full_name = serializers.SerializerMethodField(source='get_full_name')
+    date_of_birth = serializers.SerializerMethodField(source='get_date_of_birth')
+    age = serializers.SerializerMethodField(source='get_age')
+    study_place = serializers.SerializerMethodField(source='get_study_place')
+    # works = serializers.SerializerMethodField(source='get_works')
 
     class Meta:
         model = Participant
-        fields = ['id', 'child', 'action', 'works', 'physical_certificate', 'marked_status']
+        fields = ['id', 'full_name', 'date_of_birth', 'age', 'study_place', 'action']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['action'] = dict(APPROVEMENT).get(instance.action, 'Unknown')
-        data['marked_status'] = dict(MARKED_STATUS).get(instance.marked_status, 'Unknown')
         return data
 
     def get_works(self, obj):
@@ -78,6 +93,21 @@ class ParticipantSerializer(serializers.ModelSerializer):
         if works_instance:
             return ChildWorkSerializer(works_instance, many=True).data
         return None
+
+    def get_full_name(self, obj):
+        return f'{obj.child.first_name} {obj.child.last_name} {obj.child.middle_name}'
+
+    def get_study_place(self, obj):
+        return obj.child.place_of_study
+
+    def get_date_of_birth(self, obj):
+        return obj.child.date_of_birth
+
+    def get_age(self, obj):
+        today = date.today()
+        birthdate = obj.child.date_of_birth
+        age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+        return age
 
 
 # for create
@@ -145,6 +175,19 @@ class CompetitionSerializer(serializers.ModelSerializer):
         return None
 
 
+class CreateCompetitionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['id', 'image', 'name', 'category', 'description', 'comp_start_date', 'comp_start_time', 'comp_end_date',
+                  'comp_end_time', 'application_start_date', 'application_start_time',
+                  'application_end_date', 'application_end_time', 'rules']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['category'] = instance.category.name
+        return data
+
+
 class ChildWorkSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildWork
@@ -154,30 +197,47 @@ class ChildWorkSerializer(serializers.ModelSerializer):
 class GradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessment
-        fields = ['id', 'grade']
+        fields = ['grade']
 
 
 class ActiveParticipantSerializer(serializers.ModelSerializer):
-    child = ChildSerializer()
+    full_name = serializers.SerializerMethodField(source='get_full_name')
+    date_of_birth = serializers.SerializerMethodField(source='get_date_of_birth')
+    age = serializers.SerializerMethodField(source='get_age')
+    study_place = serializers.SerializerMethodField(source='get_study_place')
     works = serializers.SerializerMethodField(source='get_works')
     grade = serializers.SerializerMethodField(source='get_grade')
 
     class Meta:
         model = Participant
-        fields = ['id', 'child', 'works', 'grade']
+        fields = ['id', 'full_name', 'date_of_birth', 'age', 'study_place', 'works', 'grade']
 
     def get_works(self, obj):
-        works_instance = ChildWork.objects.filter(participant=obj, competition__id=obj.competition.id)
+        works_instance = ChildWork.objects.filter(participant=obj)
         if works_instance:
             return ChildWorkSerializer(works_instance, many=True).data
         return None
 
     def get_grade(self, obj):
-        grade_instance = Assessment.objects.filter(participant=obj,
-                                                   participant__competition__id=obj.competition.id).first()
+        grade_instance = Assessment.objects.filter(participant=obj).first()
         if grade_instance:
-            return GradeSerializer(grade_instance).data
+            return grade_instance.grade
         return None
+
+    def get_full_name(self, obj):
+        return f'{obj.child.first_name} {obj.child.last_name} {obj.child.middle_name}'
+
+    def get_study_place(self, obj):
+        return obj.child.place_of_study
+
+    def get_date_of_birth(self, obj):
+        return obj.child.date_of_birth
+
+    def get_age(self, obj):
+        today = date.today()
+        birthdate = obj.child.date_of_birth
+        age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+        return age
 
 
 class WinnerSerializer(serializers.ModelSerializer):
