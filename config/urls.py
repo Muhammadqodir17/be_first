@@ -24,15 +24,15 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from konkurs_admin.tasks import check_competition_notifications
 
-admin.site.site_header = 'Konkurs SYSTEM'
-admin.site.site_title = 'Konkurs SYSTEM'
+admin.site.site_header = 'Competition SYSTEM'
+admin.site.site_title = 'Competition SYSTEM'
 admin.site.index_title = 'Welcome to dashboard'
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Konkurs APIv1",
+        title="Competition APIv1",
         default_version="v1",
-        description="API for project Konkurs System",
+        description="API for project Competition System",
         terms_of_service="",
         contact=openapi.Contact(email="km1728.uz@gmail.com"),
         license=openapi.License(name="BSD License"),

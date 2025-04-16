@@ -18,6 +18,12 @@ class ChildWorkSerializer(serializers.ModelSerializer):
         model = ChildWork
         fields = ['id', 'participant', 'competition', 'files']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['participant'] = instance.participant.child.first_name
+        data['competition'] = instance.participant.competition.id
+        return data
+
 
 class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:

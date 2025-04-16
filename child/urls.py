@@ -15,8 +15,8 @@ urlpatterns = [
     path('get_children/', ChildViewSet.as_view({'get': 'list'}), name='get_list_of_child'),
     path('delete_child/<int:pk>/', ChildViewSet.as_view({'delete': 'delete'}), name='delete_child_by_id'),
     # register
-    path('register_child_to_comp/<int:pk>/', RegisterChildToCompViewSet.as_view({'create': 'create'}),
+    path('register_child_to_comp/', RegisterChildToCompViewSet.as_view({'post': 'create'}),
          name='register_child_to_comp'),
     # add work
-    path('add_work/<int:pk>/', ChildWorkViewSet.as_view({'create': 'create'}), name='add_work'),
+    path('add_work/', ChildWorkViewSet.as_view({'post': 'create'}), name='add_work'),
 ]

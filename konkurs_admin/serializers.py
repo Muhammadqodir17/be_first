@@ -60,7 +60,6 @@ class ChildSerializer(serializers.ModelSerializer):
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
-    # competition = GetCompetitionSerializer()
     child = ChildSerializer()
     works = serializers.SerializerMethodField(source='get_works')
 
@@ -246,3 +245,13 @@ class WinnerListSerializer(serializers.ModelSerializer):
 #         fields = ['id', 'name', 'category', 'description', 'prize', 'application_start_date',
 #                   'application_start_time', 'application_end_date', 'application_end_time',
 #                   'participation_fee', 'rules', 'physical_certificate', 'image', 'criteria']
+class RegisterParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participant
+        fields = ['id', 'competition', 'child', 'physical_certificate']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['competition'] = instance.competition.name
+        data['child'] = instance.child.first_name
+        return data
