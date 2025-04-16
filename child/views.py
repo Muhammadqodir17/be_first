@@ -7,11 +7,14 @@ from rest_framework import status
 from konkurs.serializers import ChildrenSerializer
 from .serializers import (
     ChildSerializer,
-    ChildWorkSerializer, FileUploadSerializer
+    ChildWorkSerializer,
 )
 from .models import Child
 from rest_framework.parsers import MultiPartParser
-from konkurs_admin.serializers import ParticipantSerializer, RegisterParticipantSerializer
+from konkurs_admin.serializers import (
+    ParticipantSerializer,
+    RegisterParticipantSerializer
+)
 from konkurs.models import (
     ChildWork,
     Participant,
