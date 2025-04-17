@@ -42,7 +42,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'phone_number'
-    # REQUIRED_FIELDS = ['username']
 
     objects = UserManager()
 

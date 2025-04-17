@@ -144,6 +144,8 @@ class RegistrationViewSet(ViewSet):
         sms_code.save()
 
         user, _ = User.objects.get_or_create(phone_number=phone_number)
+        user.role = 1
+        user.save()
         token = AccessToken.for_user(user)
 
         return Response(

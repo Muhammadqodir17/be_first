@@ -7,7 +7,6 @@ from konkurs.models import (
     Competition,
     Participant,
     Category,
-    GradeCriteria
 )
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_yasg import openapi
@@ -20,7 +19,6 @@ from .serializers import (
     ParticipantSerializer,
     JurySerializer,
     WinnerSerializer,
-    CompetitionSerializer,
     ActiveParticipantSerializer,
     WinnerListSerializer,
     GetJurySerializer,
@@ -161,6 +159,7 @@ class CategoryViewSet(ViewSet):
 
 class CompetitionViewSet(ViewSet):
     pagination_class = CustomPagination
+    parser_classes = [MultiPartParser, FormParser]
 
     @swagger_auto_schema(
         operation_description="Get Competitions",
@@ -579,6 +578,94 @@ class CompetitionViewSet(ViewSet):
         serializer = WinnerListSerializer(paginated_winners, many=True)
         return paginator.get_paginated_response(serializer.data)
 
+    @swagger_auto_schema(
+        operation_description="Create comp",
+        operation_summary="Create comp",
+        manual_parameters=[
+            openapi.Parameter(
+                name='image',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                required=True,
+                description="image"
+            ),
+            openapi.Parameter(
+                name='name',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="name",
+            ), openapi.Parameter(
+                name='category',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_INTEGER,
+                required=True,
+                description="category",
+            ), openapi.Parameter(
+                name='description',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description",
+            ), openapi.Parameter(
+                name='comp_start_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="comp_start_date",
+            ), openapi.Parameter(
+                name='comp_start_time',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="comp_start_time",
+            ), openapi.Parameter(
+                name='comp_end_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="comp_end_date",
+            ), openapi.Parameter(
+                name='comp_end_time',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="comp_end_time",
+            ), openapi.Parameter(
+                name='application_start_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="application_start_date",
+            ), openapi.Parameter(
+                name='application_start_time',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="application_start_time",
+            ), openapi.Parameter(
+                name='application_end_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="application_end_date",
+            ), openapi.Parameter(
+                name='application_end_time',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="application_end_time",
+            ), openapi.Parameter(
+                name='rules',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="rules",
+            ),
+        ],
+        responses={201: CreateCompetitionSerializer()},
+        tags=['admin'],
+    )
     def create_comp(self, request, *args, **kwargs):
         serializer = CreateCompetitionSerializer(data=request.data)
         # serializer = CompetitionSerializer(data=request.data)
@@ -593,6 +680,81 @@ class CompetitionViewSet(ViewSet):
         # return Response(data=updated_serializer.data, status=status.HTTP_201_CREATED)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
+    @swagger_auto_schema(
+        operation_description="Update comp",
+        operation_summary="Update comp",
+        manual_parameters=[
+            openapi.Parameter(
+                name='image',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                description="image"
+            ),
+            openapi.Parameter(
+                name='name',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="name",
+            ), openapi.Parameter(
+                name='category',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_INTEGER,
+                description="category",
+            ), openapi.Parameter(
+                name='description',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="description",
+            ), openapi.Parameter(
+                name='comp_start_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="comp_start_date",
+            ), openapi.Parameter(
+                name='comp_start_time',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="comp_start_time",
+            ), openapi.Parameter(
+                name='comp_end_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="comp_end_date",
+            ), openapi.Parameter(
+                name='comp_end_time',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="comp_end_time",
+            ), openapi.Parameter(
+                name='application_start_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="application_start_date",
+            ), openapi.Parameter(
+                name='application_start_time',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="application_start_time",
+            ), openapi.Parameter(
+                name='application_end_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="application_end_date",
+            ), openapi.Parameter(
+                name='application_end_time',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="application_end_time",
+            ), openapi.Parameter(
+                name='rules',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="rules",
+            ),
+        ],
+        responses={201: CreateCompetitionSerializer()},
+        tags=['admin'],
+    )
     def update_comp(self, request, *args, **kwargs):  # not finished
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
@@ -676,18 +838,23 @@ class CompetitionViewSet(ViewSet):
     @swagger_auto_schema(
         operation_description="Approve request for active comp",
         operation_summary="Approve request for active comp",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'participant': openapi.Schema(type=openapi.TYPE_INTEGER, description='participant'),
-                'action': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description='Action to perform: "accept" or "decline"',
-                    enum=['accept', 'decline']
-                ),
-            },
-            required=['action']
-        ),
+        manual_parameters=[
+            openapi.Parameter(
+                name='participant',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_INTEGER,
+                description='Participant ID',
+                required=False
+            ),
+            openapi.Parameter(
+                name='action',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description='Action to perform: "accept" or "decline"',
+                enum=['accept', 'decline'],
+                required=True
+            ),
+        ],
         responses={200: 'Ok'},
         tags=['admin'],
     )
@@ -775,24 +942,70 @@ class CompetitionViewSet(ViewSet):
     @swagger_auto_schema(
         operation_description="Create Winners for active comp",
         operation_summary="Create Winners for active comp",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'place': openapi.Schema(type=openapi.TYPE_INTEGER, description='place'),
-                'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='first_name'),
-                'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='last_name'),
-                'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description='birth_date'),
-                'email': openapi.Schema(type=openapi.TYPE_STRING, description='email'),
-                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='phone_number'),
-                'grade': openapi.Schema(type=openapi.TYPE_INTEGER, description='grade'),
-                'jury_comment': openapi.Schema(type=openapi.TYPE_STRING, description='jury_comment'),
-                'certificate': openapi.Schema(type=openapi.TYPE_FILE, description='certificate'),
-                'address_for_physical_certificate': openapi.Schema(type=openapi.TYPE_STRING,
-                                                                   description='address_for_physical_certificate'),
-            },
-            required=['place', 'first_name', 'last_name', 'birth_date', 'email', 'phone_number',
-                      'grade', 'jury_comment', 'certificate', 'address_for_physical_certificate']
-        ),
+        manual_parameters=[
+            openapi.Parameter(
+                name='place',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_INTEGER,
+                required=True,
+                description="place"
+            ),
+            openapi.Parameter(
+                name='first_name',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="first_name",
+            ), openapi.Parameter(
+                name='last_name',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="last_name",
+            ), openapi.Parameter(
+                name='birth_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="birth_date",
+            ), openapi.Parameter(
+                name='email',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="email",
+            ), openapi.Parameter(
+                name='phone_number',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="phone_number",
+            ), openapi.Parameter(
+                name='grade',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_INTEGER,
+                required=True,
+                description="grade",
+            ), openapi.Parameter(
+                name='jury_comment',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="jury_comment",
+            ), openapi.Parameter(
+                name='certificate',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                required=True,
+                description="certificate",
+            ), openapi.Parameter(
+                name='address_for_physical_certificate',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="address_for_physical_certificate",
+            ),
+        ],
         responses={201: WinnerSerializer()},
         tags=['admin'],
     )
@@ -873,13 +1086,15 @@ class CompetitionViewSet(ViewSet):
     @swagger_auto_schema(
         operation_description="Send thank you message for active comp",
         operation_summary="Send thank you message for active comp",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'message': openapi.Schema(type=openapi.TYPE_STRING, description='message'),
-            },
-            required=['place']
-        ),
+        manual_parameters=[
+            openapi.Parameter(
+                name='message',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description='Message to send to participants',
+                required=True
+            )
+        ],
         responses={200: 'Thank you message sent to all participants'},
         tags=['admin'],
     )

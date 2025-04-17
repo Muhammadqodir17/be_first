@@ -40,11 +40,15 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
 
         path = request.path
         if path[8:13] == 'admin':
+            if token is None or len(token.split()) != 2 or token.split()[0] != 'Bearer':
+                return JsonResponse(data={'error': 'unauthorized'}, status=401)
             payload = jwt.decode(token.split()[1], settings.SECRET_KEY, algorithms=['HS256'])
             if payload.get('role') != 3:
                 return JsonResponse(data={'error': 'Permission denied'}, status=403)
 
         if path[8:12] == 'jury':
+            if token is None or len(token.split()) != 2 or token.split()[0] != 'Bearer':
+                return JsonResponse(data={'error': 'unauthorized'}, status=401)
             payload = jwt.decode(token.split()[1], settings.SECRET_KEY, algorithms=['HS256'])
             if payload.get('role') != 2 or payload.get('role') != 3:
                 return JsonResponse(data={'error': 'Permission denied'}, status=403)
