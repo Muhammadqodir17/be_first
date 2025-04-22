@@ -39,7 +39,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_main_banner(self, request, *args, **kwargs):
         banner = Competition.objects.filter().order_by('created_at').first()
-        serializer = BannerSerializer(banner)
+        serializer = BannerSerializer(banner, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(

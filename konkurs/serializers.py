@@ -12,12 +12,21 @@ from .models import (
     Participant,
     ChildWork
 )
-
+from django.conf import settings
 
 class BannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'image', 'name', 'description']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+        return data
 
 
 class CompetitionSerializer(serializers.ModelSerializer):
