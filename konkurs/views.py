@@ -19,7 +19,9 @@ from .serializers import (
     GalleryDetailsSerializer,
     ExpertSerializer,
     BannerSerializer,
-    NotificationSerializer, ResultsSerializer, GetCompSerializer
+    NotificationSerializer,
+    ResultsSerializer,
+    GetCompSerializer
 )
 from .models import (
     Competition,
@@ -52,7 +54,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_comp_for_home(self, request, *args, **kwargs):
         home_comps = Competition.objects.all()
-        serializer = HomeCompetitionSerializer(home_comps, many=True)
+        serializer = HomeCompetitionSerializer(home_comps, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -65,7 +67,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_comp(self, request, *args, **kwargs):
         comp = Competition.objects.all()
-        serializer = CompetitionForCompetitionPageSerializer(comp, many=True)
+        serializer = CompetitionForCompetitionPageSerializer(comp, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -78,7 +80,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_gallery(self, request, *args, **kwargs):
         works = ChildWork.objects.all()
-        serializer = GallerySerializer(works, many=True)
+        serializer = GallerySerializer(works, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -91,7 +93,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_experts(self, request, *args, **kwargs):
         experts = User.objects.filter(role=2)
-        serializer = ExpertSerializer(experts, many=True)
+        serializer = ExpertSerializer(experts, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
