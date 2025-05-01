@@ -30,7 +30,7 @@ class JuryViewSet(ViewSet):
     def get_active_comp(self, request, *args, **kwargs):
         user = User.objects.filter(id=request.user.id).first()
         comps = Competition.objects.filter(status=1, category=user.category)
-        serializer = ActiveCompetitionSerializer(comps, many=True)
+        serializer = ActiveCompetitionSerializer(comps, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     # @swagger_auto_schema(
@@ -65,7 +65,7 @@ class JuryViewSet(ViewSet):
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
             return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = CompetitionSerializer(comp)
+        serializer = CompetitionSerializer(comp, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(

@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'django_celery_beat',
     'click_up',
+    'modeltranslation',
 ]
 
 MIDDLEWARE = [
@@ -139,6 +140,19 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+
+gettext = lambda x: x
+
+LANGUAGES = (
+    ('uz', gettext('Uzbek')),
+    ('ru', gettext('Russian')),
+    ('en', gettext('English')),
+)
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+MODELTRANSLATION_LANGUAGES = (
+    'uz', 'ru', 'en',
+)
 
 TIME_ZONE = 'Asia/Tashkent'
 
