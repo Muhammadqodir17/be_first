@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   cron \
   procps \
   git \
+  netcat-openbsd \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -32,5 +33,3 @@ ENTRYPOINT ["/opt/entrypoint.sh"]
 FROM base as live
 
 COPY . /opt/app/
-
-CMD python ./manage.py runserver 0.0.0.0:8000

@@ -14,6 +14,18 @@ from pathlib import Path
 from datetime import timedelta
 from django.conf import settings
 from celery.schedules import crontab
+import environ
+import os
+
+env = environ.Env(DEBUG=(bool, False))
+
+current_path = environ.Path(__file__) - 1
+site_root = current_path - 1
+env_file = site_root(".env")
+print(env_file)
+if os.path.exists(env_file):  # pragma: no cover
+    environ.Env.read_env(env_file=env_file)
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,11 +102,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": env.db("DATABASE_URL"),
 }
 
 # Password validation
@@ -191,8 +207,8 @@ SIMPLE_JWT = {
 #     'REFRESH_TOKEN_LIFETIME': timedelta(days=3)
 # }
 # """ for celery """
-CELERY_BROKER_URL = 'redis://localhost:6379'  # Redis broker
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'  # Redis broker
+CELERY_BROKER_URL = 'redis://redis-db:6379'  # Redis broker
+CELERY_RESULT_BACKEND = 'redis://redis-db:6379'  # Redis broker
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -221,3 +237,9 @@ SWAGGER_SETTINGS = {
         }
     }
 }
+
+
+try:
+    from .local import *
+except ImportError:
+    pass
