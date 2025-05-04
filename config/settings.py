@@ -39,6 +39,8 @@ SECRET_KEY = 'django-insecure-=%8)ppr16+_e#+t*dc(bp#q6&$1zf6te!#n=$wf$qt7#w^@8m)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+DOMAIN_NAME = env.str("DOMAIN_NAME")
+
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -61,6 +63,7 @@ INSTALLED_APPS = [
 
     # installed
     'rest_framework',
+    'corsheaders',
     'rest_framework_simplejwt',
     'drf_yasg',
     'django_celery_beat',
@@ -70,6 +73,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -238,6 +242,11 @@ SWAGGER_SETTINGS = {
     }
 }
 
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [f"https://{DOMAIN_NAME}"]
+CSRF_ALLOWED_ORIGINS = [f"https://{DOMAIN_NAME}"]
 
 try:
     from .local import *
