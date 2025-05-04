@@ -14,6 +14,18 @@ from pathlib import Path
 from datetime import timedelta
 from django.conf import settings
 from celery.schedules import crontab
+import environ
+import os
+
+env = environ.Env(DEBUG=(bool, False))
+
+current_path = environ.Path(__file__) - 1
+site_root = current_path - 1
+env_file = site_root(".env")
+print(env_file)
+if os.path.exists(env_file):  # pragma: no cover
+    environ.Env.read_env(env_file=env_file)
+
 from django.utils.translation import gettext_lazy as _
 import environ
 import os
@@ -258,6 +270,13 @@ SWAGGER_SETTINGS = {
         }
     }
 }
+
+
+
+try:
+    from .local import *
+except ImportError:
+    pass
 
 
 CORS_ALLOW_ALL_ORIGINS = True
