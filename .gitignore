@@ -11,6 +11,8 @@ config/local.py
 config/local.py
 staticfiles/
 media/
+staticfiles/
+media/
 # Distribution / packaging
 .Python
 build/

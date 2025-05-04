@@ -273,6 +273,11 @@ SWAGGER_SETTINGS = {
 
 
 
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [f"https://{DOMAIN_NAME}"]
+CSRF_ALLOWED_ORIGINS = [f"https://{DOMAIN_NAME}"]
+
 try:
     from .local import *
 except ImportError:
