@@ -39,6 +39,7 @@ print(env_file)
 if os.path.exists(env_file):  # pragma: no cover
     environ.Env.read_env(env_file=env_file)
 
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -253,7 +254,6 @@ CLICK_SECRET_KEY = "your-secret-key"
 CLICK_ACCOUNT_MODEL = "payment.models.Order"
 CLICK_AMOUNT_FIELD = "total_amount"
 
-
 CELERY_BEAT_SCHEDULE = {
     'check_competition_notifications_every_minute': {
         'task': 'celery_tasks.tasks.check_competition_notifications',  # Full task path
@@ -271,17 +271,6 @@ SWAGGER_SETTINGS = {
     }
 }
 
-
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = [f"https://{DOMAIN_NAME}"]
-CSRF_ALLOWED_ORIGINS = [f"https://{DOMAIN_NAME}"]
-
-try:
-    from .local import *
-except ImportError:
-    pass
 
 
 CORS_ALLOW_ALL_ORIGINS = True
