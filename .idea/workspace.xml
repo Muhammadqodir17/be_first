@@ -269,7 +269,7 @@
     &quot;git-widget-placeholder&quot;: &quot;Merging model-translation&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="tests" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="be_first" />
