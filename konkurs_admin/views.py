@@ -26,6 +26,7 @@ from .serializers import (
     CreateCompetitionSerializer
 )
 from .pagination import CustomPagination
+from django.utils.translation import gettext as _
 
 
 class CategoryViewSet(ViewSet):
@@ -68,12 +69,12 @@ class CategoryViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         categories = Category.objects.all()
         paginator = self.pagination_class()
@@ -92,7 +93,7 @@ class CategoryViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         category = Category.objects.filter(id=kwargs['pk']).first()
         if category is None:
-            return Response(data={'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Category not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = CategorySerializer(category)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -134,7 +135,7 @@ class CategoryViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         competition = Category.objects.filter(id=kwargs['pk']).first()
         if competition is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = CategorySerializer(competition, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -152,9 +153,9 @@ class CategoryViewSet(ViewSet):
     def delete(self, request, *args, **kwargs):
         competition = Category.objects.filter(id=kwargs['pk']).first()
         if competition is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         competition.delete()
-        return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
 
 
 class CompetitionViewSet(ViewSet):
@@ -198,12 +199,12 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         competitions = Competition.objects.all()
         paginator = self.pagination_class()
@@ -252,12 +253,12 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         search = request.GET.get('search', '')
         comp = Competition.objects.filter(name__icontains=search)
@@ -307,16 +308,16 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         cat = Category.objects.filter(id=category).first()
         if cat is None:
-            return Response(data={'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Category not found')}, status=status.HTTP_404_NOT_FOUND)
         competitions = Competition.objects.all()
         if category:
             competitions = Competition.objects.filter(category=category)
@@ -336,7 +337,7 @@ class CompetitionViewSet(ViewSet):
     def get_comp_by_id(self, request, *args, **kwargs):
         competition = Competition.objects.filter(id=kwargs['pk']).first()
         if competition is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = GetCompetitionByIdSerializer(competition)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -380,19 +381,19 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         search = request.GET.get('search', '')
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_200_OK)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_200_OK)
         if comp.status != 2:
-            return Response(data={'error': 'This comp is not finished'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('This comp is not finished')}, status=status.HTTP_400_BAD_REQUEST)
         participant = Participant.objects.filter(competition=comp)
         participant = participant.filter(
             Q(child__first_name__icontains=search) |
@@ -441,18 +442,18 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 2:
-            return Response(data={'error': 'This comp is not finished'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('This comp is not finished')}, status=status.HTTP_400_BAD_REQUEST)
         participants = Participant.objects.filter(competition=comp, marked_status=2, action=2)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
@@ -499,19 +500,19 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be i_(nteger')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         search = request.GET.get('search', '')
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_200_OK)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_200_OK)
         if comp.status != 2:
-            return Response(data={'error': 'This com is not finished'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('This com is not finished')}, status=status.HTTP_400_BAD_REQUEST)
         winners = Winner.objects.filter(competition=comp)
         winners = winners.filter(
             Q(participant__child__first_name__icontains=search) |
@@ -560,18 +561,18 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         if comp.status != 2:
-            return Response(data={'error': 'This comp is not finished'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('This comp is not finished')}, status=status.HTTP_400_BAD_REQUEST)
         winners = Winner.objects.filter(competition=comp).order_by('place')
         paginator = self.pagination_class()
         paginated_winners = paginator.paginate_queryset(winners, request)
@@ -758,7 +759,7 @@ class CompetitionViewSet(ViewSet):
     def update_comp(self, request, *args, **kwargs):  # not finished
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Comp is not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Comp is not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = CreateCompetitionSerializer(comp, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -776,9 +777,9 @@ class CompetitionViewSet(ViewSet):
     def delete_comp(self, request, *args, **kwargs):  # not finished
         competition = Competition.objects.filter(id=kwargs['pk']).first()
         if competition is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         competition.delete()
-        return Response(data={'message': 'Competition successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Competition successfully deleted')}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Get Participants Requests for active comp",
@@ -817,18 +818,18 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         competition = Competition.objects.filter(id=kwargs['pk']).first()
         if competition is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         if competition.status != 1:
-            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         participants = Participant.objects.filter(competition=competition, action=1)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
@@ -862,27 +863,27 @@ class CompetitionViewSet(ViewSet):
         action = request.data['action']
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Comp is not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Comp is not found')}, status=status.HTTP_404_NOT_FOUND)
         if comp.status != 1:
-            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         participant = Participant.objects.filter(id=request.data['participant']).first()
         if participant is None:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
         if action == 'accept':
             participant.action = 2
         elif action == 'decline':
             message = (
-                f'Dear {participant.child.first_name}, '
-                f'You have an error to fill register or work for the {participant.competition.name}'
+                _("Dear %(participant_name)s.") % {'participant_name': participant.child.first_name},
+                _("You have an error to fill register or work for the %(comp_name)s") % {'comp_name': participant.competition.name}
             )
             participant.action = 3
             Notification.objects.create(user=participant.child.user, child=participant.child,
                                         competition=participant.competition, message=message)
         else:
-            return Response(data={'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Invalid action')}, status=status.HTTP_400_BAD_REQUEST)
         participant.save()
-        return Response(data={'message': f'Request {action}'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _("Request %(action)s") % {'action': action}}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Get Active Participants for active comp",
@@ -921,18 +922,18 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 1:
-            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         participants = Participant.objects.filter(competition=comp, marked_status=2)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
@@ -1012,7 +1013,7 @@ class CompetitionViewSet(ViewSet):
     def create_winners(self, request, *args, **kwargs):  # not finished
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = WinnerSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1020,7 +1021,7 @@ class CompetitionViewSet(ViewSet):
                                                  child__first_name=request.data['first_name'],
                                                  child__last_name=request.data['last_name']).first()
         if participant is None:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
         participant.winner = True
         participant.save()
         serializer.validated_data['competition'] = comp
@@ -1065,18 +1066,18 @@ class CompetitionViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 1:
-            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         participants = Participant.objects.filter(competition=comp, winner=False)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
@@ -1103,9 +1104,9 @@ class CompetitionViewSet(ViewSet):
         message_text = request.data.get('message')
         comp = Competition.objects.filter(id=competition_id).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         if not message_text:
-            return Response(data={"error": "Message cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Message cannot be empty")}, status=status.HTTP_400_BAD_REQUEST)
 
         participants = Participant.objects.filter(
             competition_id=competition_id, winner=False
@@ -1117,13 +1118,13 @@ class CompetitionViewSet(ViewSet):
         ]
 
         if not notifications:
-            return Response(data={'error': 'It has no any other participants to send notification'},
+            return Response(data={'error': _('It has no any other participants to send notification')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
             Notification.objects.bulk_create(notifications)
 
-        return Response({"success": "Thank you message sent to all participants"}, status=status.HTTP_201_CREATED)
+        return Response({"success": _("Thank you message sent to all participants")}, status=status.HTTP_201_CREATED)
 
 
 class JuryViewSet(ViewSet):
@@ -1166,12 +1167,12 @@ class JuryViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         juries = User.objects.filter(role=2)
         paginator = self.pagination_class()
@@ -1219,12 +1220,12 @@ class JuryViewSet(ViewSet):
         page = data.get('page')
         size = data.get('page_size')
         if not page or not size:
-            return Response(data={'error': 'Size or Page is needed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': 'page must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
-            return Response(data={'error': 'page size must be greater than 0 or must be integer'},
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         search = request.GET.get('search', '')
         juries = User.objects.filter(role=2)
@@ -1249,7 +1250,7 @@ class JuryViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         jury = User.objects.filter(id=kwargs['pk'], role=2).first()
         if jury is None:
-            return Response(data={'error': 'Jury not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = GetJurySerializer(jury)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -1313,7 +1314,7 @@ class JuryViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         jury = User.objects.filter(id=kwargs['pk'], role=2).first()
         if jury is None:
-            return Response(data={'error': 'Jury not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = JurySerializer(jury, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1331,6 +1332,6 @@ class JuryViewSet(ViewSet):
     def delete(self, request, *args, **kwargs):
         jury = User.objects.filter(id=kwargs['pk'], role=2).first()
         if jury is None:
-            return Response(data={'error': 'Jury not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
         jury.delete()
-        return Response(data={'message': 'Jury successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Jury successfully deleted')}, status=status.HTTP_200_OK)

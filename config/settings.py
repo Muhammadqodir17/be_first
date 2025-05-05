@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 from django.conf import settings
 from celery.schedules import crontab
+from django.utils.translation import gettext_lazy as _
 import environ
 import os
 
@@ -73,6 +74,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
@@ -81,7 +83,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'authentication.middlewares.CheckAuthenticationMiddleware',
-    # 'authentication.middlewares.RolePermissionMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -141,18 +142,20 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-gettext = lambda x: x
-
 LANGUAGES = (
-    ('uz', gettext('Uzbek')),
-    ('ru', gettext('Russian')),
-    ('en', gettext('English')),
+    ('uz', _('Uzbek')),
+    ('ru', _('Russian')),
+    ('en', _('English')),
 )
 
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
 MODELTRANSLATION_LANGUAGES = (
     'uz', 'ru', 'en',
 )
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 TIME_ZONE = 'Asia/Tashkent'
 

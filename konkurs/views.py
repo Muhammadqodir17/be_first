@@ -26,6 +26,7 @@ from .models import (
     Participant,
     ChildWork,
 )
+from django.utils.translation import gettext as _
 
 
 class CompetitionViewSet(ViewSet):
@@ -129,7 +130,7 @@ class CompetitionViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Comp not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Comp not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = GetCompSerializer(comp, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -144,7 +145,7 @@ class CompetitionViewSet(ViewSet):
     def get_gallery_details(self, request, *args, **kwargs):
         participant = Participant.objects.filter(id=kwargs['pk']).first()
         if participant is None:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_200_OK)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_200_OK)
         serializer = GalleryDetailsSerializer(participant, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -196,13 +197,13 @@ class MyCompetitionViewSet(ViewSet):
     def get_comp_details(self, request, *args, **kwargs):
         participant = Participant.objects.filter(id=kwargs['pk']).first()
         if participant is None:
-            return Response(data={'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Not found')}, status=status.HTTP_404_NOT_FOUND)
         if participant.competition.status == 2:
             serializer = FinishedParticipantSerializer(participant, context={'request': request})
         elif participant.competition.status == 1:
             serializer = ActiveParticipantSerializer(participant, context={'request': request})
         else:
-            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -255,7 +256,7 @@ class MyCompetitionViewSet(ViewSet):
     def get_grade_history_by_id(self, request, *args, **kwargs):
         grade = Assessment.objects.filter(participant__child__user=request.user, id=kwargs['pk']).first()
         if grade is None:
-            return Response(data={'error': 'Assessment not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Assessment not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = AssessmentHistorySerializer(grade)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -283,7 +284,7 @@ class MyCompetitionViewSet(ViewSet):
     def get_notification_by_id(self, request, *args, **kwargs):
         notification = Notification.objects.filter(id=kwargs['pk']).first()
         if notification is None:
-            return Response(data={'error': 'Notification not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Notification not found')}, status=status.HTTP_404_NOT_FOUND)
         notification.is_read = True
         notification.save(update_fields=['is_read'])
         serializer = NotificationSerializer(notification)

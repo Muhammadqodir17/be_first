@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from django.contrib.auth import login
 from datetime import datetime, timedelta
+from django.utils.translation import gettext as _
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
@@ -72,14 +73,14 @@ class RegistrationViewSet(ViewSet):
         code = get_random_string(length=6, allowed_chars='0123456789')
         SMSCode.objects.create(phone_number=phone_number, code=code, expires_at=datetime.now() + timedelta(minutes=5))
 
-        message = f"Your verification code is: {code}"
+        message = _("Your verification code is: %(code)s") % {'code': code}
         telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={message}"
         response = requests.get(telegram_url)
 
         if response.status_code == 200:
-            return Response({"message": "SMS-code sent."}, status=status.HTTP_200_OK)
+            return Response({"message": _("SMS-code sent.")}, status=status.HTTP_200_OK)
         else:
-            return Response({"error": "Failed to send message"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": _("Failed to send message")}, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
         request_body=openapi.Schema(
@@ -138,7 +139,7 @@ class RegistrationViewSet(ViewSet):
         ).first()
 
         if sms_code is None:
-            return Response({"error": "Incorrect or expired code."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": _("Incorrect or expired code.")}, status=status.HTTP_400_BAD_REQUEST)
 
         sms_code.verified = True
         sms_code.save()
@@ -149,7 +150,7 @@ class RegistrationViewSet(ViewSet):
         token = AccessToken.for_user(user)
 
         return Response(
-            {"message": "Code verified.", "access_token": f'{str(token)}'},
+            {"message": _("Code verified."), "access_token": f'{str(token)}'},
             status=status.HTTP_200_OK
         )
 
@@ -206,7 +207,7 @@ class RegistrationViewSet(ViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({"message": "Password set."}, status=status.HTTP_200_OK)
+        return Response({"message": _("Password set.")}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Get user",
@@ -219,7 +220,7 @@ class RegistrationViewSet(ViewSet):
     def get_user(self, request, *args, **kwargs):
         user = User.objects.filter(id=request.user.id).first()
         if user is None:
-            return Response(data={'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('User not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = PersonalInfoSerializer(user)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -305,26 +306,26 @@ class RegistrationViewSet(ViewSet):
         birth_date = request.data.get('birth_date')
         email = request.data.get('email')
         if not phone_number:
-            return Response({"message": "Phone number is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": _("Phone number is required.")}, status=status.HTTP_400_BAD_REQUEST)
         if not first_name:
-            return Response({"message": "First name is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": _("First name is required.")}, status=status.HTTP_400_BAD_REQUEST)
         if not last_name:
-            return Response({"message": "Last name is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": _("Last name is required.")}, status=status.HTTP_400_BAD_REQUEST)
         if not middle_name:
-            return Response({"message": "Middle name is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": _("Middle name is required.")}, status=status.HTTP_400_BAD_REQUEST)
         if not birth_date:
-            return Response({'message': 'Birth date is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': _('Birth date is required.')}, status=status.HTTP_400_BAD_REQUEST)
         if not email:
-            return Response({'message': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': _('Email is required.')}, status=status.HTTP_400_BAD_REQUEST)
         try:
             user = User.objects.get(phone_number=phone_number)
         except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": _("User not found.")}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "Personal data saved.", "data": serializer.data}, status=status.HTTP_200_OK)
+            return Response({"message": _("Personal data saved."), "data": serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -379,13 +380,13 @@ class LoginViewSet(ViewSet):
             validate_uz_phone_number(phone_number)
             user = User.objects.filter(phone_number=phone_number).first()
             if user is None:
-                return Response({'message': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': _('User not found.')}, status=status.HTTP_404_NOT_FOUND)
         else:
             user = User.objects.filter(username=data.get('username')).first()
             if user is None:
-                return Response({'message': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': _('User not found.')}, status=status.HTTP_404_NOT_FOUND)
         if not user.check_password(data.get('password')):
-            return Response(data={'error': 'Password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Password is incorrect')}, status=status.HTTP_400_BAD_REQUEST)
         refresh_token = RefreshToken.for_user(user)
         access_token = refresh_token.access_token
         access_token['role'] = user.role
@@ -434,7 +435,7 @@ class LoginViewSet(ViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'message': 'Temp password sent.'}, status=status.HTTP_200_OK)
+        return Response({'message': _('Temp password sent.')}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         request_body=openapi.Schema(
@@ -490,4 +491,4 @@ class LoginViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()
-        return Response({"message": "Password reset successfully."}, status=status.HTTP_200_OK)
+        return Response({"message": _("Password reset successfully.")}, status=status.HTTP_200_OK)

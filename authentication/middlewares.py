@@ -2,6 +2,7 @@ import jwt
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.translation import gettext as _
 
 
 class CheckAuthenticationMiddleware(MiddlewareMixin):
@@ -32,26 +33,26 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
 
         if index.isdigit() and request.path[:-2] in target_urls:
             if token is None or len(token.split()) != 2 or token.split()[0] != 'Bearer':
-                return JsonResponse(data={'error': 'unauthorized'}, status=401)
+                return JsonResponse(data={'error': _('unauthorized')}, status=401)
 
         if request.path in target_urls:
             if token is None or len(token.split()) != 2 or token.split()[0] != 'Bearer':
-                return JsonResponse(data={'error': 'unauthorized'}, status=401)
+                return JsonResponse(data={'error': _('unauthorized')}, status=401)
 
         path = request.path
         if path[8:13] == 'admin':
             if token is None or len(token.split()) != 2 or token.split()[0] != 'Bearer':
-                return JsonResponse(data={'error': 'unauthorized'}, status=401)
+                return JsonResponse(data={'error': _('unauthorized')}, status=401)
             payload = jwt.decode(token.split()[1], settings.SECRET_KEY, algorithms=['HS256'])
             if payload.get('role') != 3:
-                return JsonResponse(data={'error': 'Permission denied'}, status=403)
+                return JsonResponse(data={'error': _('Permission denied')}, status=403)
 
         if path[8:12] == 'jury':
             if token is None or len(token.split()) != 2 or token.split()[0] != 'Bearer':
-                return JsonResponse(data={'error': 'unauthorized'}, status=401)
+                return JsonResponse(data={'error': _('unauthorized')}, status=401)
             payload = jwt.decode(token.split()[1], settings.SECRET_KEY, algorithms=['HS256'])
             if payload.get('role') != 2 or payload.get('role') != 3:
-                return JsonResponse(data={'error': 'Permission denied'}, status=403)
+                return JsonResponse(data={'error': _('Permission denied')}, status=403)
 
 # class RolePermissionMiddleware(MiddlewareMixin):
 #     def process_request(self, request):

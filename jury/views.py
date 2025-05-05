@@ -16,6 +16,7 @@ from .serializers import (
 from rest_framework.response import Response
 from rest_framework import status
 from authentication.models import User
+from django.utils.translation import gettext as _
 
 
 class JuryViewSet(ViewSet):
@@ -64,7 +65,7 @@ class JuryViewSet(ViewSet):
     def get_comp_by_id(self, request, *args, **kwargs):
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = CompetitionSerializer(comp, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -83,10 +84,10 @@ class JuryViewSet(ViewSet):
         category = request.GET.get('category')
         category = Category.objects.filter(id=category).first()
         if category is None:
-            return Response(data={'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Category not found')}, status=status.HTTP_404_NOT_FOUND)
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Competition not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         participant = Participant.objects.filter(competition=comp, competition__category=category)
         serializer = ParticipantSerializer(participant, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -102,7 +103,7 @@ class JuryViewSet(ViewSet):
     def get_participant_by_id(self, request, *args, **kwargs):
         participant = Participant.objects.filter(id=kwargs['pk']).first()
         if participant is None:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ParticipantWorkSerializer(participant)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -125,12 +126,12 @@ class JuryViewSet(ViewSet):
         request.data['jury'] = request.user.id
         participant = Participant.objects.filter(id=request.data['participant']).first()
         if participant is None:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = MarkSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if participant.marked_status == 2:
-            return Response(data={'error': "You've already marked this participant"},
+            return Response(data={'error': _("You've already marked this participant")},
                             status=status.HTTP_400_BAD_REQUEST)
         participant.marked = 2
         participant.save()
@@ -161,7 +162,7 @@ class JuryViewSet(ViewSet):
     def get_assessment_by_id(self, request, *args, **kwargs):
         assessment = Assessment.objects.filter(id=kwargs['pk']).first()
         if assessment is None:
-            return Response(data={'error': 'Assessment not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Assessment not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = AssessmentHistorySerializer(assessment)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -184,11 +185,11 @@ class JuryViewSet(ViewSet):
         assessment = Assessment.objects.filter(id=kwargs['pk']).first()
         request.data['jury'] = request.user
         if assessment is None:
-            return Response(data={'error': 'Assessment not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Assessment not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = AssessmentHistorySerializer(assessment, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if assessment.competition.status == 2:
-            return Response(data={'error': 'You can not change this grade'})
+            return Response(data={'error': _('You can not change this grade')})
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
