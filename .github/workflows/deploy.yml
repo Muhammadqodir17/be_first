@@ -25,29 +25,43 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || { echo "Failed to scan host key"; exit 1; }
           chmod 644 ~/.ssh/known_hosts
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+
+      - name: Verify secrets and SSH connectivity
+        run: |
+          if [ -z "${{ secrets.SERVER_USER }}" ] || [ -z "${{ secrets.SERVER_HOST }}" ]; then
+            echo "Error: SERVER_USER or SERVER_HOST is not set"
+            exit 1
+          fi
+          echo "Attempting to connect to ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} whoami || { echo "SSH connection failed"; exit 1; }
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
 
       - name: Deploy via SSH
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} bash -s << 'EOF'
             set -e
+            echo "Connected to $(whoami)@$(hostname)"
             cd /var/www/b || { echo "Failed to cd to /var/www/b"; exit 1; }
-            git fetch origin main
-            git checkout main
-            git pull origin main
+            git fetch origin main || { echo "Git fetch failed"; exit 1; }
+            git checkout main || { echo "Git checkout failed"; exit 1; }
+            git pull origin main || { echo "Git pull failed"; exit 1; }
             if command -v docker-compose >/dev/null 2>&1; then
-              docker-compose down
-              docker-compose pull
-              docker-compose up -d --build
+              docker-compose down || { echo "Docker-compose down failed"; exit 1; }
+              docker-compose pull || { echo "Docker-compose pull failed"; exit 1; }
+              docker-compose up -d --build || { echo "Docker-compose up failed"; exit 1; }
             else
-              docker compose down
-              docker compose pull
-              docker compose up -d --build
+              docker compose down || { echo "Docker compose down failed"; exit 1; }
+              docker compose pull || { echo "Docker compose pull failed"; exit 1; }
+              docker compose up -d --build || { echo "Docker compose up failed"; exit 1; }
             fi
+            echo "Deployment completed successfully"
           EOF
         env:
           SERVER_USER: ${{ secrets.SERVER_USER }}
