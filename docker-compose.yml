@@ -17,18 +17,21 @@ x-base-api: &base-project
 services:
   project:
     <<: *base-project
-    command: ["make", "run"]
+    command: [ "make", "run" ]
     depends_on:
       - postgres-db
       - redis-db
     ports:
       - ${SERVER_PORT:-8000}:8000
+    volumes:
+      - ./:/opt/app
+      - static_volume:/opt/app/static
     networks:
       - dev
 
   celery_worker:
     <<: *base-project
-    command: ["make", "celery-worker-run"]
+    command: [ "make", "celery-worker-run" ]
     depends_on:
       - project
       - redis-db
@@ -37,7 +40,7 @@ services:
 
   celery_beat:
     <<: *base-project
-    command: ["make", "celery-beat-run"]
+    command: [ "make", "celery-beat-run" ]
     depends_on:
       - project
       - redis-db
@@ -62,6 +65,5 @@ services:
 
 volumes:
   static_volume:
-  pg_data: {}
-  redis_data: {}
-  minio_data: {}
+  pg_data: { }
+  redis_data: { }

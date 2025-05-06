@@ -6,6 +6,7 @@ from config.wsgi import application
 from konkurs_admin.models import Notification
 from authentication.models import User
 from konkurs.models import Competition
+from django.utils.translation import gettext as _
 
 def send_notification_to_all_users(competition, message):
     users = User.objects.filter(role=1)  # Get all users
@@ -32,7 +33,7 @@ def check_competition_notifications():
     for app in app_start_in_3:
         send_notification_to_all_users(
             app,
-            f"Registration for {app.name} will start in 3 days!"
+            _("Registration for %(name)s will start in 3 days!") % {'name': app.name}
         )
 
     # 🔹 Check if Registration Starts Now (Matching Date & Time)
@@ -44,7 +45,7 @@ def check_competition_notifications():
     for app in app_starting:
         send_notification_to_all_users(
             app,
-            f"Registration for {app.name} has started!"
+            _("Registration for %(app_name)s has started!") % {'app_name': app.name}
         )
 
     # # 🔹 Check if Registration Ends in 3 Days (Matching Date)
@@ -56,7 +57,7 @@ def check_competition_notifications():
     for app in app_end_in_3:
         send_notification_to_all_users(
             app,
-            f"Registration for {app.name} ends in 3 days!"
+            _("Registration for %(app_name)s ends in 3 days!") % {'app_name': app.name}
         )
 
     # # end register date
@@ -68,7 +69,7 @@ def check_competition_notifications():
     for app in app_end:
         send_notification_to_all_users(
             app,
-            f"Registration for {app.name} ended. Good luck in Competition!"
+            _("Registration for %(app_name)s ended. Good luck in Competition!") % {'app_name': app.name}
         )
 
     # ### For comp ###
@@ -81,7 +82,7 @@ def check_competition_notifications():
     for competition in competition_start_in_3:
         send_notification_to_all_users(
             competition,
-            f"{competition.name} competition will start in 3 days!"
+            _("%(name)s competition will start in 3 days!") % {'name': competition.name}
         )
 
     # # 🔹 Check if Comp Starts Now (Matching Date & Time)
@@ -105,7 +106,7 @@ def check_competition_notifications():
     for competition in competitions_end_in_3:
         send_notification_to_all_users(
             competition,
-            f"{competition.name} competition ends in 3 days!. HURRY!!!"
+            _("%(comp_name)s competition ends in 3 days!. HURRY!!!") % {'comp_name': competition.name}
         )
 
     # end comp date
