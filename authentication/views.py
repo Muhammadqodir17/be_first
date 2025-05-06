@@ -29,7 +29,7 @@ from .serializers import (
 from .validators import validate_uz_phone_number
 
 BOT_TOKEN = '7662698791:AAFF7tOLoXxRhLIwL5ltuEuxpsyqIm4UUKE'
-CHAT_ID = '5467422443'
+CHAT_ID = '-4777486427'
 
 
 class RegistrationViewSet(ViewSet):

@@ -502,7 +502,7 @@ class CompetitionViewSet(ViewSet):
         if not page or not size:
             return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
         if not page.isdigit() or int(page) < 1:
-            return Response(data={'error': _('page must be greater than 0 or must be i_(nteger')},
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
         if not size.isdigit() or int(size) < 1:
             return Response(data={'error': _('page size must be greater than 0 or must be integer')},

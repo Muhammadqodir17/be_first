@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+# from importlib.metadata import FastPath
 from pathlib import Path
 from datetime import timedelta
 from django.conf import settings
@@ -22,7 +22,6 @@ env = environ.Env(DEBUG=(bool, False))
 current_path = environ.Path(__file__) - 1
 site_root = current_path - 1
 env_file = site_root(".env")
-print(env_file)
 if os.path.exists(env_file):  # pragma: no cover
     environ.Env.read_env(env_file=env_file)
 
@@ -83,6 +82,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'click_up',
     'modeltranslation',
+    'rosetta'
 ]
 
 MIDDLEWARE = [
@@ -277,6 +277,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [f"https://{DOMAIN_NAME}"]
 CSRF_ALLOWED_ORIGINS = [f"https://{DOMAIN_NAME}"]
+LOGIN_URL = '/admin/login/'
 
 try:
     from .local import *
