@@ -262,6 +262,7 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 SWAGGER_SETTINGS = {
+    'SCHEMES': ['https'],
     'SECURITY_DEFINITIONS': {
         'Bearer': {
             'type': 'apiKey',
@@ -271,7 +272,6 @@ SWAGGER_SETTINGS = {
     }
 }
 
-SECURE_SSL_REDIRECT = True
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
