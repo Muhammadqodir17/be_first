@@ -24,7 +24,7 @@ jobs:
       - name: Deploy via SSH
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd /var/www/b
+            cd /var/www/be_first/
             git pull origin main
             docker compose down
             docker compose pull
