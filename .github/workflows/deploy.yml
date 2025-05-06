@@ -3,16 +3,22 @@ name: Deploy to Server on Merge
 on:
   push:
     branches:
-      main
+      - main
+
+# Prevent concurrent deployments
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
     name: Deploy over SSH
     runs-on: ubuntu-latest
+    timeout-minutes: 15 # Prevent hanging deployments
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Updated to latest version
 
       - name: Set up SSH key
         run: |
@@ -20,13 +26,35 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
 
       - name: Deploy via SSH
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd /var/www/be_first/
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            set -e # Exit on error
+            cd /var/www/be_first/ || { echo "Failed to cd to /var/www/b"; exit 1; }
+            git fetch origin main
+            git checkout main
             git pull origin main
-            docker compose down
-            docker compose pull
-            docker compose up -d --build
+            if command -v docker-compose >/dev/null 2>&1; then
+              docker-compose down
+              docker-compose pull
+              docker-compose up -d --build
+            else
+              docker compose down
+              docker compose pull
+              docker compose up -d --build
+            fi
           EOF
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+
+      - name: Cleanup SSH key
+        if: always() # Run even if previous steps fail
+        run: |
+          rm -f ~/.ssh/id_rsa
+          rm -f ~/.ssh/known_hosts
