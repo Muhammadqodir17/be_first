@@ -48,7 +48,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} bash -s << 'EOF'
             set -e
             echo "Connected to $(whoami)@$(hostname)"
-            cd /var/www/b || { echo "Failed to cd to /var/www/b"; exit 1; }
+            cd /var/www/be_first/ || { echo "Failed to cd to /var/www/be_first/"; exit 1; }
             git fetch origin main || { echo "Git fetch failed"; exit 1; }
             git checkout main || { echo "Git checkout failed"; exit 1; }
             git pull origin main || { echo "Git pull failed"; exit 1; }
