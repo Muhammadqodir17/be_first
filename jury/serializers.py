@@ -5,12 +5,22 @@ from konkurs.models import (
     ChildWork
 )
 from .models import Assessment
+from django.conf import settings
 
 
 class ActiveCompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'name']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+        return data
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
@@ -30,6 +40,15 @@ class CompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'name', 'participants_number', 'comp_end_date', 'participants']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+        return data
 
     def get_participants(self, obj):
         participants = Participant.objects.filter(competition__id=obj.id)

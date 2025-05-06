@@ -9,11 +9,36 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+# from importlib.metadata import FastPath
 from pathlib import Path
 from datetime import timedelta
 from django.conf import settings
 from celery.schedules import crontab
+import environ
+import os
+
+env = environ.Env(DEBUG=(bool, False))
+
+current_path = environ.Path(__file__) - 1
+site_root = current_path - 1
+env_file = site_root(".env")
+if os.path.exists(env_file):  # pragma: no cover
+    environ.Env.read_env(env_file=env_file)
+
+from django.utils.translation import gettext_lazy as _
+import environ
+import os
+
+env = environ.Env(DEBUG=(bool, False))
+
+current_path = environ.Path(__file__) - 1
+site_root = current_path - 1
+env_file = site_root(".env")
+print(env_file)
+if os.path.exists(env_file):  # pragma: no cover
+    environ.Env.read_env(env_file=env_file)
+
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +50,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-=%8)ppr16+_e#+t*dc(bp#q6&$1zf6te!#n=$wf$qt7#w^@8m)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+
+DOMAIN_NAME = env.str("DOMAIN_NAME")
 
 ALLOWED_HOSTS = ['*']
 
@@ -49,22 +76,26 @@ INSTALLED_APPS = [
 
     # installed
     'rest_framework',
+    'corsheaders',
     'rest_framework_simplejwt',
     'drf_yasg',
     'django_celery_beat',
     'click_up',
+    'modeltranslation',
+    'rosetta'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'authentication.middlewares.CheckAuthenticationMiddleware',
-    # 'authentication.middlewares.RolePermissionMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -90,11 +121,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": env.db("DATABASE_URL"),
 }
 
 # Password validation
@@ -119,6 +154,21 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+
+LANGUAGES = (
+    ('uz', _('Uzbek')),
+    ('ru', _('Russian')),
+    ('en', _('English')),
+)
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+MODELTRANSLATION_LANGUAGES = (
+    'uz', 'ru', 'en',
+)
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 TIME_ZONE = 'Asia/Tashkent'
 
@@ -191,8 +241,8 @@ SIMPLE_JWT = {
 #     'REFRESH_TOKEN_LIFETIME': timedelta(days=3)
 # }
 # """ for celery """
-CELERY_BROKER_URL = 'redis://localhost:6379'  # Redis broker
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'  # Redis broker
+CELERY_BROKER_URL = 'redis://redis-db:6379'  # Redis broker
+CELERY_RESULT_BACKEND = 'redis://redis-db:6379'  # Redis broker
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -203,7 +253,6 @@ CLICK_MERCHANT_ID = "your-merchant-id"
 CLICK_SECRET_KEY = "your-secret-key"
 CLICK_ACCOUNT_MODEL = "payment.models.Order"
 CLICK_AMOUNT_FIELD = "total_amount"
-
 
 CELERY_BEAT_SCHEDULE = {
     'check_competition_notifications_every_minute': {
@@ -221,3 +270,16 @@ SWAGGER_SETTINGS = {
         }
     }
 }
+
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [f"https://{DOMAIN_NAME}"]
+CSRF_ALLOWED_ORIGINS = [f"https://{DOMAIN_NAME}"]
+LOGIN_URL = '/admin/login/'
+
+try:
+    from .local import *
+except ImportError:
+    pass

@@ -1,0 +1,69 @@
+version: '3.9'
+name: 'be_first'
+
+networks:
+  dev:
+
+x-base-api: &base-project
+  env_file:
+    - .env
+  volumes:
+    - ./:/opt/app
+  build:
+    context: .
+    dockerfile: Dockerfile
+#    target: local
+
+services:
+  project:
+    <<: *base-project
+    command: [ "make", "run" ]
+    depends_on:
+      - postgres-db
+      - redis-db
+    ports:
+      - ${SERVER_PORT:-8000}:8000
+    volumes:
+      - ./:/opt/app
+      - static_volume:/opt/app/static
+    networks:
+      - dev
+
+  celery_worker:
+    <<: *base-project
+    command: [ "make", "celery-worker-run" ]
+    depends_on:
+      - project
+      - redis-db
+    networks:
+      - dev
+
+  celery_beat:
+    <<: *base-project
+    command: [ "make", "celery-beat-run" ]
+    depends_on:
+      - project
+      - redis-db
+    networks:
+      - dev
+
+  postgres-db:
+    env_file:
+      - .env
+    image: postgres:15.0-alpine
+    volumes:
+      - pg_data:/var/lib/postgresql/data:rw
+    networks:
+      - dev
+
+  redis-db:
+    image: redis:7.0-alpine
+    volumes:
+      - redis_data:/data:rw
+    networks:
+      - dev
+
+volumes:
+  static_volume:
+  pg_data: { }
+  redis_data: { }

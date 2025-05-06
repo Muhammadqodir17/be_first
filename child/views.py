@@ -20,6 +20,7 @@ from konkurs.models import (
     Participant,
     Competition
 )
+from django.utils.translation import gettext as _
 
 """ payment """
 from click_up import ClickUp
@@ -101,11 +102,11 @@ class ChildViewSet(ViewSet):
         try:
             user = User.objects.filter(phone_number=phone_number).first()
         except User.DoesNotExist:
-            return Response({'message': 'User with this phone number does not exist.'},
+            return Response({'message': _('User with this phone number does not exist.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if user.children_count >= 5:
-            return Response({'message': 'You have already registered 5 children'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': _('You have already registered 5 children')}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ChildSerializer(data=request.data)
         if serializer.is_valid():
@@ -177,7 +178,7 @@ class ChildViewSet(ViewSet):
     def update(self, request, pk, *args, **kwargs):
         child = Child.objects.filter(id=pk).first()
         if child is None:
-            return Response({'error': 'Child not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': _('Child not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ChildSerializer(child, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -216,7 +217,7 @@ class ChildViewSet(ViewSet):
     def get_by_id(self, request, pk, *args, **kwargs):
         child = Child.objects.filter(id=pk).first()
         if child is None:
-            return Response({'error': 'Child not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': _('Child not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ChildSerializer(child)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -270,16 +271,16 @@ class ChildViewSet(ViewSet):
     def list(self, request, *args, **kwargs):
         phone_number = request.data['phone_number']
         if phone_number is None:
-            return Response({'error': 'Phone_number is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': _('Phone_number is required')}, status=status.HTTP_400_BAD_REQUEST)
         try:
             user = User.objects.get(phone_number=phone_number)
         except User.DoesNotExist:
-            return Response({'message': 'User with this phone number does not exist.'},
+            return Response({'message': _('User with this phone number does not exist.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         children = Child.objects.filter(user=user)
         if not children.exists():
-            return Response({'message': "You haven't added any children yet"},
+            return Response({'message': _("You haven't added any children yet")},
                             status=status.HTTP_404_NOT_FOUND)
 
         serializer = ChildSerializer(children, many=True)
@@ -337,24 +338,24 @@ class ChildViewSet(ViewSet):
         if not user:
             phone_number = request.data.get('phone_number')
             if not phone_number:
-                return Response({'message': 'Phone number is required.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': _('Phone number is required.')}, status=status.HTTP_400_BAD_REQUEST)
             user = User.objects.filter(phone_number=phone_number).first()
             if not user:
-                return Response({'message': 'User not found.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': _('User not found.')}, status=status.HTTP_400_BAD_REQUEST)
 
         if user.children_count == 0:
-            return Response({'message': 'No children found to delete.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': _('No children found to delete.')}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             child = Child.objects.get(id=pk, user=user)
         except Child.DoesNotExist:
-            return Response({'message': 'Child not found or does not belong to you.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': _('Child not found or does not belong to you.')}, status=status.HTTP_404_NOT_FOUND)
 
         child.delete()
         user.children_count -= 1
         user.save()
 
-        return Response({'message': 'Child successfully deleted.'}, status=status.HTTP_200_OK)
+        return Response({'message': _('Child successfully deleted.')}, status=status.HTTP_200_OK)
 
 
 class RegisterChildToCompViewSet(ViewSet):
@@ -410,7 +411,7 @@ class ChildWorkViewSet(ViewSet):  # *
     def create(self, request, *args, **kwargs):
         participant = Participant.objects.filter(id=request.data['participant']).first()
         if participant is None:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ChildWorkSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
