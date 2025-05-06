@@ -3,7 +3,7 @@ name: Deploy to Server on Merge
 on:
   push:
     branches:
-      main
+      - main
 
 jobs:
   deploy:
@@ -19,11 +19,13 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
 
       - name: Deploy via SSH
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USE }}@${{ secrets.SERVER_HOST }} << 'EOF'
             cd /var/www/b
             git pull origin main
             docker compose down
