@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Updated to latest version
+        uses: actions/checkout@v4
 
       - name: Set up SSH key
         run: |
@@ -33,9 +33,9 @@ jobs:
 
       - name: Deploy via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            set -e # Exit on error
-            cd /var/www/be_first/ || { echo "Failed to cd to /var/www/b"; exit 1; }
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} bash -s << 'EOF'
+            set -e
+            cd /var/www/b || { echo "Failed to cd to /var/www/b"; exit 1; }
             git fetch origin main
             git checkout main
             git pull origin main
@@ -54,7 +54,7 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
 
       - name: Cleanup SSH key
-        if: always() # Run even if previous steps fail
+        if: always()
         run: |
           rm -f ~/.ssh/id_rsa
           rm -f ~/.ssh/known_hosts
