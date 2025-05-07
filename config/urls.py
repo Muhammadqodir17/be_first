@@ -15,7 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.views.static import serve
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -23,6 +24,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import permissions
 from konkurs_admin.tasks import check_competition_notifications
+from django.conf.urls.i18n import i18n_patterns
 
 admin.site.site_header = 'Competition SYSTEM'
 admin.site.site_title = 'Competition SYSTEM'
@@ -43,7 +45,7 @@ schema_view = get_schema_view(
 
 check_competition_notifications.delay()
 
-urlpatterns = [
+urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
     # urls
     path('api/v1/konkurs/', include('konkurs.urls')),
@@ -56,7 +58,10 @@ urlpatterns = [
     path('swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-]
-
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # debug = True
+    re_path(r'media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT})
+)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
