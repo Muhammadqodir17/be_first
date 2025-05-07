@@ -139,12 +139,12 @@ class RegistrationViewSet(ViewSet):
         ).first()
 
         if sms_code is None:
-            return Response({"error": _("Incorrect or expired code.")}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Incorrect or expired code.")}, status=status.HTTP_400_BAD_REQUEST)
 
         sms_code.verified = True
         sms_code.save()
 
-        user, _ = User.objects.get_or_create(phone_number=phone_number)
+        user = User.objects.get_or_create(phone_number=phone_number)
         user.role = 1
         user.save()
         token = AccessToken.for_user(user)

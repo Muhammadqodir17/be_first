@@ -198,8 +198,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=17),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=17),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
@@ -262,6 +262,7 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 SWAGGER_SETTINGS = {
+    'SCHEMES': ['https'],
     'SECURITY_DEFINITIONS': {
         'Bearer': {
             'type': 'apiKey',
@@ -271,7 +272,7 @@ SWAGGER_SETTINGS = {
     }
 }
 
-
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
