@@ -7,6 +7,10 @@ __pycache__/
 *.so
 
 config/local.py
+
+config/local.py
+staticfiles/
+media/
 staticfiles/
 media/
 # Distribution / packaging
@@ -124,7 +128,7 @@ ipython_config.py
 __pypackages__/
 
 # Celery stuff
-celerybeat-schedule
+celerybeat-schedule*
 celerybeat.pid
 
 # SageMath parsed files

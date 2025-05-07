@@ -12,12 +12,23 @@ from .models import (
     Participant,
     ChildWork
 )
+from django.conf import settings
 
 
 class BannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'image', 'name', 'description']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+            data['description'] = getattr(instance, f'description_{lang}')
+        return data
 
 
 class CompetitionSerializer(serializers.ModelSerializer):
@@ -39,8 +50,19 @@ class GetCompSerializer(serializers.ModelSerializer):
         model = Competition
         fields = ['id', 'name', 'comp_end_date', 'description', 'participants']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+            data['description'] = getattr(instance, f'description_{lang}')
+        return data
+
     def get_participants(self, obj):
         return Participant.objects.filter(competition=obj).count()
+
 
 
 class CompAssessmentSerializer(serializers.ModelSerializer):
@@ -68,11 +90,31 @@ class HomeCompetitionSerializer(serializers.ModelSerializer):
         model = Competition
         fields = ['id', 'image', 'name', 'description', 'rules', 'application_end_date', ]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+            data['description'] = getattr(instance, f'description_{lang}')
+        return data
+
 
 class CompetitionForCompetitionPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'name', 'description']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+            data['description'] = getattr(instance, f'description_{lang}')
+        return data
 
 
 class PersonalInfoSerializer(serializers.ModelSerializer):
@@ -128,6 +170,15 @@ class CompSerializer(serializers.ModelSerializer):
         model = Competition
         fields = ['id', 'name']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+        return data
+
 
 class CompParticipantSerializer(serializers.ModelSerializer):
     competition = CompSerializer()
@@ -140,6 +191,16 @@ class ActiveCompSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'name', 'participants', 'comp_end_date', 'description']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+            data['description'] = getattr(instance, f'description_{lang}')
+        return data
 
     def get_participants(self, obj):
         participants = Participant.objects.filter(competition__id=obj.id).count()
@@ -156,6 +217,16 @@ class FinishedCompSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'name', 'description']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+            data['description'] = getattr(instance, f'description_{lang}')
+        return data
 
 
 class GradeSerializer(serializers.ModelSerializer):
@@ -201,6 +272,15 @@ class GallerySerializer(serializers.ModelSerializer):
         model = ChildWork
         fields = ['competition', 'files']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['competition'] = getattr(instance.competition, f'name_{lang}')
+        return data
+
 
 class CompGallerySerializer(serializers.ModelSerializer):
     class Meta:
@@ -215,6 +295,15 @@ class GalleryDetailsSerializer(serializers.ModelSerializer):
         model = Participant
         fields = ['competition', 'child', 'files']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['competition'] = getattr(instance.competition, f'name_{lang}')
+        return data
+
     def get_files(self, obj):
         file_instance = ChildWork.objects.filter(participant__id=obj.id).first()
         if file_instance:
@@ -225,7 +314,17 @@ class GalleryDetailsSerializer(serializers.ModelSerializer):
 class ExpertSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'speciality']
+        fields = ['id', 'first_name', 'last_name', 'speciality', 'place_of_work']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['speciality'] = getattr(instance, f'speciality_{lang}')
+            data['place_of_work'] = getattr(instance, f'place_of_work_{lang}')
+        return data
 
 
 class NotificationSerializer(serializers.ModelSerializer):

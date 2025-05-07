@@ -26,6 +26,7 @@ from .models import (
     Participant,
     ChildWork,
 )
+from django.utils.translation import gettext as _
 
 
 class CompetitionViewSet(ViewSet):
@@ -39,7 +40,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_main_banner(self, request, *args, **kwargs):
         banner = Competition.objects.filter().order_by('created_at').first()
-        serializer = BannerSerializer(banner)
+        serializer = BannerSerializer(banner, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -52,7 +53,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_comp_for_home(self, request, *args, **kwargs):
         home_comps = Competition.objects.all()
-        serializer = HomeCompetitionSerializer(home_comps, many=True)
+        serializer = HomeCompetitionSerializer(home_comps, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -65,7 +66,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_comp(self, request, *args, **kwargs):
         comp = Competition.objects.all()
-        serializer = CompetitionForCompetitionPageSerializer(comp, many=True)
+        serializer = CompetitionForCompetitionPageSerializer(comp, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -78,7 +79,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_gallery(self, request, *args, **kwargs):
         works = ChildWork.objects.all()
-        serializer = GallerySerializer(works, many=True)
+        serializer = GallerySerializer(works, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -91,7 +92,7 @@ class CompetitionViewSet(ViewSet):
     )
     def get_experts(self, request, *args, **kwargs):
         experts = User.objects.filter(role=2)
-        serializer = ExpertSerializer(experts, many=True)
+        serializer = ExpertSerializer(experts, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -129,8 +130,8 @@ class CompetitionViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Comp not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = GetCompSerializer(comp)
+            return Response(data={'error': _('Comp not found')}, status=status.HTTP_404_NOT_FOUND)
+        serializer = GetCompSerializer(comp, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -144,8 +145,8 @@ class CompetitionViewSet(ViewSet):
     def get_gallery_details(self, request, *args, **kwargs):
         participant = Participant.objects.filter(id=kwargs['pk']).first()
         if participant is None:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_200_OK)
-        serializer = GalleryDetailsSerializer(participant)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_200_OK)
+        serializer = GalleryDetailsSerializer(participant, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -196,13 +197,13 @@ class MyCompetitionViewSet(ViewSet):
     def get_comp_details(self, request, *args, **kwargs):
         participant = Participant.objects.filter(id=kwargs['pk']).first()
         if participant is None:
-            return Response(data={'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Not found')}, status=status.HTTP_404_NOT_FOUND)
         if participant.competition.status == 2:
-            serializer = FinishedParticipantSerializer(participant)
+            serializer = FinishedParticipantSerializer(participant, context={'request': request})
         elif participant.competition.status == 1:
-            serializer = ActiveParticipantSerializer(participant)
+            serializer = ActiveParticipantSerializer(participant, context={'request': request})
         else:
-            return Response(data={'error': 'Comp is not active'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -215,7 +216,7 @@ class MyCompetitionViewSet(ViewSet):
     )
     def active(self, request, *args, **kwargs):
         participants = Participant.objects.filter(child__user=request.user, competition__status=1)
-        serializer = CompParticipantSerializer(participants, many=True)
+        serializer = CompParticipantSerializer(participants, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -228,7 +229,7 @@ class MyCompetitionViewSet(ViewSet):
     )
     def finished(self, request, *args, **kwargs):
         participants = Participant.objects.filter(child__user=request.user, competition__status=2)
-        serializer = CompParticipantSerializer(participants, many=True)
+        serializer = CompParticipantSerializer(participants, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -255,7 +256,7 @@ class MyCompetitionViewSet(ViewSet):
     def get_grade_history_by_id(self, request, *args, **kwargs):
         grade = Assessment.objects.filter(participant__child__user=request.user, id=kwargs['pk']).first()
         if grade is None:
-            return Response(data={'error': 'Assessment not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Assessment not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = AssessmentHistorySerializer(grade)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -283,7 +284,7 @@ class MyCompetitionViewSet(ViewSet):
     def get_notification_by_id(self, request, *args, **kwargs):
         notification = Notification.objects.filter(id=kwargs['pk']).first()
         if notification is None:
-            return Response(data={'error': 'Notification not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Notification not found')}, status=status.HTTP_404_NOT_FOUND)
         notification.is_read = True
         notification.save(update_fields=['is_read'])
         serializer = NotificationSerializer(notification)

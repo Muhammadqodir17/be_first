@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+# from importlib.metadata import FastPath
 from pathlib import Path
 from datetime import timedelta
 from django.conf import settings
@@ -22,10 +22,23 @@ env = environ.Env(DEBUG=(bool, False))
 current_path = environ.Path(__file__) - 1
 site_root = current_path - 1
 env_file = site_root(".env")
+if os.path.exists(env_file):  # pragma: no cover
+    environ.Env.read_env(env_file=env_file)
+
+from django.utils.translation import gettext_lazy as _
+import environ
+import os
+
+env = environ.Env(DEBUG=(bool, False))
+
+current_path = environ.Path(__file__) - 1
+site_root = current_path - 1
+env_file = site_root(".env")
 print(env_file)
 if os.path.exists(env_file):  # pragma: no cover
     environ.Env.read_env(env_file=env_file)
 
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -68,10 +81,13 @@ INSTALLED_APPS = [
     'drf_yasg',
     'django_celery_beat',
     'click_up',
+    'modeltranslation',
+    'rosetta'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
@@ -80,7 +96,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'authentication.middlewares.CheckAuthenticationMiddleware',
-    # 'authentication.middlewares.RolePermissionMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -140,6 +155,21 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+LANGUAGES = (
+    ('uz', _('Uzbek')),
+    ('ru', _('Russian')),
+    ('en', _('English')),
+)
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+MODELTRANSLATION_LANGUAGES = (
+    'uz', 'ru', 'en',
+)
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
 TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
@@ -168,8 +198,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=14),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
@@ -224,7 +254,6 @@ CLICK_SECRET_KEY = "your-secret-key"
 CLICK_ACCOUNT_MODEL = "payment.models.Order"
 CLICK_AMOUNT_FIELD = "total_amount"
 
-
 CELERY_BEAT_SCHEDULE = {
     'check_competition_notifications_every_minute': {
         'task': 'celery_tasks.tasks.check_competition_notifications',  # Full task path
@@ -233,6 +262,7 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 SWAGGER_SETTINGS = {
+    'SCHEMES': ['https'],
     'SECURITY_DEFINITIONS': {
         'Bearer': {
             'type': 'apiKey',
@@ -242,11 +272,13 @@ SWAGGER_SETTINGS = {
     }
 }
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [f"https://{DOMAIN_NAME}"]
 CSRF_ALLOWED_ORIGINS = [f"https://{DOMAIN_NAME}"]
+LOGIN_URL = '/admin/login/'
 
 try:
     from .local import *

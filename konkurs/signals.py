@@ -6,13 +6,15 @@ from authentication.models import User
 from konkurs.models import (
     Competition,
     Participant
-    )
+)
+from django.utils.translation import gettext as _
+
 
 @receiver(post_save, sender=Competition)
 def post_save_for_winner(sender, instance, created, **kwargs):
     if instance.status == 2:
         message = (
-            f'{instance.name} competition is finished. You can see your result'
+                _("%(name)s competition is finished. You can see your result") % {"name": instance.name}
         )
         participants = Participant.objects.filter(competition=instance)
         notifications = [
@@ -25,7 +27,7 @@ def post_save_for_winner(sender, instance, created, **kwargs):
 
     if instance.status == 1:
         message = (
-            f'{instance.name} competition is started.'
+                _('%(name)s competition is started.') % {'name': instance.name}
         )
         participants = User.objects.filter(role=1)
         notifications = [
