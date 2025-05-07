@@ -47,6 +47,7 @@ check_competition_notifications.delay()
 
 urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
+    path('rosetta/', include('rosetta.urls')),
     # urls
     path('api/v1/konkurs/', include('konkurs.urls')),
     path('api/v1/auth/', include('authentication.urls')),
@@ -62,6 +63,14 @@ urlpatterns = i18n_patterns(
     re_path(r'media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT})
 )
+
+if 'rosetta' in settings.INSTALLED_APPS:
+    urlpatterns += [
+        path('rosetta/', include('rosetta.urls'))
+    ]
+
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
