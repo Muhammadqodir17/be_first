@@ -35,15 +35,15 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
         index = request_path[(line - 2):-1]
         token = request.headers.get('Authorization')
 
-        if index.isdigit() and request.path[:-2] in target_urls:
+        if index.isdigit() and request.path[3:-2] in target_urls:
             if token is None or len(token.split()) != 2 or token.split()[0] != 'Bearer':
                 return JsonResponse(data={'error': _('unauthorized')}, status=401)
 
-        if request.path in target_urls:
+        if request.path[3:] in target_urls:
             if token is None or len(token.split()) != 2 or token.split()[0] != 'Bearer':
                 return JsonResponse(data={'error': _('unauthorized')}, status=401)
 
-        path = request.path
+        path = request.path[3:]
         if path.startswith('/api/v1/admin'):  # Changed from path[8:13] == 'admin'
             if token is None or len(token.split()) != 2 or token.split()[0] != 'Bearer':
                 return JsonResponse(data={'error': _('unauthorized')}, status=401)
