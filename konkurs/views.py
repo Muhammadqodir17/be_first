@@ -19,7 +19,10 @@ from .serializers import (
     GalleryDetailsSerializer,
     ExpertSerializer,
     BannerSerializer,
-    NotificationSerializer, ResultsSerializer, GetCompSerializer
+    NotificationSerializer,
+    ResultsSerializer,
+    GetCompSerializer,
+    ContactUsSerializer,
 )
 from .models import (
     Competition,
@@ -39,7 +42,7 @@ class CompetitionViewSet(ViewSet):
         tags=['competition']
     )
     def get_main_banner(self, request, *args, **kwargs):
-        banner = Competition.objects.filter().order_by('created_at').first()
+        banner = Competition.objects.filter().order_by('-created_at').first()
         serializer = BannerSerializer(banner, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -289,3 +292,26 @@ class MyCompetitionViewSet(ViewSet):
         notification.save(update_fields=['is_read'])
         serializer = NotificationSerializer(notification)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class ContactUsViewSet(ViewSet):
+    @swagger_auto_schema(
+        operation_description="Contact Us",
+        operation_summary="Contact Us",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='email'),
+            },
+            required=['name']
+        ),
+        responses={201: ContactUsSerializer()},
+        tags=['competition'],
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = ContactUsSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+

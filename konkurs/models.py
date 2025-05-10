@@ -78,3 +78,11 @@ class ChildWork(BaseModel):
 
     def __str__(self):
         return f"{self.participant}"
+
+
+class ContactUs(BaseModel):
+    email = models.EmailField(unique=True)
+    replied = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.email}'

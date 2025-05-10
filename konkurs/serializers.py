@@ -3,7 +3,7 @@ from rest_framework import serializers
 from authentication.models import User
 from child.models import Child
 from jury.models import Assessment
-from konkurs_admin.models import Notification, Winner
+from konkurs_admin.models import Notification, Winner, ResultImage
 from .models import (
     Competition,
     STATUS,
@@ -13,6 +13,7 @@ from .models import (
     ChildWork
 )
 from django.conf import settings
+from konkurs.models import ContactUs
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -120,7 +121,7 @@ class CompetitionForCompetitionPageSerializer(serializers.ModelSerializer):
 class PersonalInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'birth_date', 'email', 'phone_number']
+        fields = ['id', 'first_name', 'last_name', 'birth_date', 'email', 'phone_number', 'image', 'role']
 
 
 class ChildrenSerializer(serializers.ModelSerializer):
@@ -314,7 +315,7 @@ class GalleryDetailsSerializer(serializers.ModelSerializer):
 class ExpertSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'speciality', 'place_of_work']
+        fields = ['id', 'first_name', 'last_name', 'speciality', 'place_of_work', 'image']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -333,9 +334,29 @@ class NotificationSerializer(serializers.ModelSerializer):
         fields = ['id', 'child', 'competition', 'grade', 'comment', 'message', 'is_read']
 
 
+class ResultImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResultImage
+        fields = ['id', 'name', 'image']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['name'] = instance.competition.name
+        return data
+
+
 class ResultsSerializer(serializers.Serializer):
     participants = serializers.IntegerField()
     winners = serializers.IntegerField()
     awards = serializers.IntegerField()
     certificates = serializers.IntegerField()
     creative_works = serializers.IntegerField()
+    images = ResultImageSerializer(many=True)
+
+
+class ContactUsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactUs
+        fields = ['id', 'email', 'replied']
+
+

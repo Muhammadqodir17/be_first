@@ -378,7 +378,7 @@ class RegisterChildToCompViewSet(ViewSet):
     def create(self, request, *args, **kwargs):
         serializer = RegisterParticipantSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
@@ -414,7 +414,7 @@ class ChildWorkViewSet(ViewSet):  # *
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ChildWorkSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         files = request.FILES.getlist('files')
         ChildWork.objects.bulk_create([
