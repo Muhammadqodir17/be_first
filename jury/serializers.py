@@ -20,6 +20,7 @@ class ActiveCompetitionSerializer(serializers.ModelSerializer):
         lang_options = settings.MODELTRANSLATION_LANGUAGES
         if lang in lang_options:
             data['name'] = getattr(instance, f'name_{lang}')
+        data['name'] = instance.name
         return data
 
 

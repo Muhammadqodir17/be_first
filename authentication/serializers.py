@@ -3,13 +3,15 @@ import requests
 from random import randint
 from django.utils.timezone import now
 from datetime import datetime, timedelta
-from .models import User, SMSCode, TemporaryPassword
+from .models import User, SMSCode, TemporaryPassword, BlacklistedAccessToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
+from .utils import is_valid_tokens
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 
 BOT_TOKEN = '7662698791:AAFF7tOLoXxRhLIwL5ltuEuxpsyqIm4UUKE'
 CHAT_ID = '5467422443'
@@ -196,3 +198,20 @@ class ResetPasswordSerializer(serializers.Serializer):
 
         temp_password_entry.delete()
         return user
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField(required=True)
+    access_token = serializers.CharField(required=True)
+
+    def validate(self, data):
+        refresh_token = data.get('refresh_token')
+        access_token = data.get('access_token')
+        if not is_valid_tokens(refresh_token, access_token):
+            raise serializers.ValidationError('Access token or Refresh token is invalid or expired')
+        refresh_blacklisted = BlacklistedToken.objects.filter(token__token=refresh_token).exists()
+        access_blacklisted = BlacklistedAccessToken.objects.filter(token=access_token).exists()
+
+        if refresh_blacklisted or access_blacklisted:
+            raise serializers.ValidationError('Tokens are already in blacklist', code=400)
+        return data

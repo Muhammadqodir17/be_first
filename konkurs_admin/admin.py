@@ -8,10 +8,12 @@ from .models import (
     AboutResult,
     ContactInformation,
     SocialMedia,
+    WebCertificate,
 )
 
 admin.site.register(Notification)
 admin.site.register(Winner)
+admin.site.register(WebCertificate)
 #dynamic
 admin.site.register(ResultImage)
 admin.site.register(Policy)

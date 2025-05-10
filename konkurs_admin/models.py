@@ -16,11 +16,11 @@ PLACE = (
 )
 
 RESULT_IMAGE = (
+    (0, '---'),
     (1, 'Participants'),
     (2, 'Winners'),
     (3, 'Awards'),
-    (4, 'Certificates'),
-    (5, 'Creative Works'),
+    (4, 'Creative Works'),
 )
 
 
@@ -55,11 +55,11 @@ class Winner(BaseModel):
 
 #dynamic
 class ResultImage(BaseModel):
-    name = models.ImageField(choices=RESULT_IMAGE)
-    image = models.ImageField(upload_to='media/')
+    name = models.IntegerField(choices=RESULT_IMAGE, default=0)
+    image = models.ImageField(upload_to='media/', null=True)
 
     def __str__(self):
-        return f"{self.get_name_display}"
+        return self.get_name_display()
 
 
 class Policy(BaseModel):
@@ -108,6 +108,14 @@ class SocialMedia(BaseModel):
 
     def __str__(self):
         return f'{self.link}'
+
+
+class WebCertificate(BaseModel):
+    data = models.DateField()
+    image = models.ImageField(upload_to='media/', null=True)
+
+    def __str__(self):
+        return f'{self.data.year}' if self.data else "No Date"
 
 
 

@@ -29,30 +29,29 @@ class JuryViewSet(ViewSet):
         tags=['jury']
     )
     def get_active_comp(self, request, *args, **kwargs):
-        user = User.objects.filter(id=request.user.id).first()
-        comps = Competition.objects.filter(status=1, category=user.category)
+        comps = Competition.objects.filter(status=1)
         serializer = ActiveCompetitionSerializer(comps, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    # @swagger_auto_schema(
-    #     operation_description="Filter Category",
-    #     operation_summary="Filter Category",
-    #     manual_parameters=[
-    #         openapi.Parameter(
-    #             'category', type=openapi.TYPE_STRING, description='filter_category', in_=openapi.IN_QUERY
-    #         )
-    #     ],
-    #     responses={200: ActiveCompetitionSerializer()},
-    #     tags=['admin'],
-    # )
-    # def filter_comp(self, request, *args, **kwargs):
-    #     data = request.GET
-    #     category = data.get('category')
-    #     competitions = Competition.objects.all()
-    #     if category:
-    #         competitions = Competition.objects.filter(category=category, status=1)
-    #     serializer = ActiveCompetitionSerializer(competitions, many=True)
-    #     return Response(data=serializer.data, status=status.HTTP_200_OK)
+    @swagger_auto_schema(
+        operation_description="Filter comp by Category",
+        operation_summary="Filter comp by Category",
+        manual_parameters=[
+            openapi.Parameter(
+                'category', type=openapi.TYPE_INTEGER, description='filter_category', in_=openapi.IN_QUERY
+            )
+        ],
+        responses={200: ActiveCompetitionSerializer()},
+        tags=['jury'],
+    )
+    def filter_comp(self, request, *args, **kwargs):
+        data = request.GET
+        category = data.get('category')
+        competitions = Competition.objects.all()
+        if category:
+            competitions = Competition.objects.filter(category=category, status=1)
+        serializer = ActiveCompetitionSerializer(competitions, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Get Competition By Id",
@@ -89,7 +88,7 @@ class JuryViewSet(ViewSet):
         if comp is None:
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         participant = Participant.objects.filter(competition=comp, competition__category=category)
-        serializer = ParticipantSerializer(participant, many=True)
+        serializer = ParticipantSerializer(participant, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -104,7 +103,7 @@ class JuryViewSet(ViewSet):
         participant = Participant.objects.filter(id=kwargs['pk']).first()
         if participant is None:
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ParticipantWorkSerializer(participant)
+        serializer = ParticipantWorkSerializer(participant, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -127,7 +126,7 @@ class JuryViewSet(ViewSet):
         participant = Participant.objects.filter(id=request.data['participant']).first()
         if participant is None:
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = MarkSerializer(data=request.data)
+        serializer = MarkSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if participant.marked_status == 2:
@@ -148,7 +147,7 @@ class JuryViewSet(ViewSet):
     )
     def get_assessment_history(self, request, *args, **kwargs):
         assessment = Assessment.objects.filter(jury=request.user)
-        serializer = AssessmentHistorySerializer(assessment, many=True)
+        serializer = AssessmentHistorySerializer(assessment, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -163,7 +162,7 @@ class JuryViewSet(ViewSet):
         assessment = Assessment.objects.filter(id=kwargs['pk']).first()
         if assessment is None:
             return Response(data={'error': _('Assessment not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = AssessmentHistorySerializer(assessment)
+        serializer = AssessmentHistorySerializer(assessment, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -186,7 +185,7 @@ class JuryViewSet(ViewSet):
         request.data['jury'] = request.user
         if assessment is None:
             return Response(data={'error': _('Assessment not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = AssessmentHistorySerializer(assessment, data=request.data, partial=True)
+        serializer = AssessmentHistorySerializer(assessment, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if assessment.competition.status == 2:

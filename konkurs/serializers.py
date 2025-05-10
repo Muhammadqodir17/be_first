@@ -3,7 +3,7 @@ from rest_framework import serializers
 from authentication.models import User
 from child.models import Child
 from jury.models import Assessment
-from konkurs_admin.models import Notification, Winner, ResultImage
+from konkurs_admin.models import Notification, Winner, ResultImage, WebCertificate
 from .models import (
     Competition,
     STATUS,
@@ -105,7 +105,7 @@ class HomeCompetitionSerializer(serializers.ModelSerializer):
 class CompetitionForCompetitionPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'description', 'image']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -280,6 +280,7 @@ class GallerySerializer(serializers.ModelSerializer):
         lang_options = settings.MODELTRANSLATION_LANGUAGES
         if lang in lang_options:
             data['competition'] = getattr(instance.competition, f'name_{lang}')
+        data['competition'] = instance.competition.name
         return data
 
 
@@ -325,6 +326,8 @@ class ExpertSerializer(serializers.ModelSerializer):
         if lang in lang_options:
             data['speciality'] = getattr(instance, f'speciality_{lang}')
             data['place_of_work'] = getattr(instance, f'place_of_work_{lang}')
+        data['speciality'] = instance.speciality
+        data['place_of_work'] = instance.place_of_work
         return data
 
 
@@ -341,22 +344,19 @@ class ResultImageSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['name'] = instance.competition.name
+        data['name'] = instance.get_name_display()
         return data
 
 
 class ResultsSerializer(serializers.Serializer):
-    participants = serializers.IntegerField()
-    winners = serializers.IntegerField()
-    awards = serializers.IntegerField()
-    certificates = serializers.IntegerField()
-    creative_works = serializers.IntegerField()
-    images = ResultImageSerializer(many=True)
+    pass
+
 
 
 class ContactUsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactUs
         fields = ['id', 'email', 'replied']
+
 
 

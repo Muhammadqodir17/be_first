@@ -3,6 +3,21 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import gettext as _
+from .models import BlacklistedAccessToken
+
+
+class BlacklistAccessTokenMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            access_token = auth_header.split(' ')[1]
+            if BlacklistedAccessToken.objects.filter(token=access_token).exists():
+                return JsonResponse(
+                    data={'detail': 'Access token in blacklist, re-login', 'code': 401},
+                    status=401
+                )
+        else:
+            access_token = None
 
 
 class CheckAuthenticationMiddleware(MiddlewareMixin):
@@ -21,6 +36,7 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
             '/api/v1/child/get_children/',
             '/api/v1/child/delete_child/',
             '/api/v1/auth/user/',
+            '/api/v1/auth/logout/',
             '/api/v1/auth/set_profile/',
             '/api/v1/konkurs/get_comp_detail/',
             '/api/v1/konkurs/get_active_competitions/',
@@ -56,5 +72,5 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
                 return JsonResponse(data={'error': _('unauthorized')}, status=401)
             payload = jwt.decode(token.split()[1], settings.SECRET_KEY, algorithms=['HS256'])
             # Fixed the logic error in the condition
-            if payload.get('role') != 2 and payload.get('role') != 3:
+            if payload.get('role') != 2 or payload.get('role') != 3:
                 return JsonResponse(data={'error': _('Permission denied')}, status=403)

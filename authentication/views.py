@@ -10,7 +10,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from konkurs.serializers import PersonalInfoSerializer
-from .models import User, SMSCode
+from .models import User, SMSCode, BlacklistedAccessToken
 from .validators import validate_uz_phone_number
 from django.utils.crypto import get_random_string
 from rest_framework_simplejwt.tokens import (
@@ -24,7 +24,7 @@ from .serializers import (
     SetPasswordSerializer,
     LoginSerializer,
     SendTempPasswordSerializer,
-    ResetPasswordSerializer
+    ResetPasswordSerializer, LogoutSerializer
 )
 from .validators import validate_uz_phone_number
 
@@ -63,7 +63,7 @@ class RegistrationViewSet(ViewSet):
         operation_description="Sends a 6-digit verification code to the provided phone number."
     )
     def send_sms(self, request):
-        serializer = SendSMSSerializer(data=request.data)
+        serializer = SendSMSSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -125,7 +125,7 @@ class RegistrationViewSet(ViewSet):
         )
     )
     def verify_sms(self, request):
-        serializer = VerifySMSSerializer(data=request.data)
+        serializer = VerifySMSSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -203,7 +203,7 @@ class RegistrationViewSet(ViewSet):
         )
     )
     def set_password(self, request):
-        serializer = SetPasswordSerializer(data=request.data)
+        serializer = SetPasswordSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -221,7 +221,7 @@ class RegistrationViewSet(ViewSet):
         user = User.objects.filter(id=request.user.id).first()
         if user is None:
             return Response(data={'error': _('User not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = PersonalInfoSerializer(user)
+        serializer = PersonalInfoSerializer(user, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -322,7 +322,7 @@ class RegistrationViewSet(ViewSet):
         except User.DoesNotExist:
             return Response({"error": _("User not found.")}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer = UserSerializer(user, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response({"message": _("Personal data saved."), "data": serializer.data}, status=status.HTTP_200_OK)
@@ -431,7 +431,7 @@ class LoginViewSet(ViewSet):
         )
     )
     def send_temp_password(self, request):
-        serializer = SendTempPasswordSerializer(data=request.data)
+        serializer = SendTempPasswordSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -486,9 +486,38 @@ class LoginViewSet(ViewSet):
         )
     )
     def reset_password(self, request):
-        serializer = ResetPasswordSerializer(data=request.data)
+        serializer = ResetPasswordSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()
         return Response({"message": _("Password reset successfully.")}, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'refresh_token': openapi.Schema(type=openapi.TYPE_STRING, description='Refresh token'),
+                'access_token': openapi.Schema(type=openapi.TYPE_STRING, description='Access_token')
+            }
+        ),
+        responses={
+            205: 'Token has been added to blacklist',
+            400: 'Refresh token not provided'
+        },
+        operation_summary="User logout",
+        operation_description="This endpoint allows a user to log out."
+    )
+    def logout(self, request):
+        serializer = LogoutSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(data={'error': serializer.errors, 'ok': False}, status=status.HTTP_400_BAD_REQUEST)
+        refresh_token = serializer.validated_data['refresh_token']
+        access_token = serializer.validated_data['access_token']
+        token1 = RefreshToken(refresh_token)
+        token2 = AccessToken(access_token)
+        token1.blacklist()
+        obj = BlacklistedAccessToken.objects.create(token=token2)
+        obj.save()
+        return Response({'message': 'Logged out successfully', 'ok': True},
+                        status=status.HTTP_205_RESET_CONTENT)
