@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     CompetitionViewSet,
-    MyCompetitionViewSet
+    MyCompetitionViewSet,
+    ContactUsViewSet
 )
 
 urlpatterns = [
@@ -31,5 +32,6 @@ urlpatterns = [
     path('get_notification_by_id/<int:pk>/', MyCompetitionViewSet.as_view({'get': 'get_notification_by_id'}),
          name='get_notification_by_id'),
     # path('', MyCompetitionViewSet.as_view({'get': 'subscriptions'})),
+    path('contact_us/', ContactUsViewSet.as_view({'post': 'create'}), name='contact_us'),
 
 ]

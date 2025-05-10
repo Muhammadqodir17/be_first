@@ -15,6 +15,15 @@ PLACE = (
     (3, 'Third Place')
 )
 
+RESULT_IMAGE = (
+    (1, 'Participants'),
+    (2, 'Winners'),
+    (3, 'Awards'),
+    (4, 'Certificates'),
+    (5, 'Creative Works'),
+)
+
+
 
 class Notification(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
@@ -43,5 +52,63 @@ class Winner(BaseModel):
 
     def __str__(self):
         return f'{self.participant}'
+
+#dynamic
+class ResultImage(BaseModel):
+    name = models.ImageField(choices=RESULT_IMAGE)
+    image = models.ImageField(upload_to='media/')
+
+    def __str__(self):
+        return f"{self.get_name_display}"
+
+
+class Policy(BaseModel):
+    description = models.TextField()
+
+    def __str__(self):
+        return self.id
+
+
+class AboutUs(BaseModel):
+    title = models.CharField(max_length=300)
+    sub_title = models.CharField(max_length=300)
+    description = models.TextField()
+    founder_name = models.CharField(max_length=100)
+    founder_position = models.CharField(max_length=100)
+    founder_image = models.ImageField(upload_to='media/')
+    co_founder_name = models.CharField(max_length=100)
+    co_founder_position = models.CharField(max_length=100)
+    co_founder_image = models.ImageField(upload_to='media/')
+
+    def __str__(self):
+        return f'{self.title}'
+
+
+class AboutResult(BaseModel):
+    description = models.TextField()
+    image = models.ImageField(upload_to='media/')
+
+    def __str__(self):
+        return f'{self.description}'
+
+
+class ContactInformation(BaseModel):
+    location = models.CharField(max_length=300)
+    phone_number = models.CharField(max_length=13, unique=True)
+    email = models.EmailField(unique=True)
+    image = models.ImageField(upload_to='media/')
+
+    def __str__(self):
+        return f"{self.location}"
+
+
+class SocialMedia(BaseModel):
+    name = models.CharField(max_length=250)
+    link = models.URLField()
+
+    def __str__(self):
+        return f'{self.link}'
+
+
 
 

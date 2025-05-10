@@ -1,6 +1,10 @@
 from codecs import replace_errors
 from datetime import date
+
+from django.conf import settings
 from rest_framework import serializers
+
+from authentication.validators import validate_uz_phone_number
 from jury.models import Assessment
 from konkurs.models import (
     Category,
@@ -21,7 +25,13 @@ from authentication.models import (
 from django.contrib.auth.hashers import make_password
 from .models import (
     Winner,
-    PLACE
+    PLACE,
+    ContactInformation,
+    AboutResult,
+    AboutUs,
+    Policy,
+    # ResultImage,
+    SocialMedia,
 )
 
 
@@ -50,7 +60,6 @@ class GetCompetitionByIdSerializer(serializers.ModelSerializer):
         fields = ['id', 'image', 'name', 'category', 'description', 'application_start_date', 'application_start_time',
                   'application_end_date', 'application_end_time', 'rules']
 
-
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['category'] = instance.category.name
@@ -77,6 +86,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
     date_of_birth = serializers.SerializerMethodField(source='get_date_of_birth')
     age = serializers.SerializerMethodField(source='get_age')
     study_place = serializers.SerializerMethodField(source='get_study_place')
+
     # works = serializers.SerializerMethodField(source='get_works')
 
     class Meta:
@@ -118,7 +128,7 @@ class JurySerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'first_name', 'last_name', 'middle_name', 'phone_number', 'birth_date',
                   'place_of_work', 'academic_degree', 'speciality', 'category', 'username', 'password',
-                  'confirm_password', 'role']
+                  'confirm_password', 'role', 'image']
 
     def validate(self, data):
         if data.get('password') and data.get('confirm_password'):
@@ -178,7 +188,8 @@ class CompetitionSerializer(serializers.ModelSerializer):
 class CreateCompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
-        fields = ['id', 'image', 'name', 'category', 'description', 'comp_start_date', 'comp_start_time', 'comp_end_date',
+        fields = ['id', 'image', 'name', 'category', 'description', 'comp_start_date', 'comp_start_time',
+                  'comp_end_date',
                   'comp_end_time', 'application_start_date', 'application_start_time',
                   'application_end_date', 'application_end_time', 'rules']
 
@@ -292,19 +303,7 @@ class WinnerListSerializer(serializers.ModelSerializer):
             return ChildSerializer(child_instance).data
         return None
 
-# class CreateCriteriaSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Criteria
-#         fields = ['id', 'competition', 'name']
-#
-#
-# class CreateCompSerializer(serializers.ModelSerializer):
-#     criteria = serializers.ListSerializer(child=CreateCriteriaSerializer())
-#     class Meta:
-#         model = Competition
-#         fields = ['id', 'name', 'category', 'description', 'prize', 'application_start_date',
-#                   'application_start_time', 'application_end_date', 'application_end_time',
-#                   'participation_fee', 'rules', 'physical_certificate', 'image', 'criteria']
+
 class RegisterParticipantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Participant
@@ -315,3 +314,104 @@ class RegisterParticipantSerializer(serializers.ModelSerializer):
         data['competition'] = instance.competition.name
         data['child'] = instance.child.first_name
         return data
+
+
+class PolicySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Policy
+        fields = ['id', 'description']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['description'] = getattr(instance, f'description_{lang}')
+        return data
+
+
+class AboutUsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AboutUs
+        fields = ['id', 'title', 'sub_title', 'description', 'founder_name', 'founder_position', 'founder_image',
+                  'co_founder_name', 'co_founder_position', 'co_founder_image']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['title'] = getattr(instance, f'title_{lang}')
+            data['sub_title'] = getattr(instance, f'sub_title_{lang}')
+            data['description'] = getattr(instance, f'description_{lang}')
+            data['founder_position'] = getattr(instance, f'founder_position_{lang}')
+            data['co_founder_position'] = getattr(instance, f'co_founder_position_{lang}')
+        return data
+
+
+class AboutResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AboutResult
+        fields = ['id', 'description', 'image']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['description'] = getattr(instance, f'description_{lang}')
+        return data
+
+
+class ContactInformationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactInformation
+        fields = ['id', 'location', 'phone_number', 'email', 'image']
+
+    def validate(self, attrs):
+        phone_number = attrs['phone_number']
+        validate_uz_phone_number(phone_number)
+        return attrs
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['location'] = getattr(instance, f'location_{lang}')
+        return data
+
+
+class WebSocialMediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SocialMedia
+        fields = ['id', 'name', 'link']
+
+
+class SpecialPolicySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Policy
+        fields = ['id', 'description']
+
+
+class SpecialAboutResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AboutResult
+        fields = ['id', 'description', 'image']
+
+
+class SpecialContactInformationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactInformation
+        fields = ['id', 'location', 'phone_number', 'email', 'image']
+
+
+class SpecialAboutUsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AboutUs
+        fields = ['id', 'title', 'sub_title', 'description', 'founder_name', 'founder_position', 'founder_image',
+                  'co_founder_name', 'co_founder_position', 'co_founder_image']
