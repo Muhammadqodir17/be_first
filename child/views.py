@@ -44,7 +44,7 @@ class ChildViewSet(ViewSet):
     )
     def get_user_children(self, request, *args, **kwargs):
         children = Child.objects.filter(user=request.user)
-        serializer = ChildrenSerializer(children, many=True)
+        serializer = ChildrenSerializer(children, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -108,7 +108,7 @@ class ChildViewSet(ViewSet):
         if user.children_count >= 5:
             return Response({'message': _('You have already registered 5 children')}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = ChildSerializer(data=request.data)
+        serializer = ChildSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(user=user)
             user.children_count += 1
@@ -179,7 +179,7 @@ class ChildViewSet(ViewSet):
         child = Child.objects.filter(id=pk).first()
         if child is None:
             return Response({'error': _('Child not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ChildSerializer(child, data=request.data, partial=True)
+        serializer = ChildSerializer(child, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -218,7 +218,7 @@ class ChildViewSet(ViewSet):
         child = Child.objects.filter(id=pk).first()
         if child is None:
             return Response({'error': _('Child not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ChildSerializer(child)
+        serializer = ChildSerializer(child, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -283,7 +283,7 @@ class ChildViewSet(ViewSet):
             return Response({'message': _("You haven't added any children yet")},
                             status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ChildSerializer(children, many=True)
+        serializer = ChildSerializer(children, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -376,7 +376,7 @@ class RegisterChildToCompViewSet(ViewSet):
         tags=['child'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = RegisterParticipantSerializer(data=request.data)
+        serializer = RegisterParticipantSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -412,7 +412,7 @@ class ChildWorkViewSet(ViewSet):  # *
         participant = Participant.objects.filter(id=request.data['participant']).first()
         if participant is None:
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ChildWorkSerializer(data=request.data)
+        serializer = ChildWorkSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()

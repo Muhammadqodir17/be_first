@@ -4,30 +4,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ca97af11-49a7-427c-abc9-5ff152d59fdf" name="Changes" comment="">
+    <list default="true" id="ca97af11-49a7-427c-abc9-5ff152d59fdf" name="Changes" comment="dynamic info added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/authentication/middlewares.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/middlewares.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/authentication/migrations/0001_initial.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/authentication/migrations/0002_initial.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/authentication/migrations/0003_user_place_of_work_en_user_place_of_work_ru_and_more.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/authentication/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/authentication/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/authentication/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/authentication/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/child/migrations/0001_initial.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/child/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/child/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jury/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jury/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/jury/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jury/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/jury/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jury/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/jury/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs/migrations/0001_initial.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs/migrations/0002_competition_description_en_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs/translation.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs/translation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs_admin/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs_admin/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs_admin/migrations/0001_initial.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs_admin/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs_admin/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs_admin/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs_admin/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs_admin/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs_admin/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/konkurs_admin/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs_admin/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -88,6 +91,19 @@
       <option name="presentableId" value="Default" />
       <updated>1746447191019</updated>
     </task>
+    <task id="LOCAL-00001" summary="dynamic info added">
+      <option name="closed" value="true" />
+      <created>1746865713600</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1746865713600</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="dynamic info added" />
+    <option name="LAST_COMMIT_MESSAGE" value="dynamic info added" />
   </component>
 </project>

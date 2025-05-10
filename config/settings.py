@@ -62,9 +62,10 @@ INSTALLED_APPS = [
     'child',
 
     # installed
-    'rest_framework',
     'corsheaders',
+    'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
     'django_celery_beat',
     'click_up',
@@ -82,6 +83,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'authentication.middlewares.BlacklistAccessTokenMiddleware',
     'authentication.middlewares.CheckAuthenticationMiddleware',
 ]
 

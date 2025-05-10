@@ -7,7 +7,10 @@ from jury.models import Assessment
 from jury.serializers import AssessmentHistorySerializer
 
 from authentication.models import User
-from konkurs_admin.models import Notification, Winner
+from konkurs_admin.models import Notification, Winner, WebCertificate, ResultImage, Policy, AboutUs, AboutResult, \
+    ContactInformation, SocialMedia
+from konkurs_admin.serializers import PolicySerializer, AboutUsSerializer, AboutResultSerializer, \
+    ContactInformationSerializer, WebSocialMediaSerializer
 from .serializers import (
     CompetitionSerializer,
     HomeCompetitionSerializer,
@@ -22,7 +25,7 @@ from .serializers import (
     NotificationSerializer,
     ResultsSerializer,
     GetCompSerializer,
-    ContactUsSerializer,
+    ContactUsSerializer, ResultImageSerializer,
 )
 from .models import (
     Competition,
@@ -81,7 +84,7 @@ class CompetitionViewSet(ViewSet):
         tags=['competition']
     )
     def get_gallery(self, request, *args, **kwargs):
-        works = ChildWork.objects.all()
+        works = ChildWork.objects.filter(participant__action=2)
         serializer = GallerySerializer(works, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -110,17 +113,23 @@ class CompetitionViewSet(ViewSet):
         participants = Participant.objects.all().count()
         winners = Winner.objects.filter(place=1).count()
         awards = 0
-        certificates = 0
+        certificate = WebCertificate.objects.all().first().data.year or 0
+        certificate_image = WebCertificate.objects.all().first().image or ''
         creative_works = 0
+        images = ResultImage.objects.all()
 
-        serializer = ResultsSerializer({
+        serialized_images = ResultImageSerializer(images, many=True, context={'request': request})
+
+        result_data = {
             "participants": participants,
             "winners": winners,
             "awards": awards,
-            "certificates": certificates,
-            "creative_works": creative_works
-        })
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+            "certificate": certificate,
+            "certificate_image": certificate_image.url,
+            "creative_works": creative_works,
+            "images": serialized_images.data
+        }
+        return Response(data=result_data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Get competition by id",
@@ -245,7 +254,7 @@ class MyCompetitionViewSet(ViewSet):
     )
     def get_grade_history(self, request, *args, **kwargs):
         grades = Assessment.objects.filter(participant__child__user=request.user)
-        serializer = AssessmentHistorySerializer(grades, many=True)
+        serializer = AssessmentHistorySerializer(grades, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -260,7 +269,7 @@ class MyCompetitionViewSet(ViewSet):
         grade = Assessment.objects.filter(participant__child__user=request.user, id=kwargs['pk']).first()
         if grade is None:
             return Response(data={'error': _('Assessment not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = AssessmentHistorySerializer(grade)
+        serializer = AssessmentHistorySerializer(grade, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -273,7 +282,7 @@ class MyCompetitionViewSet(ViewSet):
     )
     def get_notifications(self, request, *args, **kwargs):
         notifications = Notification.objects.all()
-        serializer = NotificationSerializer(notifications, many=True)
+        serializer = NotificationSerializer(notifications, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -290,7 +299,7 @@ class MyCompetitionViewSet(ViewSet):
             return Response(data={'error': _('Notification not found')}, status=status.HTTP_404_NOT_FOUND)
         notification.is_read = True
         notification.save(update_fields=['is_read'])
-        serializer = NotificationSerializer(notification)
+        serializer = NotificationSerializer(notification, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -309,9 +318,91 @@ class ContactUsViewSet(ViewSet):
         tags=['competition'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = ContactUsSerializer(data=request.data)
+        serializer = ContactUsSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+
+class DynamicInfoViewSet(ViewSet):
+    @swagger_auto_schema(
+        operation_description="Get all Result Image",
+        operation_summary="Get all Result Image",
+        responses={
+            200: ResultImageSerializer(),
+        },
+        tags=['competition']
+    )
+    def get_web_result_image(self, request, *args, **kwargs):
+        web_res = ResultImage.objects.all()
+        serializer = ResultImageSerializer(web_res, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get all Policy",
+        operation_summary="Get all Policy",
+        responses={
+            200: PolicySerializer(),
+        },
+        tags=['competition']
+    )
+    def get_all_policy(self, request, *args, **kwargs):
+        policy = Policy.objects.all()
+        serializer = PolicySerializer(policy, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get all About Us",
+        operation_summary="Get all About Us",
+        responses={
+            200: AboutUsSerializer(),
+        },
+        tags=['competition']
+    )
+    def get_all_about_us(self, request, *args, **kwargs):
+        about_us = AboutUs.objects.all()
+        serializer = AboutUsSerializer(about_us, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get all About Result",
+        operation_summary="Get all About Result",
+        responses={
+            200: AboutResultSerializer(),
+        },
+        tags=['competition']
+    )
+    def get_all_about_result(self, request, *args, **kwargs):
+        about_result = AboutResult.objects.all()
+        serializer = AboutResultSerializer(about_result, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get all Contact Info",
+        operation_summary="Get all Contact Info",
+        responses={
+            200: ContactInformationSerializer(),
+        },
+        tags=['competition']
+    )
+    def get_all_contact_info(self, request, *args, **kwargs):
+        contact_info = ContactInformation.objects.all()
+        serializer = ContactInformationSerializer(contact_info, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get all Social Media",
+        operation_summary="Get Social Media",
+        responses={
+            200: WebSocialMediaSerializer(),
+        },
+        tags=['competition']
+    )
+    def get_all_social_media(self, request, *args, **kwargs):
+        social_media = SocialMedia.objects.all()
+        serializer = WebSocialMediaSerializer(social_media, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
 

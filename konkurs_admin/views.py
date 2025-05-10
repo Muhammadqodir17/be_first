@@ -100,7 +100,7 @@ class CategoryViewSet(ViewSet):
         categories = Category.objects.all()
         paginator = self.pagination_class()
         paginated_categories = paginator.paginate_queryset(categories, request)
-        serializer = CategorySerializer(paginated_categories, many=True)
+        serializer = CategorySerializer(paginated_categories, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -115,7 +115,7 @@ class CategoryViewSet(ViewSet):
         category = Category.objects.filter(id=kwargs['pk']).first()
         if category is None:
             return Response(data={'error': _('Category not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = CategorySerializer(category)
+        serializer = CategorySerializer(category, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -132,7 +132,7 @@ class CategoryViewSet(ViewSet):
         tags=['admin'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = CategorySerializer(data=request.data)
+        serializer = CategorySerializer(data=request.data, context={'request': request})
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -157,7 +157,7 @@ class CategoryViewSet(ViewSet):
         competition = Category.objects.filter(id=kwargs['pk']).first()
         if competition is None:
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = CategorySerializer(competition, data=request.data, partial=True)
+        serializer = CategorySerializer(competition, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -230,7 +230,7 @@ class CompetitionViewSet(ViewSet):
         competitions = Competition.objects.all()
         paginator = self.pagination_class()
         paginated_competitions = paginator.paginate_queryset(competitions, request)
-        serializer = GetCompetitionSerializer(paginated_competitions, many=True)
+        serializer = GetCompetitionSerializer(paginated_competitions, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
         # return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -285,7 +285,7 @@ class CompetitionViewSet(ViewSet):
         comp = Competition.objects.filter(name__icontains=search)
         paginator = self.pagination_class()
         paginated_competitions = paginator.paginate_queryset(comp, request)
-        serializer = GetCompetitionSerializer(paginated_competitions, many=True)
+        serializer = GetCompetitionSerializer(paginated_competitions, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -344,7 +344,7 @@ class CompetitionViewSet(ViewSet):
             competitions = Competition.objects.filter(category=category)
         paginator = self.pagination_class()
         paginated_competitions = paginator.paginate_queryset(competitions, request)
-        serializer = GetCompetitionSerializer(paginated_competitions, many=True)
+        serializer = GetCompetitionSerializer(paginated_competitions, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -359,7 +359,7 @@ class CompetitionViewSet(ViewSet):
         competition = Competition.objects.filter(id=kwargs['pk']).first()
         if competition is None:
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = GetCompetitionByIdSerializer(competition)
+        serializer = GetCompetitionByIdSerializer(competition, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -423,7 +423,7 @@ class CompetitionViewSet(ViewSet):
         )
         paginator = self.pagination_class()
         paginated_participant = paginator.paginate_queryset(participant, request)
-        serializer = ActiveParticipantSerializer(paginated_participant, many=True)
+        serializer = ActiveParticipantSerializer(paginated_participant, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -478,7 +478,7 @@ class CompetitionViewSet(ViewSet):
         participants = Participant.objects.filter(competition=comp, marked_status=2, action=2)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
-        serializer = ActiveParticipantSerializer(paginated_participants, many=True)
+        serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -542,7 +542,7 @@ class CompetitionViewSet(ViewSet):
         )
         paginator = self.pagination_class()
         paginated_winners = paginator.paginate_queryset(winners, request)
-        serializer = WinnerListSerializer(paginated_winners, many=True)
+        serializer = WinnerListSerializer(paginated_winners, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -597,7 +597,7 @@ class CompetitionViewSet(ViewSet):
         winners = Winner.objects.filter(competition=comp).order_by('place')
         paginator = self.pagination_class()
         paginated_winners = paginator.paginate_queryset(winners, request)
-        serializer = WinnerListSerializer(paginated_winners, many=True)
+        serializer = WinnerListSerializer(paginated_winners, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -689,7 +689,7 @@ class CompetitionViewSet(ViewSet):
         tags=['admin'],
     )
     def create_comp(self, request, *args, **kwargs):
-        serializer = CreateCompetitionSerializer(data=request.data)
+        serializer = CreateCompetitionSerializer(data=request.data, context={'request': request})
         # serializer = CompetitionSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -781,7 +781,7 @@ class CompetitionViewSet(ViewSet):
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
             return Response(data={'error': _('Comp is not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = CreateCompetitionSerializer(comp, data=request.data, partial=True)
+        serializer = CreateCompetitionSerializer(comp, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -854,7 +854,7 @@ class CompetitionViewSet(ViewSet):
         participants = Participant.objects.filter(competition=competition, action=1)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
-        serializer = ParticipantSerializer(paginated_participants, many=True)
+        serializer = ParticipantSerializer(paginated_participants, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -958,7 +958,7 @@ class CompetitionViewSet(ViewSet):
         participants = Participant.objects.filter(competition=comp, marked_status=2)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
-        serializer = ActiveParticipantSerializer(paginated_participants, many=True)
+        serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -1035,7 +1035,7 @@ class CompetitionViewSet(ViewSet):
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = WinnerSerializer(data=request.data)
+        serializer = WinnerSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         participant = Participant.objects.filter(competition=comp,
@@ -1102,7 +1102,7 @@ class CompetitionViewSet(ViewSet):
         participants = Participant.objects.filter(competition=comp, winner=False)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
-        serializer = ActiveParticipantSerializer(paginated_participants, many=True)
+        serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -1199,7 +1199,7 @@ class JuryViewSet(ViewSet):
         juries = User.objects.filter(role=2)
         paginator = self.pagination_class()
         paginated_juries = paginator.paginate_queryset(juries, request)
-        serializer = GetJurySerializer(paginated_juries, many=True)
+        serializer = GetJurySerializer(paginated_juries, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -1258,7 +1258,7 @@ class JuryViewSet(ViewSet):
         )
         paginator = self.pagination_class()
         paginated_juries = paginator.paginate_queryset(juries, request)
-        serializer = GetJurySerializer(paginated_juries, many=True)
+        serializer = GetJurySerializer(paginated_juries, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -1273,7 +1273,7 @@ class JuryViewSet(ViewSet):
         jury = User.objects.filter(id=kwargs['pk'], role=2).first()
         if jury is None:
             return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = GetJurySerializer(jury)
+        serializer = GetJurySerializer(jury, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -1371,12 +1371,19 @@ class JuryViewSet(ViewSet):
                 required=True,
                 description="image",
             ),
+            openapi.Parameter(
+                name='email',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="email",
+            ),
         ],
         responses={201: JurySerializer()},
         tags=['admin'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = JurySerializer(data=request.data)
+        serializer = JurySerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.validated_data['role'] = 2
@@ -1478,6 +1485,13 @@ class JuryViewSet(ViewSet):
                 required=False,
                 description="image",
             ),
+            openapi.Parameter(
+                name='email',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="email",
+            ),
         ],
         responses={200: JurySerializer()},
         tags=['admin'],
@@ -1486,7 +1500,7 @@ class JuryViewSet(ViewSet):
         jury = User.objects.filter(id=kwargs['pk'], role=2).first()
         if jury is None:
             return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = JurySerializer(jury, data=request.data, partial=True)
+        serializer = JurySerializer(jury, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1523,7 +1537,7 @@ class WebSocialMediaViewSet(ViewSet):
         social_media = SocialMedia.objects.filter(id=kwargs['pk']).first()
         if social_media is None:
             return Response(data={'error': _('SocialMedia not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = WebSocialMediaSerializer(social_media)
+        serializer = WebSocialMediaSerializer(social_media, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -1536,7 +1550,7 @@ class WebSocialMediaViewSet(ViewSet):
     )
     def get_all(self, request, *args, **kwargs):
         social_media = SocialMedia.objects.all()
-        serializer = WebSocialMediaSerializer(social_media, many=True)
+        serializer = WebSocialMediaSerializer(social_media, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -1562,7 +1576,7 @@ class WebSocialMediaViewSet(ViewSet):
         tags=['admin'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = WebSocialMediaSerializer(data=request.data)
+        serializer = WebSocialMediaSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1594,7 +1608,7 @@ class WebSocialMediaViewSet(ViewSet):
         social_media = SocialMedia.objects.filter(id=kwargs['pk']).first()
         if social_media is None:
             return Response(data={'error': _('SocialMedia not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = WebSocialMediaSerializer(social_media, data=request.data, partial=True)
+        serializer = WebSocialMediaSerializer(social_media, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1685,7 +1699,7 @@ class ContactInformationViewSet(ViewSet):
         tags=['admin'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = SpecialContactInformationSerializer(data=request.data)
+        serializer = SpecialContactInformationSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1731,7 +1745,7 @@ class ContactInformationViewSet(ViewSet):
         contact_info = ContactInformation.objects.filter(id=kwargs['pk']).first()
         if contact_info is None:
             return Response(data={'error': 'Contact Info not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = SpecialContactInformationSerializer(contact_info, data=request.data, partial=True)
+        serializer = SpecialContactInformationSerializer(contact_info, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1808,7 +1822,7 @@ class AboutResultViewSet(ViewSet):
         tags=['admin'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = SpecialAboutResultSerializer(data=request.data)
+        serializer = SpecialAboutResultSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1840,7 +1854,7 @@ class AboutResultViewSet(ViewSet):
         about_result = AboutResult.objects.filter(id=kwargs['pk']).first()
         if about_result is None:
             return Response(data={'error': 'About result not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = SpecialAboutResultSerializer(about_result, data=request.data, partial=True)
+        serializer = SpecialAboutResultSerializer(about_result, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1967,7 +1981,7 @@ class AboutUsViewSet(ViewSet):
         tags=['admin'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = SpecialAboutUsSerializer(data=request.data)
+        serializer = SpecialAboutUsSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -2048,7 +2062,7 @@ class AboutUsViewSet(ViewSet):
         about_us = AboutUs.objects.filter(id=kwargs['pk']).first()
         if about_us is None:
             return Response(data={'error': 'About us not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = SpecialAboutUsSerializer(about_us, data=request.data, partial=True)
+        serializer = SpecialAboutUsSerializer(about_us, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -2114,7 +2128,7 @@ class PolicyViewSet(ViewSet):
         tags=['admin'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = SpecialPolicySerializer(data=request.data)
+        serializer = SpecialPolicySerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -2137,7 +2151,7 @@ class PolicyViewSet(ViewSet):
         policy = Policy.objects.filter(id=kwargs['pk']).first()
         if policy is None:
             return Response(data={'error': 'Policy not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = SpecialPolicySerializer(policy, data=request.data, partial=True)
+        serializer = SpecialPolicySerializer(policy, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -2174,7 +2188,7 @@ class WebResultImageViewSet(ViewSet):
         web_res = ResultImage.objects.filter(id=kwargs['pk']).first()
         if web_res is None:
             return Response(data={'error': 'Result image not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ResultImageSerializer(web_res)
+        serializer = ResultImageSerializer(web_res, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -2187,7 +2201,7 @@ class WebResultImageViewSet(ViewSet):
     )
     def get_all(self, request, *args, **kwargs):
         web_res = ResultImage.objects.all()
-        serializer = ResultImageSerializer(web_res, many=True)
+        serializer = ResultImageSerializer(web_res, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -2213,7 +2227,7 @@ class WebResultImageViewSet(ViewSet):
         tags=['admin'],
     )
     def create(self, request, *args, **kwargs):
-        serializer = ResultImageSerializer(data=request.data)
+        serializer = ResultImageSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -2245,7 +2259,7 @@ class WebResultImageViewSet(ViewSet):
         web_res = ResultImage.objects.filter(id=kwargs['pk']).first()
         if web_res is None:
             return Response(data={'error': 'Result image not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ResultImageSerializer(web_res, data=request.data, partial=True)
+        serializer = ResultImageSerializer(web_res, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -2282,7 +2296,7 @@ class ContactUsViewSet(ViewSet):
         contact_us = ContactUs.objects.filter(id=kwargs['pk']).first()
         if contact_us is None:
             return Response(data={'error': 'Contact us not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ContactUsSerializer(contact_us)
+        serializer = ContactUsSerializer(contact_us, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -2332,7 +2346,7 @@ class ContactUsViewSet(ViewSet):
         contact_us = ContactUs.objects.all()
         paginator = self.pagination_class()
         paginated_contact_us = paginator.paginate_queryset(contact_us, request)
-        serializer = ContactUsSerializer(paginated_contact_us, many=True)
+        serializer = ContactUsSerializer(paginated_contact_us, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -2352,7 +2366,7 @@ class ContactUsViewSet(ViewSet):
         contact_us = ContactUs.objects.filter(id=kwargs['pk']).first()
         if contact_us is None:
             return Response(data={'error': 'Contact us not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ContactUsSerializer(contact_us, data=request.data, partial=True)
+        serializer = ContactUsSerializer(contact_us, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()

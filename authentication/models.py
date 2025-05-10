@@ -40,7 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    image = models.ImageField(upload_to='media/')
+    image = models.ImageField(upload_to='media/', null=True)
 
     USERNAME_FIELD = 'phone_number'
 
@@ -71,3 +71,8 @@ class TemporaryPassword(BaseModel):
     def is_expired(self):
         expiration_time = self.created_at + timedelta(minutes=5)
         return now() > expiration_time
+
+
+class BlacklistedAccessToken(models.Model):
+    token = models.CharField(max_length=500, unique=True)
+    blacklisted_at = models.DateTimeField(auto_now_add=True)
