@@ -347,10 +347,14 @@ class ResultImageSerializer(serializers.ModelSerializer):
         data['name'] = instance.get_name_display()
         return data
 
+class WebCerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WebCertificate
+        fields = ['image']
+
 
 class ResultsSerializer(serializers.Serializer):
     pass
-
 
 
 class ContactUsSerializer(serializers.ModelSerializer):

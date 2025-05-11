@@ -25,7 +25,7 @@ from .serializers import (
     NotificationSerializer,
     ResultsSerializer,
     GetCompSerializer,
-    ContactUsSerializer, ResultImageSerializer,
+    ContactUsSerializer, ResultImageSerializer, WebCerSerializer,
 )
 from .models import (
     Competition,
@@ -113,8 +113,13 @@ class CompetitionViewSet(ViewSet):
         participants = Participant.objects.all().count()
         winners = Winner.objects.filter(place=1).count()
         awards = 0
-        certificate = WebCertificate.objects.all().first().data.year or 0
-        certificate_image = WebCertificate.objects.all().first().image or ''
+        certificate_obj = WebCertificate.objects.all().first()
+        if certificate_obj:
+            certificate = certificate_obj.data.year if certificate_obj.data else 0
+            cer_serializer = WebCerSerializer(certificate_obj, context={'request': request})
+        else:
+            certificate = 0
+            cer_serializer = ''
         creative_works = 0
         images = ResultImage.objects.all()
 
@@ -125,7 +130,7 @@ class CompetitionViewSet(ViewSet):
             "winners": winners,
             "awards": awards,
             "certificate": certificate,
-            "certificate_image": certificate_image.url,
+            "certificate_image": cer_serializer.data,
             "creative_works": creative_works,
             "images": serialized_images.data
         }
