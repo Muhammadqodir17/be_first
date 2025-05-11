@@ -38,7 +38,7 @@ from .models import (
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'name_uz', 'name_ru', 'name_en']
 
 
 class GetCompetitionSerializer(serializers.ModelSerializer):
@@ -58,11 +58,12 @@ class GetCompetitionByIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'image', 'name', 'category', 'description', 'application_start_date', 'application_start_time',
-                  'application_end_date', 'application_end_time', 'rules']
+                  'application_end_date', 'application_end_time', 'rules', 'status']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['category'] = instance.category.name
+        data['status'] = dict(STATUS).get(instance.status, 'Unknown')
         return data
 
 
@@ -127,7 +128,8 @@ class JurySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'middle_name', 'phone_number', 'birth_date',
-                  'place_of_work', 'academic_degree', 'speciality', 'category', 'username', 'password',
+                  'place_of_work', 'place_of_work_uz', 'place_of_work_ru', 'place_of_work_en', 'academic_degree',
+                  'speciality', 'speciality_uz', 'speciality_ru', 'speciality_en', 'category', 'username', 'password',
                   'confirm_password', 'role', 'image']
 
     def validate(self, data):
@@ -188,7 +190,10 @@ class CompetitionSerializer(serializers.ModelSerializer):
 class CreateCompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
-        fields = ['id', 'image', 'name', 'category', 'description', 'comp_start_date', 'comp_start_time',
+        fields = ['id', 'image', 'name', 'name_uz', 'name_ru', 'name_en', 'category',
+                  'description', 'description_uz', 'description_ru', 'description_en',
+                  'comp_start_date',
+                  'comp_start_time',
                   'comp_end_date',
                   'comp_end_time', 'application_start_date', 'application_start_time',
                   'application_end_date', 'application_end_time', 'rules']
@@ -395,23 +400,28 @@ class WebSocialMediaSerializer(serializers.ModelSerializer):
 class SpecialPolicySerializer(serializers.ModelSerializer):
     class Meta:
         model = Policy
-        fields = ['id', 'description']
+        fields = ['id', 'description', 'description_uz', 'description_ru', 'description_en']
 
 
 class SpecialAboutResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = AboutResult
-        fields = ['id', 'description', 'image']
+        fields = ['id', 'description', 'description_uz', 'description_ru', 'description_en', 'image']
 
 
 class SpecialContactInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactInformation
-        fields = ['id', 'location', 'phone_number', 'email', 'image']
+        fields = ['id', 'location', 'location_uz', 'location_ru', 'location_en', 'phone_number',
+                  'email', 'image']
 
 
 class SpecialAboutUsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AboutUs
-        fields = ['id', 'title', 'sub_title', 'description', 'founder_name', 'founder_position', 'founder_image',
-                  'co_founder_name', 'co_founder_position', 'co_founder_image']
+        fields = ['id', 'title', 'title_uz', 'title_ru', 'title_en', 'sub_title', 'sub_title_uz', 'sub_title_ru',
+                  'sub_title_en', 'description', 'description_uz', 'description_ru', 'description_en', 'founder_name',
+                  'founder_position', 'founder_position_uz', 'founder_position_ru', 'founder_position_en',
+                  'founder_image',
+                  'co_founder_name', 'co_founder_position', 'co_founder_position_uz', 'co_founder_position_ru',
+                  'co_founder_position_en', 'co_founder_image']
