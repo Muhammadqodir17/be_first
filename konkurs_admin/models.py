@@ -66,7 +66,7 @@ class Policy(BaseModel):
     description = models.TextField()
 
     def __str__(self):
-        return self.id
+        return f'{self.id}'
 
 
 class AboutUs(BaseModel):
