@@ -33,7 +33,7 @@ from .serializers import (
     GetJurySerializer,
     GetCompetitionByIdSerializer,
     CreateCompetitionSerializer,
-#
+    #
     WebSocialMediaSerializer,
     ContactInformationSerializer,
     SpecialContactInformationSerializer,
@@ -125,8 +125,11 @@ class CategoryViewSet(ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 'name': openapi.Schema(type=openapi.TYPE_STRING, description='name'),
+                'name_uz': openapi.Schema(type=openapi.TYPE_STRING, description='name_uz'),
+                'name_ru': openapi.Schema(type=openapi.TYPE_STRING, description='name_ru'),
+                'name_en': openapi.Schema(type=openapi.TYPE_STRING, description='name_en'),
             },
-            required=['name']
+            required=['name', 'name_uz', 'name_ru', 'name_en']
         ),
         responses={201: CategorySerializer()},
         tags=['admin'],
@@ -147,6 +150,9 @@ class CategoryViewSet(ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 'name': openapi.Schema(type=openapi.TYPE_STRING, description='name'),
+                'name_uz': openapi.Schema(type=openapi.TYPE_STRING, description='name_uz'),
+                'name_ru': openapi.Schema(type=openapi.TYPE_STRING, description='name_ru'),
+                'name_en': openapi.Schema(type=openapi.TYPE_STRING, description='name_en'),
             },
             required=[]
         ),
@@ -617,6 +623,27 @@ class CompetitionViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="name",
+            ),
+            openapi.Parameter(
+                name='name_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="name_uz",
+            ),
+            openapi.Parameter(
+                name='name_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="name_ru",
+            ),
+            openapi.Parameter(
+                name='name_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="name_en",
             ), openapi.Parameter(
                 name='category',
                 in_=openapi.IN_FORM,
@@ -629,6 +656,24 @@ class CompetitionViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="description",
+            ), openapi.Parameter(
+                name='description_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description_uz",
+            ), openapi.Parameter(
+                name='description_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description_ru",
+            ), openapi.Parameter(
+                name='description_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description_en",
             ), openapi.Parameter(
                 name='comp_start_date',
                 in_=openapi.IN_FORM,
@@ -717,6 +762,24 @@ class CompetitionViewSet(ViewSet):
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
                 description="name",
+            ),
+            openapi.Parameter(
+                name='name_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="name_uz",
+            ),
+            openapi.Parameter(
+                name='name_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="name_ru",
+            ),
+            openapi.Parameter(
+                name='name_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="name_en",
             ), openapi.Parameter(
                 name='category',
                 in_=openapi.IN_FORM,
@@ -727,6 +790,21 @@ class CompetitionViewSet(ViewSet):
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
                 description="description",
+            ), openapi.Parameter(
+                name='description_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="description_uz",
+            ), openapi.Parameter(
+                name='description_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="description_ru",
+            ), openapi.Parameter(
+                name='description_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="description_en",
             ), openapi.Parameter(
                 name='comp_start_date',
                 in_=openapi.IN_FORM,
@@ -896,7 +974,8 @@ class CompetitionViewSet(ViewSet):
         elif action == 'decline':
             message = (
                 _("Dear %(participant_name)s.") % {'participant_name': participant.child.first_name},
-                _("You have an error to fill register or work for the %(comp_name)s") % {'comp_name': participant.competition.name}
+                _("You have an error to fill register or work for the %(comp_name)s") % {
+                    'comp_name': participant.competition.name}
             )
             participant.action = 3
             Notification.objects.create(user=participant.child.user, child=participant.child,
@@ -1323,6 +1402,27 @@ class JuryViewSet(ViewSet):
                 description="place_of_work",
             ),
             openapi.Parameter(
+                name='place_of_work_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="place_of_work_uz",
+            ),
+            openapi.Parameter(
+                name='place_of_work_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="place_of_work_ru",
+            ),
+            openapi.Parameter(
+                name='place_of_work_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="place_of_work_en",
+            ),
+            openapi.Parameter(
                 name='academic_degree',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_INTEGER,
@@ -1335,6 +1435,27 @@ class JuryViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="speciality",
+            ),
+            openapi.Parameter(
+                name='speciality_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="speciality_uz",
+            ),
+            openapi.Parameter(
+                name='speciality_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="speciality_ru",
+            ),
+            openapi.Parameter(
+                name='speciality_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="speciality_en",
             ),
             openapi.Parameter(
                 name='category',
@@ -1437,6 +1558,27 @@ class JuryViewSet(ViewSet):
                 description="place_of_work",
             ),
             openapi.Parameter(
+                name='place_of_work_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="place_of_work_uz",
+            ),
+            openapi.Parameter(
+                name='place_of_work_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="place_of_work_ru",
+            ),
+            openapi.Parameter(
+                name='place_of_work_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="place_of_work_en",
+            ),
+            openapi.Parameter(
                 name='academic_degree',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_INTEGER,
@@ -1449,6 +1591,27 @@ class JuryViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=False,
                 description="speciality",
+            ),
+            openapi.Parameter(
+                name='speciality_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="speciality_uz",
+            ),
+            openapi.Parameter(
+                name='speciality_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="speciality_ru",
+            ),
+            openapi.Parameter(
+                name='speciality_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="speciality_en",
             ),
             openapi.Parameter(
                 name='category',
@@ -1608,7 +1771,8 @@ class WebSocialMediaViewSet(ViewSet):
         social_media = SocialMedia.objects.filter(id=kwargs['pk']).first()
         if social_media is None:
             return Response(data={'error': _('SocialMedia not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = WebSocialMediaSerializer(social_media, data=request.data, partial=True, context={'request': request})
+        serializer = WebSocialMediaSerializer(social_media, data=request.data, partial=True,
+                                              context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1681,6 +1845,27 @@ class ContactInformationViewSet(ViewSet):
                 description="location",
             ),
             openapi.Parameter(
+                name='location_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="location_uz",
+            ),
+            openapi.Parameter(
+                name='location_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="location_ru",
+            ),
+            openapi.Parameter(
+                name='location_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="location_en",
+            ),
+            openapi.Parameter(
                 name='phone_number',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
@@ -1724,6 +1909,27 @@ class ContactInformationViewSet(ViewSet):
                 description="location",
             ),
             openapi.Parameter(
+                name='location_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="location_uz",
+            ),
+            openapi.Parameter(
+                name='location_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="location_ru",
+            ),
+            openapi.Parameter(
+                name='location_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="location_en",
+            ),
+            openapi.Parameter(
                 name='phone_number',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
@@ -1745,7 +1951,8 @@ class ContactInformationViewSet(ViewSet):
         contact_info = ContactInformation.objects.filter(id=kwargs['pk']).first()
         if contact_info is None:
             return Response(data={'error': 'Contact Info not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = SpecialContactInformationSerializer(contact_info, data=request.data, partial=True, context={'request': request})
+        serializer = SpecialContactInformationSerializer(contact_info, data=request.data, partial=True,
+                                                         context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1817,6 +2024,27 @@ class AboutResultViewSet(ViewSet):
                 required=True,
                 description="description",
             ),
+            openapi.Parameter(
+                name='description_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description_uz",
+            ),
+            openapi.Parameter(
+                name='description_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description_ru",
+            ),
+            openapi.Parameter(
+                name='description_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description_en",
+            ),
         ],
         responses={201: SpecialAboutResultSerializer()},
         tags=['admin'],
@@ -1846,6 +2074,27 @@ class AboutResultViewSet(ViewSet):
                 required=False,
                 description="description",
             ),
+            openapi.Parameter(
+                name='description_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="description_uz",
+            ),
+            openapi.Parameter(
+                name='description_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="description_ru",
+            ),
+            openapi.Parameter(
+                name='description_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="description_en",
+            ),
         ],
         responses={200: SpecialAboutResultSerializer()},
         tags=['admin'],
@@ -1854,7 +2103,8 @@ class AboutResultViewSet(ViewSet):
         about_result = AboutResult.objects.filter(id=kwargs['pk']).first()
         if about_result is None:
             return Response(data={'error': 'About result not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = SpecialAboutResultSerializer(about_result, data=request.data, partial=True, context={'request': request})
+        serializer = SpecialAboutResultSerializer(about_result, data=request.data, partial=True,
+                                                  context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -1895,7 +2145,6 @@ class AboutUsViewSet(ViewSet):
         serializer = AboutUsSerializer(about_us, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-
     @swagger_auto_schema(
         operation_description="Get all About Us",
         operation_summary="Get all About Us",
@@ -1919,6 +2168,24 @@ class AboutUsViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="title"
+            ),openapi.Parameter(
+                name='title_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="title_uz"
+            ),openapi.Parameter(
+                name='title_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="title_ru"
+            ),openapi.Parameter(
+                name='title_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="title_en"
             ),
             openapi.Parameter(
                 name='sub_title',
@@ -1928,11 +2195,53 @@ class AboutUsViewSet(ViewSet):
                 description="sub_title",
             ),
             openapi.Parameter(
+                name='sub_title_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="sub_title_uz",
+            ),
+            openapi.Parameter(
+                name='sub_title_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="sub_title_ru",
+            ),
+            openapi.Parameter(
+                name='sub_title_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="sub_title_en",
+            ),
+            openapi.Parameter(
                 name='description',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="description",
+            ),
+            openapi.Parameter(
+                name='description_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description_uz",
+            ),
+            openapi.Parameter(
+                name='description_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description_ru",
+            ),
+            openapi.Parameter(
+                name='description_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="description_en",
             ),
             openapi.Parameter(
                 name='founder_name',
@@ -1947,6 +2256,27 @@ class AboutUsViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="founder_position",
+            ),
+            openapi.Parameter(
+                name='founder_position_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="founder_position_uz",
+            ),
+            openapi.Parameter(
+                name='founder_position_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="founder_position_ru",
+            ),
+            openapi.Parameter(
+                name='founder_position_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="founder_position_en",
             ),
             openapi.Parameter(
                 name='founder_image',
@@ -1968,6 +2298,27 @@ class AboutUsViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="co_founder_position",
+            ),
+            openapi.Parameter(
+                name='co_founder_position_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="co_founder_position_uz",
+            ),
+            openapi.Parameter(
+                name='co_founder_position_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="co_founder_position_ru",
+            ),
+            openapi.Parameter(
+                name='co_founder_position_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="co_founder_position_en",
             ),
             openapi.Parameter(
                 name='co_founder_image',
@@ -1997,6 +2348,24 @@ class AboutUsViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=False,
                 description="title"
+            ), openapi.Parameter(
+                name='title_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="title_uz"
+            ), openapi.Parameter(
+                name='title_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="title_ru"
+            ), openapi.Parameter(
+                name='title_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="title_en"
             ),
             openapi.Parameter(
                 name='sub_title',
@@ -2006,11 +2375,53 @@ class AboutUsViewSet(ViewSet):
                 description="sub_title",
             ),
             openapi.Parameter(
+                name='sub_title_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="sub_title_uz",
+            ),
+            openapi.Parameter(
+                name='sub_title_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="sub_title_ru",
+            ),
+            openapi.Parameter(
+                name='sub_title_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="sub_title_en",
+            ),
+            openapi.Parameter(
                 name='description',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
                 required=False,
                 description="description",
+            ),
+            openapi.Parameter(
+                name='description_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="description_uz",
+            ),
+            openapi.Parameter(
+                name='description_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="description_ru",
+            ),
+            openapi.Parameter(
+                name='description_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="description_en",
             ),
             openapi.Parameter(
                 name='founder_name',
@@ -2025,6 +2436,27 @@ class AboutUsViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=False,
                 description="founder_position",
+            ),
+            openapi.Parameter(
+                name='founder_position_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="founder_position_uz",
+            ),
+            openapi.Parameter(
+                name='founder_position_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="founder_position_ru",
+            ),
+            openapi.Parameter(
+                name='founder_position_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="founder_position_en",
             ),
             openapi.Parameter(
                 name='founder_image',
@@ -2046,6 +2478,27 @@ class AboutUsViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=False,
                 description="co_founder_position",
+            ),
+            openapi.Parameter(
+                name='co_founder_position_uz',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="co_founder_position_uz",
+            ),
+            openapi.Parameter(
+                name='co_founder_position_ru',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="co_founder_position_ru",
+            ),
+            openapi.Parameter(
+                name='co_founder_position_en',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="co_founder_position_en",
             ),
             openapi.Parameter(
                 name='co_founder_image',
@@ -2121,8 +2574,11 @@ class PolicyViewSet(ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 'description': openapi.Schema(type=openapi.TYPE_STRING, description='description'),
+                'description_uz': openapi.Schema(type=openapi.TYPE_STRING, description='description_uz'),
+                'description_ru': openapi.Schema(type=openapi.TYPE_STRING, description='description_ru'),
+                'description_en': openapi.Schema(type=openapi.TYPE_STRING, description='description_en'),
             },
-            required=['name']
+            required=['description', 'description_uz', 'description_ru', 'description_en']
         ),
         responses={201: SpecialPolicySerializer()},
         tags=['admin'],
@@ -2141,8 +2597,11 @@ class PolicyViewSet(ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 'description': openapi.Schema(type=openapi.TYPE_STRING, description='description'),
+                'description_uz': openapi.Schema(type=openapi.TYPE_STRING, description='description_uz'),
+                'description_ru': openapi.Schema(type=openapi.TYPE_STRING, description='description_ru'),
+                'description_en': openapi.Schema(type=openapi.TYPE_STRING, description='description_en'),
             },
-            required=['name']
+            required=[]
         ),
         responses={200: SpecialPolicySerializer()},
         tags=['admin'],
@@ -2176,6 +2635,7 @@ class PolicyViewSet(ViewSet):
 
 class WebResultImageViewSet(ViewSet):
     parser_classes = [MultiPartParser, FormParser]
+
     @swagger_auto_schema(
         operation_description="Get Result Image By Id",
         operation_summary="Get Result Image By Id",
@@ -2284,6 +2744,7 @@ class WebResultImageViewSet(ViewSet):
 
 class ContactUsViewSet(ViewSet):
     pagination_class = CustomPagination
+
     @swagger_auto_schema(
         operation_description="Get Contact Us By Id",
         operation_summary="Get Contact Us By Id",
@@ -2387,11 +2848,3 @@ class ContactUsViewSet(ViewSet):
             return Response(data={'error': 'Contact us not found'}, status=status.HTTP_404_NOT_FOUND)
         contact_us.delete()
         return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
-
-
-
-
-
-
-
-

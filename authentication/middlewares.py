@@ -72,5 +72,8 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
                 return JsonResponse(data={'error': _('unauthorized')}, status=401)
             payload = jwt.decode(token.split()[1], settings.SECRET_KEY, algorithms=['HS256'])
             # Fixed the logic error in the condition
-            if payload.get('role') != 2 or payload.get('role') != 3:
+            print('=' * 100)
+            print(payload)
+            print('=' * 100)
+            if payload.get('role') == 1:
                 return JsonResponse(data={'error': _('Permission denied')}, status=403)
