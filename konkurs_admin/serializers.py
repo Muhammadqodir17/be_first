@@ -426,3 +426,12 @@ class SpecialAboutUsSerializer(serializers.ModelSerializer):
                   'founder_image',
                   'co_founder_name', 'co_founder_position', 'co_founder_position_uz', 'co_founder_position_ru',
                   'co_founder_position_en', 'co_founder_image']
+
+
+class GetExistJurySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'middle_name', 'phone_number', 'birth_date',
+                  'place_of_work', 'place_of_work_uz', 'place_of_work_ru', 'place_of_work_en', 'academic_degree',
+                  'speciality', 'speciality_uz', 'speciality_ru', 'speciality_en', 'category',
+                  'image']

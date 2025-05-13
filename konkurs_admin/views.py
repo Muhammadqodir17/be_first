@@ -1362,7 +1362,7 @@ class JuryViewSet(ViewSet):
         operation_description="Get Jury By Id",
         operation_summary="Get Jury By Id",
         responses={
-            200: JurySerializer(),
+            200: GetJurySerializer(),
         },
         tags=['admin']
     )
@@ -1530,6 +1530,21 @@ class JuryViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
+        operation_description="Get Exist Jury By Id for Update",
+        operation_summary="Get Exist Jury By Id for Update",
+        responses={
+            200: JurySerializer(),
+        },
+        tags=['admin']
+    )
+    def get_exist_jury_by_id(self, request, *args, **kwargs):
+        jury = User.objects.filter(id=kwargs['pk'], role=2).first()
+        if jury is None:
+            return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
+        serializer = GetExistJurySerializer(jury, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
         operation_description="Update Jury",
         operation_summary="Update Jury",
         manual_parameters=[
@@ -1579,21 +1594,21 @@ class JuryViewSet(ViewSet):
                 name='place_of_work_uz',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
-                required=True,
+                required=False,
                 description="place_of_work_uz",
             ),
             openapi.Parameter(
                 name='place_of_work_ru',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
-                required=True,
+                required=False,
                 description="place_of_work_ru",
             ),
             openapi.Parameter(
                 name='place_of_work_en',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
-                required=True,
+                required=False,
                 description="place_of_work_en",
             ),
             openapi.Parameter(
@@ -1614,21 +1629,21 @@ class JuryViewSet(ViewSet):
                 name='speciality_uz',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
-                required=True,
+                required=False,
                 description="speciality_uz",
             ),
             openapi.Parameter(
                 name='speciality_ru',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
-                required=True,
+                required=False,
                 description="speciality_ru",
             ),
             openapi.Parameter(
                 name='speciality_en',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
-                required=True,
+                required=False,
                 description="speciality_en",
             ),
             openapi.Parameter(
