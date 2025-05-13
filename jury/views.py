@@ -34,6 +34,22 @@ class JuryViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
+        operation_description="Active Competitions if filter none",
+        operation_summary="Active Competitions if filter none",
+        responses={
+            200: ActiveCompetitionSerializer(),
+        },
+        tags=['jury']
+    )
+    def get_active_comps(self, request, *args, **kwargs):
+        user = User.objects.filter(id=request.user.id).first()
+        if user is None:
+            return Response(data={'error': 'User not found'})
+        comps = Competition.objects.filter(status=1, category=user.category)
+        serializer = ActiveCompetitionSerializer(comps, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
         operation_description="Filter comp by Category",
         operation_summary="Filter comp by Category",
         manual_parameters=[

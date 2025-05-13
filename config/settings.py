@@ -273,3 +273,7 @@ try:
     from .local import *
 except ImportError:
     pass
+
+BOT_ID = '7662698791:AAFF7tOLoXxRhLIwL5ltuEuxpsyqIm4UUKE'
+CHAT_ID = '-1002697239441'
+TELEGRAM_API_URL = "https://api.telegram.org/bot{}/sendMessage?text={}&chat_id={}"

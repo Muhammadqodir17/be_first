@@ -13,6 +13,8 @@ from django.utils.translation import gettext as _
 from .utils import is_valid_tokens
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 
+from .validators import validate_uz_phone_number
+
 BOT_TOKEN = '7662698791:AAFF7tOLoXxRhLIwL5ltuEuxpsyqIm4UUKE'
 CHAT_ID = '5467422443'
 
@@ -215,3 +217,34 @@ class LogoutSerializer(serializers.Serializer):
         if refresh_blacklisted or access_blacklisted:
             raise serializers.ValidationError('Tokens are already in blacklist', code=400)
         return data
+
+
+class SetProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'image', 'first_name', 'last_name', 'middle_name', 'email',
+                  'birth_date', 'phone_number']
+
+    def validate(self, attrs):
+        phone_number = attrs['phone_number']
+        validate_uz_phone_number(phone_number)
+        return attrs
+
+
+class RegisterSerializers(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'middle_name', 'birth_date', 'email', 'phone_number',
+                  'password', 'confirm_password']
+
+    def validate(self, data):
+        phone_number = data['phone_number']
+        validate_uz_phone_number(phone_number)
+        if data.get('password') and data.get('confirm_password'):
+            if data['password'] != data['confirm_password']:
+                raise serializers.ValidationError({"error": "Passwords do not match"})
+            data.pop('confirm_password')
+            data['password'] = make_password(data['password'])
+        return data
+
