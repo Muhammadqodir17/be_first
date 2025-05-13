@@ -246,5 +246,7 @@ class RegisterSerializers(serializers.ModelSerializer):
                 raise serializers.ValidationError({"error": "Passwords do not match"})
             data.pop('confirm_password')
             data['password'] = make_password(data['password'])
+        phone_number = data['phone_number']
+        validate_uz_phone_number(phone_number)
         return data
 
