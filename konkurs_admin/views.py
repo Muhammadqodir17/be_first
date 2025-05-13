@@ -42,7 +42,7 @@ from .serializers import (
     AboutUsSerializer,
     SpecialAboutUsSerializer,
     PolicySerializer,
-    SpecialPolicySerializer,
+    SpecialPolicySerializer, GetExistJurySerializer,
 )
 from konkurs.serializers import ResultImageSerializer, ContactUsSerializer
 from konkurs.models import ContactUs
