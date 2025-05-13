@@ -15,6 +15,7 @@ from .views import (
 urlpatterns = [
     # category
     path('get_categories/', CategoryViewSet.as_view({'get': 'get'}), name='get_categories'),
+    path('get_all_categories/', CategoryViewSet.as_view({'get': 'get'}), name='get_categories'),
     path('get_category_by_id/<int:pk>/', CategoryViewSet.as_view({'get': 'get_by_id'}), name='get_category_by_id'),
     path('create_category/', CategoryViewSet.as_view({'post': 'create'}), name='create_category'),
     path('update_category/<int:pk>/', CategoryViewSet.as_view({'patch': 'update'}), name='update_category'),

@@ -196,11 +196,12 @@ class CreateCompetitionSerializer(serializers.ModelSerializer):
                   'comp_start_time',
                   'comp_end_date',
                   'comp_end_time', 'application_start_date', 'application_start_time',
-                  'application_end_date', 'application_end_time', 'rules']
+                  'application_end_date', 'application_end_time', 'rules', 'status']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['category'] = instance.category.name
+        data['status'] = dict(STATUS).get(instance.status, 'Unknown')
         return data
 
 

@@ -3,6 +3,7 @@ from .views import JuryViewSet
 
 urlpatterns = [
     path('get_active_comp/', JuryViewSet.as_view({'get': 'get_active_comp'}), name='get_active_comp'),
+    path('get_active_comps/', JuryViewSet.as_view({'get': 'get_active_comps'}), name='get_active_comps'),
     path('filter_comp/', JuryViewSet.as_view({'get': 'filter_comp'}), name='filter_comp'),
     path('get_comp_by_id/<int:pk>/', JuryViewSet.as_view({'get': 'get_comp_by_id'}), name='get_comp_by_id'),
     path('filter_participants/<int:pk>/', JuryViewSet.as_view({'get': 'filter_participants'}),

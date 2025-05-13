@@ -1,5 +1,8 @@
 import requests
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import action
+import random
+from django.core.cache import cache
 from rest_framework import status
 from django.contrib.auth import login
 from datetime import datetime, timedelta
@@ -8,7 +11,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from rest_framework.parsers import MultiPartParser, FormParser
 from konkurs.serializers import PersonalInfoSerializer
 from .models import User, SMSCode, BlacklistedAccessToken
 from .validators import validate_uz_phone_number
@@ -24,136 +27,13 @@ from .serializers import (
     SetPasswordSerializer,
     LoginSerializer,
     SendTempPasswordSerializer,
-    ResetPasswordSerializer, LogoutSerializer
+    ResetPasswordSerializer, LogoutSerializer, SetProfileSerializer, RegisterSerializers
 )
 from .validators import validate_uz_phone_number
-
-BOT_TOKEN = '7662698791:AAFF7tOLoXxRhLIwL5ltuEuxpsyqIm4UUKE'
-CHAT_ID = '-4777486427'
+from .utils import send_message_telegram
 
 
 class RegistrationViewSet(ViewSet):
-    @swagger_auto_schema(
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'phone_number': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The phone number to send the SMS to.",
-                    example="+1234567890"
-                )
-            },
-            required=['phone_number'],
-        ),
-        responses={
-            200: openapi.Response(
-                description="SMS sent successfully.",
-                examples={
-                    "application/json": {"message": "SMS-code sent."}
-                }
-            ),
-            400: openapi.Response(
-                description="Error occurred.",
-                examples={
-                    "application/json": {"error": "Failed to send message"}
-                }
-            ),
-        },
-        operation_summary="Send SMS verification code",
-        operation_description="Sends a 6-digit verification code to the provided phone number."
-    )
-    def send_sms(self, request):
-        serializer = SendSMSSerializer(data=request.data, context={'request': request})
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        phone_number = serializer.validated_data['phone_number']
-        sms = SMSCode.objects.filter(phone_number=phone_number, expires_at__gt=datetime.now()).first()
-
-        code = get_random_string(length=6, allowed_chars='0123456789')
-        SMSCode.objects.create(phone_number=phone_number, code=code, expires_at=datetime.now() + timedelta(minutes=5))
-
-        message = _("Your verification code is: %(code)s") % {'code': code}
-        telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={message}"
-        response = requests.get(telegram_url)
-
-        if response.status_code == 200:
-            return Response({"message": _("SMS-code sent.")}, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": _("Failed to send message")}, status=status.HTTP_400_BAD_REQUEST)
-
-    @swagger_auto_schema(
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'phone_number': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The phone number associated with the SMS code.",
-                    example="+1234567890"
-                ),
-                'sms_code': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The 6-digit SMS code received by the user.",
-                    example="123456"
-                ),
-            },
-            required=['phone_number', 'sms_code'],
-        ),
-        responses={
-            200: openapi.Response(
-                description="Code verified successfully, and access token is returned.",
-                examples={
-                    "application/json": {
-                        "message": "Code verified.",
-                        "access_token": "eyJhbGciOiJIUzI1..."
-                    }
-                }
-            ),
-            400: openapi.Response(
-                description="Incorrect or expired code, or invalid request data.",
-                examples={
-                    "application/json": {
-                        "error": "Incorrect or expired code."
-                    }
-                }
-            ),
-        },
-        operation_summary="Verify SMS code",
-        operation_description=(
-                "Verifies the SMS code sent to the user's phone number. "
-                "If valid, marks the code as verified and returns an access token."
-        )
-    )
-    def verify_sms(self, request):
-        serializer = VerifySMSSerializer(data=request.data, context={'request': request})
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        phone_number = serializer.validated_data['phone_number']
-        code = serializer.validated_data['sms_code']
-
-        sms_code = SMSCode.objects.filter(
-            phone_number=phone_number,
-            code=code,
-            expires_at__gt=datetime.now()
-        ).first()
-
-        if sms_code is None:
-            return Response(data={"error": _("Incorrect or expired code.")}, status=status.HTTP_400_BAD_REQUEST)
-
-        sms_code.verified = True
-        sms_code.save()
-
-        user = User.objects.get_or_create(phone_number=phone_number)
-        user.role = 1
-        user.save()
-        token = AccessToken.for_user(user)
-
-        return Response(
-            {"message": _("Code verified."), "access_token": f'{str(token)}'},
-            status=status.HTTP_200_OK
-        )
-
     @swagger_auto_schema(
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -225,108 +105,115 @@ class RegistrationViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
+        operation_description="Foydalanuvchini ro'yxatdan o'tkazish va OTP kod yuborish",
+        operation_summary="Register",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'phone_number': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The user's phone number.",
-                    example="+1234567890"
-                ),
-                'first_name': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The user's first name.",
-                    example="John"
-                ),
-                'last_name': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The user's last name.",
-                    example="Doe"
-                ),
-                'middle_name': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The user's middle name.",
-                    example="Michael"
-                ),
-                'birth_date': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    format="date",
-                    description="The user's birth date in YYYY-MM-DD format.",
-                    example="1990-01-01"
-                ),
-                'email': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    format="email",
-                    description="The user's email address.",
-                    example="john.doe@example.com"
-                ),
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
+                'first_name': openapi.Schema(type=openapi.TYPE_STRING, description="Ism"),
+                'last_name': openapi.Schema(type=openapi.TYPE_STRING, description="Familiya"),
+                'middle_name': openapi.Schema(type=openapi.TYPE_STRING, description="Otasi ismi"),
+                'birth_date': openapi.Schema(type=openapi.FORMAT_DATE, description="Tug'ilgan sana"),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description="Parol"),
+                'confirm_password': openapi.Schema(type=openapi.TYPE_STRING, description="Parolni tasdiqlash"),
             },
-            required=['phone_number', 'first_name', 'last_name', 'middle_name', 'birth_date', 'email'],
+            required=['phone_number', 'first_name', 'last_name', 'password', 'confirm_password']
         ),
         responses={
-            200: openapi.Response(
-                description="Profile updated successfully.",
-                examples={
-                    "application/json": {
-                        "message": "Personal data saved.",
-                        "data": {
-                            "phone_number": "+1234567890",
-                            "first_name": "John",
-                            "last_name": "Doe",
-                            "middle_name": "Michael",
-                            "birth_date": "1990-01-01",
-                            "email": "john.doe@example.com"
-                        }
-                    }
-                }
-            ),
-            400: openapi.Response(
-                description="Bad request. Missing or invalid fields.",
-                examples={
-                    "application/json": {"message": "First name is required."}
-                }
-            ),
-            404: openapi.Response(
-                description="User not found.",
-                examples={
-                    "application/json": {"error": "User not found."}
-                }
-            ),
-        },
-        operation_summary="Update user profile",
-        operation_description=(
-                "Updates the user's profile information. All fields are required, and the user is identified by the phone number."
-        )
+            200: openapi.Response(description="OTP kod yuborildi"),
+            400: openapi.Response(description="Parollar mos emas"),
+            500: openapi.Response(description="OTP yuborishda xato yuz berdi")
+        }
     )
-    def set_profile(self, request):
+    @action(detail=False, methods=['post'], url_path='register')
+    def register(self, request):
         phone_number = request.data.get('phone_number')
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
         middle_name = request.data.get('middle_name')
         birth_date = request.data.get('birth_date')
         email = request.data.get('email')
-        if not phone_number:
-            return Response({"message": _("Phone number is required.")}, status=status.HTTP_400_BAD_REQUEST)
-        if not first_name:
-            return Response({"message": _("First name is required.")}, status=status.HTTP_400_BAD_REQUEST)
-        if not last_name:
-            return Response({"message": _("Last name is required.")}, status=status.HTTP_400_BAD_REQUEST)
-        if not middle_name:
-            return Response({"message": _("Middle name is required.")}, status=status.HTTP_400_BAD_REQUEST)
-        if not birth_date:
-            return Response({'message': _('Birth date is required.')}, status=status.HTTP_400_BAD_REQUEST)
-        if not email:
-            return Response({'message': _('Email is required.')}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            user = User.objects.get(phone_number=phone_number)
-        except User.DoesNotExist:
-            return Response({"error": _("User not found.")}, status=status.HTTP_404_NOT_FOUND)
+        password = request.data.get('password')
+        confirm_password = request.data.get('confirm_password')
 
-        serializer = UserSerializer(user, data=request.data, partial=True, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": _("Personal data saved."), "data": serializer.data}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if password != confirm_password:
+            return Response({'error': _('Parollar mos emas')}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_code = random.randint(100000, 999999)
+
+        cache.set(f'register_{phone_number}', {
+            'first_name': first_name,
+            'last_name': last_name,
+            'middle_name': middle_name,
+            'birth_date': birth_date,
+            'email': email,
+            'password': password,
+        }, timeout=300)
+
+        cache.set(f'otp_{phone_number}', otp_code, timeout=300)
+
+        response = send_message_telegram(phone_number, otp_code)
+        if response.status_code != 200:
+            return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
+
+
+
+class OTPVerificationViewSet(ViewSet):
+    @swagger_auto_schema(
+        operation_description="OTP kodini tekshirish va foydalanuvchini yaratish",
+        operation_summary="Verify Otp",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
+                'otp_code': openapi.Schema(type=openapi.TYPE_STRING, description="OTP kod"),
+            },
+            required=['phone_number', 'otp_code']
+        ),
+        responses={
+            201: openapi.Response(description="Ro‘yxatdan o‘tish muvaffaqiyatli yakunlandi"),
+            400: openapi.Response(description="Kiritilgan kod noto‘g‘ri yoki muddati o‘tgan"),
+            500: openapi.Response(description="Foydalanuvchini yaratishda xato")
+        }
+    )
+    @action(detail=False, methods=['post'], url_path='verify')
+    def verify(self, request):
+        phone_number = request.data.get('phone_number')
+        otp_code = request.data.get('otp_code')
+
+        cached_otp = cache.get(f'otp_{phone_number}')
+
+        if cached_otp and str(cached_otp) == otp_code:
+            user_data = cache.get(f'register_{phone_number}')
+
+            if user_data:
+                try:
+                    user = User.objects.create_user(
+                        phone_number=phone_number,
+                        first_name=user_data.get('first_name'),
+                        last_name=user_data.get('last_name'),
+                        middle_name=user_data.get('middle_name'),
+                        birth_date=user_data.get('birth_date'),
+                        email=user_data.get('email'),
+                        password=user_data.get('password'),
+                    )
+                    user.is_active = True
+                    user.role = 1
+                    user.save()
+
+                    cache.delete(f'otp_{phone_number}')
+                    cache.delete(f'register_{phone_number}')
+
+                    return Response({'message': _('Ro‘yxatdan o‘tish muvaffaqiyatli yakunlandi')},
+                                    status=status.HTTP_201_CREATED)
+                except Exception as e:
+                    return Response({'error': _("Foydalanuvchini yaratishda xato: %(error)s") % {'error': str(e)}},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'error': _('Kiritilgan kod noto‘g‘ri yoki muddati o‘tgan')}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginViewSet(ViewSet):
@@ -519,5 +406,110 @@ class LoginViewSet(ViewSet):
         token1.blacklist()
         obj = BlacklistedAccessToken.objects.create(token=token2)
         obj.save()
-        return Response({'message': 'Logged out successfully', 'ok': True},
+        return Response({'message': _('Logged out successfully'), 'ok': True},
                         status=status.HTTP_205_RESET_CONTENT)
+
+
+class PersonalInfoViewSet(ViewSet):
+    parser_classes = [MultiPartParser, FormParser]
+
+    @swagger_auto_schema(
+        operation_description="Personal Info",
+        operation_summary="Personal Info",
+        manual_parameters=[
+            openapi.Parameter(
+                name='first_name',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="first_name"
+            ),
+            openapi.Parameter(
+                name='last_name',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="last_name",
+            ),
+            openapi.Parameter(
+                name='middle_name',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="middle_name",
+            ),
+            openapi.Parameter(
+                name='birth_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="birth_date",
+            ),
+            openapi.Parameter(
+                name='phone_number',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="phone_number",
+            ),
+            openapi.Parameter(
+                name='email',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="email",
+            ),
+            openapi.Parameter(
+                name='image',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                required=False,
+                description="image",
+            ),
+        ],
+        responses={200: SetProfileSerializer()},
+        tags=['auth'],
+    )
+    def personal_info(self, request, *args, **kwargs):
+        user_id = request.user.id
+        user_info = User.objects.filter(id=user_id).first()
+        if user_info is None:
+            return Response(data={'error': _('unauthorized')}, status=status.HTTP_401_UNAUTHORIZED)
+        serializer = SetProfileSerializer(user_info, data=request.data, patial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    # @swagger_auto_schema(
+    #     operation_description="Create Jury",
+    #     operation_summary="Create Jury",
+    #     request_body=openapi.Schema(
+    #         type=openapi.TYPE_OBJECT,
+    #         properties={
+    #             'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='first_name'),
+    #             'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='last_name'),
+    #             'middle_name': openapi.Schema(type=openapi.TYPE_STRING, description='middle_name'),
+    #             'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='phone_number'),
+    #             'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description='birth_date'),
+    #             'email': openapi.Schema(type=openapi.TYPE_STRING, description='email'),
+    #             'password': openapi.Schema(type=openapi.TYPE_STRING, description='password'),
+    #             'confirm_password': openapi.Schema(type=openapi.TYPE_STRING, description='confirm_password'),
+    #         },
+    #         required=['first_name', 'last_name', 'middle_name', 'birth_date', 'phone_number', 'email',
+    #                   'password', 'confirm_password']
+    #     ),
+    #     responses={201: RegisterSerializers()},
+    #     tags=['auth'],
+    # )
+    # def register(self, request, *args, **kwargs):
+    #     serializer = RegisterSerializers(data=request.data)
+    #     if not serializer.is_valid():
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #     print('=' * 100)
+    #     print(serializer.data)
+    #     print('=' * 100)
+    #     return Response(data=serializer.data, status=status.HTTP_200_OK)
+    #
+    # def verify_otp_code(self, request, *args, **kwargs):
+    #     pass

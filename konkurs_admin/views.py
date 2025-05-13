@@ -104,6 +104,19 @@ class CategoryViewSet(ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
+        operation_description="Get all Categories for comp",
+        operation_summary="Get all Categories for comp",
+        responses={
+            200: CategorySerializer(),
+        },
+        tags=['admin']
+    )
+    def get_all(self, request, *args, **kwargs):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
         operation_description="Get Category By Id",
         operation_summary="Get Category By Id",
         responses={
@@ -850,9 +863,14 @@ class CompetitionViewSet(ViewSet):
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
                 description="rules",
+            ), openapi.Parameter(
+                name='status',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_INTEGER,
+                description="status",
             ),
         ],
-        responses={201: CreateCompetitionSerializer()},
+        responses={200: CreateCompetitionSerializer()},
         tags=['admin'],
     )
     def update_comp(self, request, *args, **kwargs):  # not finished
