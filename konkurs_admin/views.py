@@ -1296,7 +1296,7 @@ class JuryViewSet(ViewSet):
         juries = User.objects.filter(role=2)
         paginator = self.pagination_class()
         paginated_juries = paginator.paginate_queryset(juries, request)
-        serializer = GetJurySerializer(paginated_juries, many=True, context={'request': request})
+        serializer = GetExistJurySerializer(paginated_juries, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -1362,7 +1362,7 @@ class JuryViewSet(ViewSet):
         operation_description="Get Jury By Id",
         operation_summary="Get Jury By Id",
         responses={
-            200: GetExistJurySerializer(),
+            200: GetJurySerializer(),
         },
         tags=['admin']
     )
@@ -1370,7 +1370,7 @@ class JuryViewSet(ViewSet):
         jury = User.objects.filter(id=kwargs['pk'], role=2).first()
         if jury is None:
             return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = GetExistJurySerializer(jury, context={'request': request})
+        serializer = GetJurySerializer(jury, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -1533,7 +1533,7 @@ class JuryViewSet(ViewSet):
         operation_description="Get Exist Jury By Id for Update",
         operation_summary="Get Exist Jury By Id for Update",
         responses={
-            200: JurySerializer(),
+            200: GetExistJurySerializer(),
         },
         tags=['admin']
     )
@@ -1541,7 +1541,7 @@ class JuryViewSet(ViewSet):
         jury = User.objects.filter(id=kwargs['pk'], role=2).first()
         if jury is None:
             return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = GetJurySerializer(jury, context={'request': request})
+        serializer = GetExistJurySerializer(jury, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(

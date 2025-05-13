@@ -151,9 +151,8 @@ class GetJurySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'middle_name', 'phone_number', 'birth_date',
-                  'place_of_work', 'place_of_work_uz', 'place_of_work_ru', 'place_of_work_en', 'academic_degree',
-                  'speciality', 'speciality_uz', 'speciality_ru', 'speciality_en', 'category', 'username', 'password',
-                  'confirm_password', 'role', 'image']
+                  'place_of_work', 'academic_degree',
+                  'speciality']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
