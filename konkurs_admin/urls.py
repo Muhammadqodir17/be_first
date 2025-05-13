@@ -50,6 +50,8 @@ urlpatterns = [
     path('get_all_juries/', JuryViewSet.as_view({'get': 'get_all'}), name='get_all_juries'),
     path('search_juries/', JuryViewSet.as_view({'get': 'search_juries'}), name='search_juries'),  #
     path('get_jury_by_id/<int:pk>/', JuryViewSet.as_view({'get': 'get_by_id'}), name='get_by_id'),
+    path('get_exist_jury_by_id/<int:pk>/', JuryViewSet.as_view({'get': 'get_exist_jury_by_id'}),
+         name='get_exist_jury_by_id'),
     path('create_jury/', JuryViewSet.as_view({'post': 'create'}), name='create_jury'),
     path('update_jury/<int:pk>/', JuryViewSet.as_view({'patch': 'update'}), name='update_jury'),
     path('delete_jury/<int:pk>/', JuryViewSet.as_view({'delete': 'delete'}), name='delete_jury'),
