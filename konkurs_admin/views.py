@@ -978,15 +978,15 @@ class CompetitionViewSet(ViewSet):
     )
     def approve(self, request, *args, **kwargs):
         action = request.data['action']
-        comp = Competition.objects.filter(id=kwargs['pk']).first()
-        if comp is None:
-            return Response(data={'error': _('Comp is not found')}, status=status.HTTP_404_NOT_FOUND)
-        if comp.status != 1:
-            return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         participant = Participant.objects.filter(id=request.data['participant']).first()
         if participant is None:
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
+        comp = Competition.objects.filter(id=participant.competition.id).first()
+        if comp is None:
+            return Response(data={'error': _('Comp is not found')}, status=status.HTTP_404_NOT_FOUND)
+        if comp.status != 1:
+            return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         if action == 'accept':
             participant.action = 2
         elif action == 'decline':

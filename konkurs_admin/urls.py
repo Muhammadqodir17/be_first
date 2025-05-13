@@ -40,7 +40,7 @@ urlpatterns = [
          name='delete_competition'),
     path('participant_requests/<int:pk>/', CompetitionViewSet.as_view({'get': 'participants_requests'}),
          name='participant_requests'),
-    path('approvement/<int:pk>/', CompetitionViewSet.as_view({'post': 'approve'}),
+    path('approvement/', CompetitionViewSet.as_view({'post': 'approve'}),
          name='request_action'),
     path('active_participants/<int:pk>/', CompetitionViewSet.as_view({'get': 'active_participants'}),
          name='active_participants'),
