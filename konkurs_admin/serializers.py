@@ -285,7 +285,6 @@ class WinnerListSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['place'] = dict(PLACE).get(instance.place, 'Unknown')
         return data
 
     def get_works(self, obj):
