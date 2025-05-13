@@ -58,7 +58,7 @@ class CompetitionViewSet(ViewSet):
         tags=['competition']
     )
     def get_comp_for_home(self, request, *args, **kwargs):
-        home_comps = Competition.objects.all()
+        home_comps = Competition.objects.filter(status=1)
         serializer = HomeCompetitionSerializer(home_comps, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
