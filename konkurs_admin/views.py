@@ -1296,7 +1296,7 @@ class JuryViewSet(ViewSet):
         juries = User.objects.filter(role=2)
         paginator = self.pagination_class()
         paginated_juries = paginator.paginate_queryset(juries, request)
-        serializer = GetJurySerializer(paginated_juries, many=True, context={'request': request})
+        serializer = GetExistJurySerializer(paginated_juries, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -1533,7 +1533,7 @@ class JuryViewSet(ViewSet):
         operation_description="Get Exist Jury By Id for Update",
         operation_summary="Get Exist Jury By Id for Update",
         responses={
-            200: JurySerializer(),
+            200: GetExistJurySerializer(),
         },
         tags=['admin']
     )

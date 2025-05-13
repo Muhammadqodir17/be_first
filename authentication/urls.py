@@ -15,5 +15,7 @@ urlpatterns = [
     path('logout/', LoginViewSet.as_view({'post': 'logout', }), name='logout'),
     path('forgot_password/', LoginViewSet.as_view({'post': 'send_temp_password'}), name='forgot_password'),
     path('reset_password/', LoginViewSet.as_view({'post': 'reset_password'}), name='reset_password'),
+    path('get_exist_personal_info/<int:pk>/', PersonalInfoViewSet.as_view({'get': 'get_exist_personal_info'}),
+         name='get_exist_personal_info'),
     path('personal_info/', PersonalInfoViewSet.as_view({'patch': 'personal_info'}), name='personal_info'),
 ]
