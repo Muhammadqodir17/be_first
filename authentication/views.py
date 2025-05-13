@@ -136,16 +136,9 @@ class RegistrationViewSet(ViewSet):
         email = request.data.get('email')
         password = request.data.get('password')
         confirm_password = request.data.get('confirm_password')
-
-        if password != confirm_password:
-            return Response({'error': _('Parollar mos emas')}, status=status.HTTP_400_BAD_REQUEST)
-
-        if User.objects.filter(phone_number=phone_number).exists():
-            return Response({'error': _('Bu telefon raqami allaqachon ro‘yxatdan o‘tgan')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if User.objects.filter(email=email).exists():
-            return Response({'error': _('Bu email allaqachon ro‘yxatdan o‘tgan')}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = RegisterSerializers(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
         otp_code = random.randint(100000, 999999)
 
