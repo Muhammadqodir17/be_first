@@ -106,7 +106,6 @@ class RegistrationViewSet(ViewSet):
 
     @swagger_auto_schema(
         operation_description="Foydalanuvchini ro'yxatdan o'tkazish va OTP kod yuborish",
-        operation_summary="Register",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -123,7 +122,7 @@ class RegistrationViewSet(ViewSet):
         ),
         responses={
             200: openapi.Response(description="OTP kod yuborildi"),
-            400: openapi.Response(description="Parollar mos emas"),
+            400: openapi.Response(description="Parollar mos emas yoki foydalanuvchi allaqachon mavjud"),
             500: openapi.Response(description="OTP yuborishda xato yuz berdi")
         }
     )
@@ -140,6 +139,13 @@ class RegistrationViewSet(ViewSet):
 
         if password != confirm_password:
             return Response({'error': _('Parollar mos emas')}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(phone_number=phone_number).exists():
+            return Response({'error': _('Bu telefon raqami allaqachon ro‘yxatdan o‘tgan')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email=email).exists():
+            return Response({'error': _('Bu email allaqachon ro‘yxatdan o‘tgan')}, status=status.HTTP_400_BAD_REQUEST)
 
         otp_code = random.randint(100000, 999999)
 
@@ -158,8 +164,6 @@ class RegistrationViewSet(ViewSet):
         if response.status_code != 200:
             return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
-
-
 
 class OTPVerificationViewSet(ViewSet):
     @swagger_auto_schema(
@@ -213,7 +217,8 @@ class OTPVerificationViewSet(ViewSet):
                     return Response({'error': _("Foydalanuvchini yaratishda xato: %(error)s") % {'error': str(e)}},
                                     status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({'error': _('Kiritilgan kod noto‘g‘ri yoki muddati o‘tgan')}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': _('Kiritilgan kod noto‘g‘ri yoki muddati o‘tgan')},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginViewSet(ViewSet):
@@ -414,6 +419,19 @@ class PersonalInfoViewSet(ViewSet):
     parser_classes = [MultiPartParser, FormParser]
 
     @swagger_auto_schema(
+        operation_description="Get Exist Personal Info",
+        operation_summary="Get Exist Personal Info",
+        responses={200: SetProfileSerializer()},
+        tags=['auth'],
+    )
+    def get_exist_personal_info(self, request, *args, **kwargs):
+        user_info = User.objects.filter(id=kwargs['pk']).first()
+        if user_info is None:
+            return Response(data={'error': _('User not found')}, status=status.HTTP_404_NOT_FOUND)
+        serializer = SetProfileSerializer(user_info)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
         operation_description="Personal Info",
         operation_summary="Personal Info",
         manual_parameters=[
@@ -513,3 +531,83 @@ class PersonalInfoViewSet(ViewSet):
     #
     # def verify_otp_code(self, request, *args, **kwargs):
     #     pass
+
+
+class ForgotPasswordViewSet(ViewSet):
+
+    @swagger_auto_schema(
+        operation_description="Parolni tiklash uchun OTP kod yuborish",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
+            },
+            required=['phone_number']
+        ),
+        responses={
+            200: openapi.Response(description="OTP kod yuborildi"),
+            400: openapi.Response(description="Foydalanuvchi topilmadi yoki OTP yuborishda xato yuz berdi"),
+        }
+    )
+    @action(detail=False, methods=['post'], url_path='forgot-password')
+    def forgot_password(self, request):
+        phone_number = request.data.get('phone_number')
+
+        try:
+            user = User.objects.get(phone_number=phone_number)
+        except User.DoesNotExist:
+            return Response({'error': _('Telefon raqam tizimda mavjud emas')}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_code = random.randint(100000, 999999)
+
+        cache.set(f'forgot_otp_{phone_number}', otp_code, timeout=300)
+
+        response = send_message_telegram(phone_number, otp_code)
+        if response.status_code != 200:
+            return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
+
+
+class ResetPasswordViewSet(ViewSet):
+    @swagger_auto_schema(
+        operation_description="Parolni tiklash uchun OTP kodni tasdiqlash va yangi parolni o'rnatish",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
+                'otp_code': openapi.Schema(type=openapi.TYPE_STRING, description="OTP kod"),
+                'new_password': openapi.Schema(type=openapi.TYPE_STRING, description="Yangi parol"),
+                'confirm_password': openapi.Schema(type=openapi.TYPE_STRING, description="Yangi parolni tasdiqlash"),
+            },
+            required=['phone_number', 'otp_code', 'new_password', 'confirm_password']
+        ),
+        responses={
+            200: openapi.Response(description="Parol muvaffaqiyatli o'zgartirildi"),
+            400: openapi.Response(description="Kod noto‘g‘ri yoki muddati o‘tgan yoki parollar mos emas"),
+        }
+    )
+    @action(detail=False, methods=['post'], url_path='reset-password')
+    def reset_password(self, request):
+        phone_number = request.data.get('phone_number')
+        otp_code = request.data.get('otp_code')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        cached_otp = cache.get(f'forgot_otp_{phone_number}')
+
+        if cached_otp and str(cached_otp) == otp_code:
+            if new_password != confirm_password:
+                return Response({'error': _('Parollar mos emas')}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                user = User.objects.get(phone_number=phone_number)
+                user.set_password(new_password)
+                user.save()
+
+                cache.delete(f'forgot_otp_{phone_number}')
+
+                return Response({'message': _('Parol muvaffaqiyatli o‘zgartirildi')}, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({'error': _('Foydalanuvchi topilmadi')}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'error': _('Kod noto‘g‘ri yoki muddati o‘tgan')}, status=status.HTTP_400_BAD_REQUEST)
