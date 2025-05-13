@@ -135,10 +135,9 @@ class RegistrationViewSet(ViewSet):
         birth_date = request.data.get('birth_date')
         email = request.data.get('email')
         password = request.data.get('password')
-        confirm_password = request.data.get('confirm_password')
         serializer = RegisterSerializers(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         otp_code = random.randint(100000, 999999)
 
