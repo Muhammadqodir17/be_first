@@ -407,7 +407,7 @@ class PersonalInfoViewSet(ViewSet):
         user_info = User.objects.filter(id=user_id).first()
         if user_info is None:
             return Response(data={'error': _('unauthorized')}, status=status.HTTP_401_UNAUTHORIZED)
-        serializer = SetProfileSerializer(user_info, data=request.data, patial=True)
+        serializer = SetProfileSerializer(user_info, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
