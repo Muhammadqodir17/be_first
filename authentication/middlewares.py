@@ -41,7 +41,7 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
             '/api/v1/auth/logout/',
             '/api/v1/auth/reset_profile/',
             '/api/v1/auth/set_password/',
-            '/api/v1/auth/forgot_password/',
+            # '/api/v1/auth/forgot_password/',
             '/api/v1/konkurs/get_comp_detail/',
             '/api/v1/konkurs/get_active_competitions/',
             '/api/v1/konkurs/get_finished_competitions/',
