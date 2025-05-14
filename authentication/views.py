@@ -505,7 +505,6 @@ class ForgotPasswordViewSet(ViewSet):
             400: openapi.Response(description="Foydalanuvchi topilmadi yoki OTP yuborishda xato yuz berdi"),
         }
     )
-    @action(detail=False, methods=['post'], url_path='forgot-password')
     def forgot_password(self, request):
         phone_number = request.data.get('phone_number')
         user = User.objects.filter(phone_number=phone_number).first()
