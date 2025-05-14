@@ -12,6 +12,7 @@ urlpatterns = [
          name='update_child_by_id'),
     path('get_child/<int:pk>/', ChildViewSet.as_view({'get': 'get_by_id'}), name='get_child_by_id'),
     path('get_user_children/', ChildViewSet.as_view({'get': 'get_user_children'}), name='get_user_children'),
+    path('get_registered_child/', ChildViewSet.as_view({'get': 'get_registered_child'}), name='get_registered_child'),
     path('get_children/', ChildViewSet.as_view({'get': 'list'}), name='get_list_of_child'),
     path('delete_child/<int:pk>/', ChildViewSet.as_view({'delete': 'delete'}), name='delete_child_by_id'),
     # register

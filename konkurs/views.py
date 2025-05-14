@@ -286,7 +286,10 @@ class MyCompetitionViewSet(ViewSet):
         tags=['competition']
     )
     def get_notifications(self, request, *args, **kwargs):
-        notifications = Notification.objects.all()
+        user = User.objects.filter(id=request.user.id).first()
+        if user is None:
+            return Response(data={'error': _('User not found')}, status=status.HTTP_404_NOT_FOUND)
+        notifications = Notification.objects.filter(user=user)
         serializer = NotificationSerializer(notifications, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 

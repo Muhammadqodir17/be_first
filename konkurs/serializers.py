@@ -131,6 +131,16 @@ class ChildrenSerializer(serializers.ModelSerializer):
                   'date_of_birth', 'place_of_study', 'degree_of_kinship']
 
 
+class GetRegisteredChild(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField(source='get_name')
+    class Meta:
+        model = Participant
+        fields = ['id', 'name']
+
+    def get_name(self, data):
+        return data.child.first_name
+
+
 class ChildSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
     class Meta:

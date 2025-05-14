@@ -4,7 +4,7 @@ from drf_yasg import openapi
 from authentication.models import User
 from rest_framework.response import Response
 from rest_framework import status
-from konkurs.serializers import ChildrenSerializer
+from konkurs.serializers import ChildrenSerializer, GetRegisteredChild
 from .serializers import (
     ChildSerializer,
     ChildWorkSerializer,
@@ -45,6 +45,19 @@ class ChildViewSet(ViewSet):
     def get_user_children(self, request, *args, **kwargs):
         children = Child.objects.filter(user=request.user)
         serializer = ChildrenSerializer(children, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get user child registered to comp",
+        operation_summary="Get user child registered to comp",
+        responses={
+            200: GetRegisteredChild(),
+        },
+        tags=['child']
+    )
+    def get_registered_child(self, request, *args, **kwargs):
+        participants = Participant.objects.filter(child__user=request.user)
+        serializer = GetRegisteredChild(participants, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(

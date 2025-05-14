@@ -40,7 +40,8 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
             '/api/v1/auth/personal_info/',
             '/api/v1/auth/logout/',
             '/api/v1/auth/reset_profile/',
-            '/api/v1/auth/reset_password/',
+            '/api/v1/auth/set_password/',
+            '/api/v1/auth/forgot_password/',
             '/api/v1/konkurs/get_comp_detail/',
             '/api/v1/konkurs/get_active_competitions/',
             '/api/v1/konkurs/get_finished_competitions/',
@@ -75,8 +76,5 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
                 return JsonResponse(data={'error': _('unauthorized')}, status=401)
             payload = jwt.decode(token.split()[1], settings.SECRET_KEY, algorithms=['HS256'])
             # Fixed the logic error in the condition
-            print('=' * 100)
-            print(payload)
-            print('=' * 100)
             if payload.get('role') == 1:
                 return JsonResponse(data={'error': _('Permission denied')}, status=403)
