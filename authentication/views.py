@@ -26,7 +26,8 @@ from .serializers import (
     VerifySMSSerializer,
     LoginSerializer,
     SendTempPasswordSerializer,
-    ResetPasswordSerializer, LogoutSerializer, SetProfileSerializer, RegisterSerializers, ChangePasswordSerializer
+    ResetPasswordSerializer, LogoutSerializer, SetProfileSerializer, RegisterSerializers, ChangePasswordSerializer,
+    SetPasswordSerializer
 )
 from .validators import validate_uz_phone_number
 from .utils import send_message_telegram
@@ -104,7 +105,6 @@ class RegistrationViewSet(ViewSet):
             500: openapi.Response(description="OTP yuborishda xato yuz berdi")
         }
     )
-    # @action(detail=False, methods=['post'], url_path='register')/
     def register(self, request):
         phone_number = request.data.get('phone_number')
         first_name = request.data.get('first_name')
@@ -135,6 +135,7 @@ class RegistrationViewSet(ViewSet):
             return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
 
+
 class OTPVerificationViewSet(ViewSet):
     @swagger_auto_schema(
         operation_description="OTP kodini tekshirish va foydalanuvchini yaratish",
@@ -157,38 +158,80 @@ class OTPVerificationViewSet(ViewSet):
     def verify(self, request):
         phone_number = request.data.get('phone_number')
         otp_code = request.data.get('otp_code')
+        register = cache.get(f'otp_{phone_number}')
+        forgot = cache.set(f'forgot_otp_{phone_number}')
 
-        cached_otp = cache.get(f'otp_{phone_number}')
+        if not register:
+            return Response({'error': _('Kiritilgan kod muddati o‘tgan')},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        if cached_otp and str(cached_otp) == otp_code:
-            user_data = cache.get(f'register_{phone_number}')
+        elif not forgot:
+            return Response({'error': _('Kiritilgan kod muddati o‘tgan')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if register:
+            if str(register) == otp_code:
+                user_data = cache.get(f'register_{phone_number}')
 
-            if user_data:
-                try:
-                    user = User.objects.create_user(
-                        phone_number=phone_number,
-                        first_name=user_data.get('first_name'),
-                        last_name=user_data.get('last_name'),
-                        middle_name=user_data.get('middle_name'),
-                        birth_date=user_data.get('birth_date'),
-                        email=user_data.get('email'),
-                        password=user_data.get('password'),
-                    )
-                    user.is_active = True
-                    user.role = 1
-                    user.save()
+                if user_data:
+                    try:
+                        user = User.objects.create_user(
+                            phone_number=phone_number,
+                            first_name=user_data.get('first_name'),
+                            last_name=user_data.get('last_name'),
+                            middle_name=user_data.get('middle_name'),
+                            birth_date=user_data.get('birth_date'),
+                            email=user_data.get('email'),
+                            password=user_data.get('password'),
+                        )
+                        user.is_active = True
+                        user.role = 1
+                        user.save()
 
-                    cache.delete(f'otp_{phone_number}')
-                    cache.delete(f'register_{phone_number}')
+                        cache.delete(f'otp_{phone_number}')
+                        cache.delete(f'register_{phone_number}')
 
-                    return Response({'message': _('Ro‘yxatdan o‘tish muvaffaqiyatli yakunlandi')},
-                                    status=status.HTTP_201_CREATED)
-                except Exception as e:
-                    return Response({'error': _("Foydalanuvchini yaratishda xato: %(error)s") % {'error': str(e)}},
-                                    status=status.HTTP_400_BAD_REQUEST)
+                        refresh_token = RefreshToken.for_user(user)
+                        access_token = refresh_token.access_token
+                        access_token['role'] = user.role
 
-        return Response({'error': _('Kiritilgan kod noto‘g‘ri yoki muddati o‘tgan')},
-                        status=status.HTTP_400_BAD_REQUEST)
+                        return Response(data={'refresh': str(refresh_token), 'access_token': str(access_token)},
+                                        status=status.HTTP_200_OK)
+                    except Exception as e:
+                        return Response({'error': _("Foydalanuvchini yaratishda xato: %(error)s") % {'error': str(e)}},
+                                        status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': _('Kiritilgan kod noto‘g‘ri')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        elif forgot:
+            if str(register) == otp_code:
+                cache.set(f'forgot_verified_{phone_number}')
+                return Response(data={'ok': True}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': _('Kiritilgan kod noto‘g‘ri')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(
+        operation_description="Create Category",
+        operation_summary="Create Category",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='phone_number'),
+            },
+            required=['phone_number']
+        ),
+        responses={200: 'OTP kod yuborildi',
+                   400: 'OTP yuborishda xato yuz berdi'},
+        tags=['auth'],
+    )
+    def resend_otp(self, request, *args, **kwargs):
+        phone_number = request.data['phone_number']
+        otp_code = random.randint(100000, 999999)
+        cache.set(f'otp_{phone_number}', otp_code, timeout=300)
+        response = send_message_telegram(phone_number, otp_code)
+        if response.status_code != 200:
+            return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
 
 
 class LoginViewSet(ViewSet):
@@ -448,7 +491,6 @@ class PersonalInfoViewSet(ViewSet):
 
 
 class ForgotPasswordViewSet(ViewSet):
-
     @swagger_auto_schema(
         operation_description="Parolni tiklash uchun OTP kod yuborish",
         request_body=openapi.Schema(
@@ -466,20 +508,29 @@ class ForgotPasswordViewSet(ViewSet):
     @action(detail=False, methods=['post'], url_path='forgot-password')
     def forgot_password(self, request):
         phone_number = request.data.get('phone_number')
-
-        try:
-            user = User.objects.get(phone_number=phone_number)
-        except User.DoesNotExist:
-            return Response({'error': _('Telefon raqam tizimda mavjud emas')}, status=status.HTTP_400_BAD_REQUEST)
-
+        user = User.objects.filter(phone_number=phone_number).first()
+        if user is None:
+            return Response(data={'error': 'User with this phone number not found'}, status=status.HTTP_404_NOT_FOUND)
         otp_code = random.randint(100000, 999999)
-
         cache.set(f'forgot_otp_{phone_number}', otp_code, timeout=300)
-
         response = send_message_telegram(phone_number, otp_code)
         if response.status_code != 200:
             return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
+
+        # try:
+        #     user = User.objects.get(phone_number=phone_number)
+        # except User.DoesNotExist:
+        #     return Response({'error': _('Telefon raqam tizimda mavjud emas')}, status=status.HTTP_400_BAD_REQUEST)
+        #
+        # otp_code = random.randint(100000, 999999)
+        #
+        # cache.set(f'forgot_otp_{phone_number}', otp_code, timeout=300)
+        #
+        # response = send_message_telegram(phone_number, otp_code)
+        # if response.status_code != 200:
+        #     return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
 
 
 class ResetPasswordViewSet(ViewSet):
@@ -498,13 +549,33 @@ class ResetPasswordViewSet(ViewSet):
         responses={200: 'Password set.'},
         tags=['auth'],
     )
-    def reset_pass(self, request, *args, **kwargs):
-        serializer = ResetPasswordSerializer(data=request.data, context={'request': request})
+    def set_pass(self, request, *args, **kwargs):
+        serializer = SetPasswordSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(data={'message': _("Password set.")}, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_description="Set Password",
+        operation_summary="Set Password",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'new_password': openapi.Schema(type=openapi.TYPE_STRING, description='new_password'),
+                'confirm_password': openapi.Schema(type=openapi.TYPE_STRING, description='confirm_password'),
+            },
+            required=['new_password', 'confirm_password']
+        ),
+        responses={200: 'Password set.'},
+        tags=['auth'],
+    )
+    def reset_pass(self, request, *args, **kwargs):
+        serializer = SetPasswordSerializer(data=request.data, context={'request': request})
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(data={'message': _("Password set.")}, status=status.HTTP_200_OK)
 
 # class ResetPasswordViewSet(ViewSet):
 #     @swagger_auto_schema(

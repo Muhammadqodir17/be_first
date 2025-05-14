@@ -141,8 +141,7 @@ class SendTempPasswordSerializer(serializers.Serializer):
         return temp_password_entry
 
 
-class ResetPasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(write_only=True, required=True)
+class SetPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, required=True)
     confirm_password = serializers.CharField(write_only=True, required=True)
 
@@ -211,18 +210,71 @@ class SetProfileSerializer(serializers.ModelSerializer):
 
 class RegisterSerializers(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'middle_name', 'birth_date', 'email', 'phone_number',
                   'password', 'confirm_password']
 
+    def validate_email(self, value):
+        try:
+            validate_email(value)
+        except ValidationError:
+            raise serializers.ValidationError("Enter a valid email address.")
+        return value
+
+    def validate_phone_number(self, value):
+        try:
+            validate_uz_phone_number(value)
+        except Exception as e:
+            raise serializers.ValidationError(str(e))
+        return value
+
+    def validate_confirm_password(self, value):
+        request_data = self.initial_data
+        if 'password' in request_data and value != request_data['password']:
+            raise serializers.ValidationError("Passwords do not match.")
+        return value
+
+    def create(self, validated_data):
+        validated_data.pop('confirm_password', None)
+        validated_data['password'] = make_password(validated_data['password'])
+        return super().create(validated_data)
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+
+    def validate_new_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError(_("The password must contain a minimum of 8 characters."))
+        if not any(char.isupper() for char in value):
+            raise serializers.ValidationError(_("The password must contain at least one uppercase letter."))
+        if not any(char.isdigit() for char in value):
+            raise serializers.ValidationError(_("The password must contain at least one number."))
+        return value
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError(_("Old password is not correct."))
+        return value
+
     def validate(self, data):
-        phone_number = data.get('phone_number')
-        v = validate_uz_phone_number(phone_number)
-        if data.get('password') and data.get('confirm_password'):
-            if data['password'] != data['confirm_password']:
-                raise serializers.ValidationError({"error": "Passwords do not match"})
-            data.pop('confirm_password')
-            data['password'] = make_password(data['password'])
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": _("Passwords do not match.")})
         return data
 
+    def validate_password(self, value):
+        if len(value) < 8 or not any(char.isdigit() for char in value) or not any(char.isupper() for char in value):
+            raise serializers.ValidationError(
+                _("The password must contain a minimum of 8 characters, one capital letter, and one number.")
+            )
+        return value
+
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])
+        user.save()
+        return user
