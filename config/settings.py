@@ -37,7 +37,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-=%8)ppr16+_e#+t*dc(bp#q6&$1zf6te!#n=$wf$qt7#w^@8m)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 DOMAIN_NAME = env.str("DOMAIN_NAME")
 
