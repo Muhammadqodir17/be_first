@@ -1,9 +1,11 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import UserManager
 from django.utils.timezone import now
 from datetime import timedelta
 from base.model import BaseModel
+from .utils import generate_otp_code
 
 ROLE_CHOICES = (
     (0, '---'),
@@ -12,12 +14,25 @@ ROLE_CHOICES = (
     (3, 'Admin'),
 )
 
+TYPE = (
+    (0, '---'),
+    (1, 'forgot'),
+    (2, 'register'),
+)
+
 ACADEMIC_DEGREE = (
     (0, '---'),
     (1, 'Associate'),
     (2, 'Bachelor'),
     (3, 'Master'),
     (4, 'Doctoral'),
+)
+
+
+OTPTYPES = (
+    (0, '---'),
+    (1, "register"),
+    (2, 'resend')
 )
 
 
@@ -37,6 +52,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     role = models.IntegerField(choices=ROLE_CHOICES, default=0)
     children_count = models.PositiveIntegerField(default=0)
 
+    is_verified = models.BooleanField(default=False)
+    type = models.IntegerField(choices=TYPE, default=0)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -76,3 +93,36 @@ class TemporaryPassword(BaseModel):
 class BlacklistedAccessToken(models.Model):
     token = models.CharField(max_length=500, unique=True)
     blacklisted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.blacklisted_at}'
+
+
+class OTPRegisterResend(models.Model):
+    otp_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    otp_code = models.PositiveIntegerField(default=generate_otp_code)
+    otp_user = models.ForeignKey(User, models.SET_NULL, null=True)
+    otp_type = models.IntegerField(choices=OTPTYPES, default=1)
+    attempts = models.IntegerField(default=0)
+
+    deleted_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.created_at}'
+
+
+class OTPSetPassword(models.Model):
+    otp_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    otp_code = models.PositiveIntegerField(default=generate_otp_code)
+    otp_token = models.UUIDField(default=uuid.uuid4)
+    otp_user = models.ForeignKey(User, models.SET_NULL, null=True)
+    attempts = models.IntegerField(default=0)
+
+    deleted_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.created_at}'

@@ -142,6 +142,7 @@ class SendTempPasswordSerializer(serializers.Serializer):
 
 
 class SetPasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True, required=True)
     new_password = serializers.CharField(write_only=True, required=True)
     confirm_password = serializers.CharField(write_only=True, required=True)
 
@@ -278,3 +279,52 @@ class ResetPasswordSerializer(serializers.Serializer):
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
+
+
+class ReSetPassSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'new_password', 'confirm_password']
+
+    def validate(self, attrs):
+        # phone_number = attrs['phone_number']
+        # validate_uz_phone_number(phone_number)
+        print(attrs)
+        return attrs
+
+
+    # def phone_validate(self, data):
+    #     validate_uz_phone_number(data['phone_number'])
+    #
+    # def validate_new_password(self, value):
+    #     if len(value) < 8:
+    #         raise serializers.ValidationError(_("The password must contain a minimum of 8 characters."))
+    #     if not any(char.isupper() for char in value):
+    #         raise serializers.ValidationError(_("The password must contain at least one uppercase letter."))
+    #     if not any(char.isdigit() for char in value):
+    #         raise serializers.ValidationError(_("The password must contain at least one number."))
+    #     return value
+    #
+    # def validate(self, data):
+    #     if data['new_password'] != data['confirm_password']:
+    #         raise serializers.ValidationError({"confirm_password": _("Passwords do not match.")})
+    #     return data
+    #
+    # def validate_password(self, value):
+    #     if len(value) < 8 or not any(char.isdigit() for char in value) or not any(char.isupper() for char in value):
+    #         raise serializers.ValidationError(
+    #             _("The password must contain a minimum of 8 characters, one capital letter, and one number.")
+    #         )
+    #     return value
+
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     print(data)
+    #     print(instance)
+    #     data['password'] = data['new_password']
+    #     return data
+
+
