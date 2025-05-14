@@ -154,12 +154,11 @@ class OTPVerificationViewSet(ViewSet):
             500: openapi.Response(description="Foydalanuvchini yaratishda xato")
         }
     )
-    @action(detail=False, methods=['post'], url_path='verify')
     def verify(self, request):
         phone_number = request.data.get('phone_number')
         otp_code = request.data.get('otp_code')
         register = cache.get(f'otp_{phone_number}')
-        forgot = cache.set(f'forgot_otp_{phone_number}')
+        forgot = cache.get(f'forgot_otp_{phone_number}')
 
         if not register:
             return Response({'error': _('Kiritilgan kod muddati o‘tgan')},
@@ -194,7 +193,7 @@ class OTPVerificationViewSet(ViewSet):
                         access_token = refresh_token.access_token
                         access_token['role'] = user.role
 
-                        return Response(data={'refresh': str(refresh_token), 'access_token': str(access_token)},
+                        return Response(data={'refresh': str(refresh_token), 'access_token': str(access_token), 'type': 'register'},
                                         status=status.HTTP_200_OK)
                     except Exception as e:
                         return Response({'error': _("Foydalanuvchini yaratishda xato: %(error)s") % {'error': str(e)}},
@@ -205,7 +204,7 @@ class OTPVerificationViewSet(ViewSet):
         elif forgot:
             if str(register) == otp_code:
                 cache.set(f'forgot_verified_{phone_number}')
-                return Response(data={'ok': True}, status=status.HTTP_200_OK)
+                return Response(data={'ok': True, 'type': 'forgot'}, status=status.HTTP_200_OK)
             else:
                 return Response({'error': _('Kiritilgan kod noto‘g‘ri')},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -217,6 +216,11 @@ class OTPVerificationViewSet(ViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='phone_number'),
+                'type': openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Qaysi holat uchun: 'register' yoki 'forgot'",
+                enum=['register', 'forgot']
+            ),
             },
             required=['phone_number']
         ),
@@ -227,7 +231,11 @@ class OTPVerificationViewSet(ViewSet):
     def resend_otp(self, request, *args, **kwargs):
         phone_number = request.data['phone_number']
         otp_code = random.randint(100000, 999999)
-        cache.set(f'otp_{phone_number}', otp_code, timeout=300)
+        f_type = request.data.get('type')
+        if f_type == 'register':
+            cache.set(f'otp_{phone_number}', otp_code, timeout=300)
+        else:
+            cache.set(f'forgot_otp_{phone_number}', otp_code, timeout=300)
         response = send_message_telegram(phone_number, otp_code)
         if response.status_code != 200:
             return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
