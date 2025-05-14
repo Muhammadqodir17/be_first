@@ -1052,7 +1052,7 @@ class CompetitionViewSet(ViewSet):
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 1:
             return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
-        participants = Participant.objects.filter(competition=comp, marked_status=2)
+        participants = Participant.objects.filter(competition=comp, action=1)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})

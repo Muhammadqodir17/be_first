@@ -1,5 +1,6 @@
 import re
 import requests
+from django.utils.translation import gettext_lazy as _
 from random import randint
 from django.utils.timezone import now
 from datetime import datetime, timedelta
@@ -65,14 +66,21 @@ class VerifySMSSerializer(serializers.Serializer):
         return attrs
 
 
-class SetPasswordSerializer(serializers.Serializer):
-    phone_number = serializers.CharField()
-    password = serializers.CharField()
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
 
-    def validate_phone_number(self, value):
-        if not SMSCode.objects.filter(phone_number=value, verified=True).exists():
-            raise serializers.ValidationError(_("Phone number not verified."))
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError(_("Old password is not correct."))
         return value
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": _("Passwords do not match.")})
+        return data
 
     def validate_password(self, value):
         if len(value) < 8 or not any(char.isdigit() for char in value) or not any(char.isupper() for char in value):
@@ -81,17 +89,10 @@ class SetPasswordSerializer(serializers.Serializer):
             )
         return value
 
-    def save(self):
-        phone_number = self.validated_data['phone_number']
-        password = self.validated_data['password']
-
-        user, created = User.objects.get_or_create(
-            phone_number=phone_number,
-            defaults={"password": make_password(password)}
-        )
-        if not created:
-            user.password = make_password(password)
-            user.save()
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])
+        user.save()
         return user
 
 
@@ -141,10 +142,9 @@ class SendTempPasswordSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    phone_number = serializers.CharField()
-    temp_password = serializers.CharField()
-    new_password = serializers.CharField(write_only=True)
-    confirm_password = serializers.CharField(write_only=True)
+    old_password = serializers.CharField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
 
     def validate_new_password(self, value):
         if len(value) < 8:
@@ -155,50 +155,28 @@ class ResetPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError(_("The password must contain at least one number."))
         return value
 
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError(_("Old password is not correct."))
+        return value
+
     def validate(self, data):
-        phone_number = data.get('phone_number')
-        temp_password = data.get('temp_password')
-        new_password = data.get('new_password')
-        confirm_password = data.get('confirm_password')
-
-        if not all([phone_number, temp_password, new_password, confirm_password]):
-            raise serializers.ValidationError(
-                _("Phone number, temp password, new password, and confirm password are required.")
-            )
-
-        if new_password != confirm_password:
-            raise serializers.ValidationError({
-                "password": [_("New password and confirm password do not match.")]
-            })
-
-        try:
-            temp_password_entry = TemporaryPassword.objects.get(
-                phone_number=phone_number, temp_password=temp_password
-            )
-        except TemporaryPassword.DoesNotExist:
-            raise serializers.ValidationError({
-                "temp_password": [_("Invalid temporary password or phone number.")]
-            })
-
-        expiration_time = temp_password_entry.created_at + timedelta(minutes=10)
-        if now() > expiration_time:
-            raise serializers.ValidationError({
-                "temp_password": [_("Temporary password has expired.")]
-            })
-
-        data['temp_password_entry'] = temp_password_entry
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": _("Passwords do not match.")})
         return data
 
-    def save(self):
-        phone_number = self.validated_data.get('phone_number')
-        new_password = self.validated_data.get('new_password')
-        temp_password_entry = self.validated_data.get('temp_password_entry')
+    def validate_password(self, value):
+        if len(value) < 8 or not any(char.isdigit() for char in value) or not any(char.isupper() for char in value):
+            raise serializers.ValidationError(
+                _("The password must contain a minimum of 8 characters, one capital letter, and one number.")
+            )
+        return value
 
-        user = User.objects.get(phone_number=phone_number)
-        user.password = make_password(new_password)
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])
         user.save()
-
-        temp_password_entry.delete()
         return user
 
 
@@ -239,14 +217,12 @@ class RegisterSerializers(serializers.ModelSerializer):
                   'password', 'confirm_password']
 
     def validate(self, data):
-        phone_number = data['phone_number']
-        validate_uz_phone_number(phone_number)
+        phone_number = data.get('phone_number')
+        v = validate_uz_phone_number(phone_number)
         if data.get('password') and data.get('confirm_password'):
             if data['password'] != data['confirm_password']:
                 raise serializers.ValidationError({"error": "Passwords do not match"})
             data.pop('confirm_password')
             data['password'] = make_password(data['password'])
-        phone_number = data['phone_number']
-        validate_uz_phone_number(phone_number)
         return data
 
