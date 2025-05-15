@@ -1,9 +1,6 @@
-from codecs import replace_errors
 from datetime import date
-
 from django.conf import settings
 from rest_framework import serializers
-
 from authentication.validators import validate_uz_phone_number
 from jury.models import Assessment
 from konkurs.models import (
@@ -275,9 +272,9 @@ class WinnerSerializer(serializers.ModelSerializer):
         return data
 
     def validate(self, data):
-        winner = Winner.objects.filter(place=data.place).first()
+        winner = Winner.objects.filter(place=data['place']).first()
         if winner:
-            raise serializers.ValidationError(f"You've already created {data.place} place")
+            raise serializers.ValidationError(f"You've already created {data['place']} place")
         return data
 
 
