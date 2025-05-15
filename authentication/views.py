@@ -519,6 +519,7 @@ class TestViewSet(ViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.validated_data['is_active'] = False
+        serializer.validated_data['role'] = 1
         serializer.save()
 
         objs = OTPRegisterResend.objects.filter(otp_user=serializer.instance, otp_type=1, deleted_at=None).order_by(

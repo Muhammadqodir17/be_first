@@ -56,9 +56,33 @@ class ChildViewSet(ViewSet):
         tags=['child']
     )
     def get_registered_child(self, request, *args, **kwargs):
-        participants = Participant.objects.filter(child__user=request.user)
+        comp = Competition.objects.filter(id=kwargs['pk']).first()
+        if comp is None:
+            return Response(data={'error': 'Comp is not found'}, status=status.HTTP_404_NOT_FOUND)
+        participants = Participant.objects.filter(child__user=request.user, competition=comp)
         serializer = GetRegisteredChild(participants, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Foydalanuvchiga tegishli barcha bolalarni olish",
+        responses={200: ChildSerializer(many=True)}
+    )
+    def list(self, request):
+        children = Child.objects.filter(user=request.user)
+        serializer = ChildSerializer(children, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_description="Foydalanuvchiga tegishli ma'lum bir bolani ID orqali olish",
+        responses={200: ChildSerializer()}
+    )
+    def retrieve(self, request, pk=None):
+        try:
+            child = Child.objects.get(id=pk, user=request.user)
+            serializer = ChildSerializer(child)
+            return Response(serializer.data)
+        except Child.DoesNotExist:
+            return Response({'error': 'Bola topilmadi'}, status=status.HTTP_404_NOT_FOUND)
 
     @swagger_auto_schema(
         request_body=openapi.Schema(
@@ -67,84 +91,49 @@ class ChildViewSet(ViewSet):
                 'first_name': openapi.Schema(
                     type=openapi.TYPE_STRING,
                     description="The first name of the child.",
-                    example="John"
                 ),
                 'last_name': openapi.Schema(
                     type=openapi.TYPE_STRING,
                     description="The last name of the child.",
-                    example="Doe"
                 ),
                 'middle_name': openapi.Schema(
                     type=openapi.TYPE_STRING,
-                    description="The last name of the child.",
-                    example="Doe"
+                    description="The middle name of the child.",
                 ),
-                'birth_date': openapi.Schema(
+                'date_of_birth': openapi.Schema(
                     type=openapi.TYPE_STRING,
                     description="The birth date of the child.",
-                    example="2015-06-15"
                 ),
                 'place_of_study': openapi.Schema(
                     type=openapi.TYPE_STRING,
                     description="place_of_study",
-                    example="school"
                 ),
 
                 'degree_of_kinship': openapi.Schema(
-                    type=openapi.TYPE_INTEGER,
+                    type=openapi.TYPE_STRING,
                     description="degree_of_kinship",
-                    example="son"
                 ),
             },
             required=['first_name', 'last_name', 'middle_name', 'birth_date', 'place_of_study', 'degree_of_kinship'],
         ),
         responses={
-            201: openapi.Response(
-                description="Child registered successfully.",
-                examples={
-                    "application/json": {
-                        "id": 1,
-                        "first_name": "John",
-                        "last_name": "Doe",
-                        "middle_name": "Doe",
-                        "birth_date": "2015-06-15",
-                        "place_of_study": "school",
-                        "degree_of_kinship": "son",
-                        "user": 123
-                    }
-                }
-            ),
-            400: openapi.Response(
-                description="Invalid input data or registration limit reached.",
-                examples={
-                    "application/json": {
-                        "message": "You have already registered 5 children"
-                    }
-                }
-            ),
+            201: ChildSerializer()
         },
         operation_summary="Create a child",
-        operation_description=(
-                "This endpoint allows a user to register a child. The user can only register up to 5 children. "
-                "The child's first name, last name, and birth date are required fields."
-        )
+        operation_description='Create a child'
     )
     def create(self, request, *args, **kwargs):
-        phone_number = request.data.get('phone_number')
-        request.data['user'] = request.user
-        try:
-            user = User.objects.filter(phone_number=phone_number).first()
-        except User.DoesNotExist:
-            return Response({'message': _('User with this phone number does not exist.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
+        request.data['user'] = request.user.id
+        user = User.objects.filter(id=request.user.id).first()
+        if user is None:
+            return Response(data={'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         if user.children_count >= 5:
             return Response({'message': _('You have already registered 5 children')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ChildSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.validated_data['user'] = request.user.id
+            # serializer.validated_data['user'] = request.user.id
             serializer.save(user=user)
             user.children_count += 1
             user.save()
@@ -152,245 +141,33 @@ class ChildViewSet(ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'first_name': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The updated first name of the child.",
-                    example="John"
-                ),
-                'last_name': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The updated last name of the child.",
-                    example="Doe"
-                ),
-                'birth_date': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="The updated birth date of the child.",
-                    example="2015-06-15"
-                ),
-            },
-            required=[],
-        ),
-        responses={
-            200: openapi.Response(
-                description="Child updated successfully.",
-                examples={
-                    "application/json": {
-                        "id": 1,
-                        "first_name": "John",
-                        "last_name": "Doe",
-                        "birth_date": "2015-06-15",
-                        "user": 123
-                    }
-                }
-            ),
-            400: openapi.Response(
-                description="Invalid input data.",
-                examples={
-                    "application/json": {
-                        "first_name": ["This field is required."]
-                    }
-                }
-            ),
-            404: openapi.Response(
-                description="Child not found.",
-                examples={
-                    "application/json": {
-                        "error": "Child not found"
-                    }
-                }
-            ),
-        },
-        operation_summary="Update child details",
-        operation_description=(
-                "This endpoint allows updating the details of a specific child. "
-                "The child is identified by their ID (`pk`). Only the fields provided in the request will be updated."
-        )
+        operation_description="Bola ma'lumotlarini yangilash",
+        request_body=ChildSerializer,
+        responses={200: ChildSerializer()}
     )
-    def update(self, request, pk, *args, **kwargs):
-        child = Child.objects.filter(id=pk).first()
-        if child is None:
-            return Response({'error': _('Child not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ChildSerializer(child, data=request.data, partial=True, context={'request': request})
+    def update(self, request, pk=None):
+        try:
+            child = Child.objects.get(id=pk, user=request.user)
+        except Child.DoesNotExist:
+            return Response({'error': 'Bola topilmadi'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ChildSerializer(child, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
-        responses={
-            200: openapi.Response(
-                description="Child details retrieved successfully.",
-                examples={
-                    "application/json": {
-                        "id": 1,
-                        "first_name": "John",
-                        "last_name": "Doe",
-                        "birth_date": "2015-06-15",
-                        "user": 123
-                    }
-                }
-            ),
-            404: openapi.Response(
-                description="Child not found.",
-                examples={
-                    "application/json": {
-                        "error": "Child not found"
-                    }
-                }
-            ),
-        },
-        operation_summary="Get child details by ID",
-        operation_description=(
-                "This endpoint retrieves the details of a specific child by their ID (`pk`). "
-                "If the child is not found, a 404 error is returned."
-        )
+        operation_description="Bola ma'lumotlarini o'chirish",
+        responses={204: 'Bola muvaffaqiyatli o\'chirildi'}
     )
-    def get_by_id(self, request, pk, *args, **kwargs):
-        child = Child.objects.filter(id=pk).first()
-        if child is None:
-            return Response({'error': _('Child not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ChildSerializer(child, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response(
-                description="List of children retrieved successfully.",
-                examples={
-                    "application/json": [
-                        {
-                            "id": 1,
-                            "first_name": "John",
-                            "last_name": "Doe",
-                            "birth_date": "2015-06-15",
-                            "user": 123
-                        },
-                        {
-                            "id": 2,
-                            "first_name": "Jane",
-                            "last_name": "Smith",
-                            "birth_date": "2017-08-25",
-                            "user": 123
-                        }
-                    ]
-                }
-            ),
-            401: openapi.Response(
-                description="User not authenticated.",
-                examples={
-                    "application/json": {
-                        "message": "User not authenticated"
-                    }
-                }
-            ),
-            404: openapi.Response(
-                description="No children found for the user.",
-                examples={
-                    "application/json": {
-                        "message": "You haven't added any children yet"
-                    }
-                }
-            ),
-        },
-        operation_summary="Get a list of children for the authenticated user",
-        operation_description=(
-                "This endpoint retrieves a list of children that belong to the authenticated user. "
-                "If the user is not authenticated, a 401 error is returned. "
-                "If the user hasn't added any children yet, a 404 error is returned."
-        )
-    )
-    def list(self, request, *args, **kwargs):
-        phone_number = request.data['phone_number']
-        if phone_number is None:
-            return Response({'error': _('Phone_number is required')}, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk=None):
         try:
-            user = User.objects.get(phone_number=phone_number)
-        except User.DoesNotExist:
-            return Response({'message': _('User with this phone number does not exist.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        children = Child.objects.filter(user=user)
-        if not children.exists():
-            return Response({'message': _("You haven't added any children yet")},
-                            status=status.HTTP_404_NOT_FOUND)
-
-        serializer = ChildSerializer(children, many=True, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response(
-                description="Child successfully deleted.",
-                examples={
-                    "application/json": {
-                        "message": "Child successfully deleted"
-                    }
-                }
-            ),
-            401: openapi.Response(
-                description="User not authenticated.",
-                examples={
-                    "application/json": {
-                        "message": "User not authenticated"
-                    }
-                }
-            ),
-            403: openapi.Response(
-                description="Permission denied to delete the child.",
-                examples={
-                    "application/json": {
-                        "message": "You do not have permission to delete this child"
-                    }
-                }
-            ),
-            404: openapi.Response(
-                description="Child not found or user hasn't added any children.",
-                examples={
-                    "application/json": {
-                        "message": "You have not added any children yet"
-                    },
-                    "application/json": {
-                        "error": "Child not found"
-                    }
-                }
-            ),
-        },
-        operation_summary="Delete a child record",
-        operation_description=(
-                "This endpoint allows the authenticated user to delete a child record. "
-                "If the user is not authenticated, a 401 error is returned. "
-                "If the user doesn't have any children, a 404 error is returned. "
-                "If the child does not belong to the authenticated user, a 403 error is returned."
-        )
-    )
-    def delete(self, request, pk, *args, **kwargs):
-        user = request.user if request.user.is_authenticated else None
-
-        if not user:
-            phone_number = request.data.get('phone_number')
-            if not phone_number:
-                return Response({'message': _('Phone number is required.')}, status=status.HTTP_400_BAD_REQUEST)
-            user = User.objects.filter(phone_number=phone_number).first()
-            if not user:
-                return Response({'message': _('User not found.')}, status=status.HTTP_400_BAD_REQUEST)
-
-        if user.children_count == 0:
-            return Response({'message': _('No children found to delete.')}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            child = Child.objects.get(id=pk, user=user)
+            child = Child.objects.get(id=pk, user=request.user)
+            child.delete()
+            return Response({'message': 'Bola muvaffaqiyatli o\'chirildi'}, status=status.HTTP_204_NO_CONTENT)
         except Child.DoesNotExist:
-            return Response({'message': _('Child not found or does not belong to you.')},
-                            status=status.HTTP_404_NOT_FOUND)
-
-        child.delete()
-        user.children_count -= 1
-        user.save()
-
-        return Response({'message': _('Child successfully deleted.')}, status=status.HTTP_200_OK)
+            return Response({'error': 'Bola topilmadi'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class RegisterChildToCompViewSet(ViewSet):
