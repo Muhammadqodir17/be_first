@@ -42,7 +42,8 @@ from .serializers import (
     AboutUsSerializer,
     SpecialAboutUsSerializer,
     PolicySerializer,
-    SpecialPolicySerializer, GetExistJurySerializer, ExistWinnerSerializer,
+    SpecialPolicySerializer, GetExistJurySerializer, ExistWinnerSerializer, ForUpdateWinnerSerializer,
+    GetForUpdateWinnerSerializer,
 )
 from konkurs.serializers import ResultImageSerializer, ContactUsSerializer
 from konkurs.models import ContactUs
@@ -494,7 +495,7 @@ class CompetitionViewSet(ViewSet):
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 2:
             return Response(data={'error': _('This comp is not finished')}, status=status.HTTP_400_BAD_REQUEST)
-        participants = Participant.objects.filter(competition=comp, marked_status=2, action=2)
+        participants = Participant.objects.filter(competition=comp, marked_status=2)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
@@ -1052,7 +1053,7 @@ class CompetitionViewSet(ViewSet):
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 1:
             return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
-        participants = Participant.objects.filter(competition=comp, action=1)
+        participants = Participant.objects.filter(competition=comp, action=2).order_by()
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
@@ -1137,7 +1138,8 @@ class CompetitionViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         participant = Participant.objects.filter(competition=comp,
                                                  child__first_name=request.data['first_name'],
-                                                 child__last_name=request.data['last_name']).first()
+                                                 child__last_name=request.data['last_name'],
+                                                 child__date_of_birth=request.data['birth_date']).first()
         if participant is None:
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
         participant.winner = True
@@ -1146,6 +1148,135 @@ class CompetitionViewSet(ViewSet):
         serializer.validated_data['participant'] = participant
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    @swagger_auto_schema(
+        operation_description="Get Winner for Update",
+        operation_summary="Get Winner for Update",
+        responses={
+            200: 'Successfully Deleted',
+        },
+        tags=['admin']
+    )
+    def get_winner_to_update(self, request, *args, **kwargs):
+        winner = Winner.objects.filter(id=kwargs['pk']).first()
+        if winner is None:
+            return Response(data={'error': 'Winner not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = GetForUpdateWinnerSerializer(winner)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Update Winners for active comp",
+        operation_summary="Update Winners for active comp",
+        manual_parameters=[
+            openapi.Parameter(
+                name='place',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_INTEGER,
+                required=False,
+                description="place"
+            ),
+            openapi.Parameter(
+                name='first_name',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="first_name",
+            ), openapi.Parameter(
+                name='last_name',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="last_name",
+            ), openapi.Parameter(
+                name='birth_date',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="birth_date",
+            ), openapi.Parameter(
+                name='email',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="email",
+            ), openapi.Parameter(
+                name='phone_number',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="phone_number",
+            ), openapi.Parameter(
+                name='grade',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_INTEGER,
+                required=False,
+                description="grade",
+            ), openapi.Parameter(
+                name='jury_comment',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="jury_comment",
+            ), openapi.Parameter(
+                name='certificate',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                required=False,
+                description="certificate",
+            ), openapi.Parameter(
+                name='address_for_physical_certificate',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="address_for_physical_certificate",
+            ),
+        ],
+        responses={200: ForUpdateWinnerSerializer()},
+        tags=['admin'],
+    )
+    def update_winners(self, request, *args, **kwargs):
+        winner = Winner.objects.filter(id=kwargs['pk']).first()
+        if winner is None:
+            return Response({'error': _('Winner not found')}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ForUpdateWinnerSerializer(winner, data=request.data, context={'request': request}, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Attempt to update participant if any child field changed
+        first_name = request.data.get('first_name', winner.participant.child.first_name)
+        last_name = request.data.get('last_name', winner.participant.child.last_name)
+        birth_date = request.data.get('birth_date', str(winner.participant.child.date_of_birth))  # ensure string
+
+        participant = Participant.objects.filter(
+            competition=winner.competition,
+            child__first_name=first_name,
+            child__last_name=last_name,
+            child__date_of_birth=birth_date
+        ).first()
+
+        if not participant:
+            return Response(data={'error': _('Matching participant not found')}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer.validated_data['participant'] = participant
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Delete Winner",
+        operation_summary="Delete Winner",
+        responses={
+            200: 'Successfully Deleted',
+        },
+        tags=['admin']
+    )
+    def delete_winner(self, request, *args, **kwargs):
+        winner = Winner.objects.filter(id=kwargs['id']).first()
+        if winner is None:
+            return Response(data={'error': 'Winner not found'}, status=status.HTTP_404_NOT_FOUND)
+        winner.delete()
+        return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Get Exist Winner By Id for active comp",
@@ -2217,19 +2348,19 @@ class AboutUsViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="title"
-            ),openapi.Parameter(
+            ), openapi.Parameter(
                 name='title_uz',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="title_uz"
-            ),openapi.Parameter(
+            ), openapi.Parameter(
                 name='title_ru',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="title_ru"
-            ),openapi.Parameter(
+            ), openapi.Parameter(
                 name='title_en',
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_STRING,

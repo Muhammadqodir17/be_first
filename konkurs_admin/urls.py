@@ -46,6 +46,8 @@ urlpatterns = [
     path('active_participants/<int:pk>/', CompetitionViewSet.as_view({'get': 'active_participants'}),
          name='active_participants'),
     path('create_winners/<int:pk>/', CompetitionViewSet.as_view({'post': 'create_winners'}), name='create_winners'),
+    path('update_winners/<int:pk>/', CompetitionViewSet.as_view({'patch': 'update_winners'}), name='update_winners'),
+    path('delete_winner/<int:pk>/', CompetitionViewSet.as_view({'delete': 'delete_winner'}), name='delete_winners'),
     path('others/<int:pk>/', CompetitionViewSet.as_view({'get': 'others'}), name='others'),
     path('send_thank_you_message/<int:pk>/', CompetitionViewSet.as_view({'post': 'send_thank_you_message'}),
          name='send_thank_you_message'),

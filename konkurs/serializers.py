@@ -263,9 +263,10 @@ class FinishedParticipantSerializer(serializers.ModelSerializer):
 
     def get_certificate(self, obj):
         winner = Winner.objects.filter(participant=obj).first()
+        request = self.context.get('request')
         if winner and winner.certificate:
             try:
-                return winner.certificate.url
+                return request.build_absolute_uri(winner.certificate.url)
             except ValueError:
                 return None
         return None
