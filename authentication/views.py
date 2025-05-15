@@ -32,7 +32,7 @@ from .serializers import (
     SetProfileSerializer,
     RegisterSerializers,
     ChangePasswordSerializer,
-    SetPasswordSerializer, ReSetPassSerializer
+    SetPasswordSerializer, ReSetPassSerializer, TestSerializer
 )
 from .validators import validate_uz_phone_number
 from .utils import send_message_telegram, checking_number_of_otp, check_code_expire, check_token_expire, \
@@ -118,9 +118,9 @@ class OTPVerificationViewSet(ViewSet):
                 'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
                 'otp_code': openapi.Schema(type=openapi.TYPE_STRING, description="OTP kod"),
                 'type': openapi.Schema(
-                type=openapi.TYPE_STRING,
-                description="Qaysi holat uchun: 'register' yoki 'forgot'",
-                enum=['register', 'forgot'])
+                    type=openapi.TYPE_STRING,
+                    description="Qaysi holat uchun: 'register' yoki 'forgot'",
+                    enum=['register', 'forgot'])
             },
             required=['phone_number', 'otp_code']
         ),
@@ -143,7 +143,7 @@ class OTPVerificationViewSet(ViewSet):
             register = cache.get(f'otp_{phone_number}')
             if not register:
                 return Response({'error': _('Kiritilgan kod muddati o‘tgan')},
-                                    status=status.HTTP_400_BAD_REQUEST)
+                                status=status.HTTP_400_BAD_REQUEST)
             if str(register) == otp_code:
                 user_data = cache.get(f'register_{phone_number}')
 
@@ -170,8 +170,9 @@ class OTPVerificationViewSet(ViewSet):
                         access_token = refresh_token.access_token
                         access_token['role'] = user.role
 
-                        return Response(data={'refresh': str(refresh_token), 'access_token': str(access_token), 'type': 'register'},
-                                        status=status.HTTP_200_OK)
+                        return Response(
+                            data={'refresh': str(refresh_token), 'access_token': str(access_token), 'type': 'register'},
+                            status=status.HTTP_200_OK)
                     except Exception as e:
                         return Response({'error': _("Foydalanuvchini yaratishda xato: %(error)s") % {'error': str(e)}},
                                         status=status.HTTP_400_BAD_REQUEST)
@@ -200,10 +201,10 @@ class OTPVerificationViewSet(ViewSet):
             properties={
                 'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='phone_number'),
                 'type': openapi.Schema(
-                type=openapi.TYPE_STRING,
-                description="Qaysi holat uchun: 'register' yoki 'forgot'",
-                enum=['register', 'forgot']
-            ),
+                    type=openapi.TYPE_STRING,
+                    description="Qaysi holat uchun: 'register' yoki 'forgot'",
+                    enum=['register', 'forgot']
+                ),
             },
             required=['phone_number']
         ),
@@ -490,7 +491,30 @@ class ResetPasswordViewSet(ViewSet):
 
 
 class TestViewSet(ViewSet):
-    def register(self, request, *args, **kwargs): # register
+    @swagger_auto_schema(
+        operation_description="Foydalanuvchini ro'yxatdan o'tkazish va OTP kod yuborish",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
+                'first_name': openapi.Schema(type=openapi.TYPE_STRING, description="Ism"),
+                'last_name': openapi.Schema(type=openapi.TYPE_STRING, description="Familiya"),
+                'middle_name': openapi.Schema(type=openapi.TYPE_STRING, description="Otasi ismi"),
+                'birth_date': openapi.Schema(type=openapi.FORMAT_DATE, description="Tug'ilgan sana"),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description="Parol"),
+                'confirm_password': openapi.Schema(type=openapi.TYPE_STRING, description="Parolni tasdiqlash"),
+            },
+            required=['phone_number', 'birth_date', 'middle_name', 'first_name', 'last_name', 'password', 'email',
+                      'confirm_password']
+        ),
+        responses={
+            200: openapi.Response(description="OTP kod yuborildi"),
+            400: openapi.Response(description="Parollar mos emas yoki foydalanuvchi allaqachon mavjud"),
+            500: openapi.Response(description="OTP yuborishda xato yuz berdi")
+        }
+    )
+    def register(self, request, *args, **kwargs):  # register
         serializer = RegisterSerializers(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -516,12 +540,29 @@ class TestViewSet(ViewSet):
         if response.status_code != 200:
             otp.delete()
             return Response(data={"error": "Error occured while sending otp code"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(data={"otp_key": otp.otp_key, 'message': 'Otp successfully send'}, status=status.HTTP_200_OK)
+        return Response(data={"otp_key": otp.otp_key, 'type': 'register', 'message': 'Otp successfully send'}, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_description="OTP kodini tekshirish va foydalanuvchini yaratish",
+        operation_summary="Verify Otp",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'otp_key': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
+                'otp_code': openapi.Schema(type=openapi.TYPE_INTEGER, description="OTP kod"),
+            },
+            required=['otp_key', 'otp_code']
+        ),
+        responses={
+            201: openapi.Response(description="Ro‘yxatdan o‘tish muvaffaqiyatli yakunlandi"),
+            400: openapi.Response(description="Kiritilgan kod noto‘g‘ri yoki muddati o‘tgan"),
+            500: openapi.Response(description="Foydalanuvchini yaratishda xato")
+        }
+    )
     def verify_register(self, request, *args, **kwargs):
         otp_key = request.data.get('otp_key')
         otp_code = request.data.get('otp_code')
-        if request.user.is_verified:
+        if request.user.is_active:
             return Response(data={"detail": "U already verified"}, status=status.HTTP_400_BAD_REQUEST)
         if not otp_code:
             return Response(data={"error": "Send otp code"}, status=status.HTTP_400_BAD_REQUEST)
@@ -542,14 +583,34 @@ class TestViewSet(ViewSet):
         if not user:
             return Response(data={"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-        user.is_verified = True
-        user.save(update_fields=['is_verified'])
+        user.is_active = True
+        user.save(update_fields=['is_active'])
         objs = OTPRegisterResend.objects.filter(otp_user=user, deleted_at=None)
         for obj in objs:
             obj.deleted_at = datetime.now()
             obj.save(update_fields=['deleted_at'])
-        return Response(data={"message": "Success"}, status=status.HTTP_200_OK)
+        refresh_token = RefreshToken.for_user(user)
+        access_token = refresh_token.access_token
+        access_token['role'] = user.role
+        return Response(
+            data={"message": "Success", 'refresh_token': str(refresh_token), 'access_token': str(access_token)},
+            status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_description="Forgot password",
+        operation_summary="Forgot password",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
+            },
+            required=['phone_number']
+        ),
+        responses={
+            200: openapi.Response(description="OTP kod yuborildi"),
+            400: openapi.Response(description="Foydalanuvchi topilmadi yoki OTP yuborishda xato yuz berdi"),
+        }
+    )
     def forgot_password(self, request, *args, **kwargs):
         phone_number = request.data.get('phone_number')
         user = User.objects.filter(phone_number=phone_number).first()
@@ -562,8 +623,24 @@ class TestViewSet(ViewSet):
             otp_obj.deleted_at = datetime.now()
             otp_obj.save(update_fields=['deleted_at'])
             return Response({"error": "Error occured while sending otp"}, status.HTTP_400_BAD_REQUEST)
-        return Response(data={"otp_key": otp_obj.otp_key}, status=status.HTTP_200_OK)
+        return Response(data={"otp_key": otp_obj.otp_key, 'type': 'forgot'}, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_description="Verify forgot password",
+        operation_summary="Verify forgot password",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'otp_key': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
+                'otp_code': openapi.Schema(type=openapi.TYPE_INTEGER, description="OTP kod"),
+            },
+            required=['otp_key', 'otp_code']
+        ),
+        responses={
+            201: openapi.Response(description="Otp verified"),
+            400: openapi.Response(description="Something went wrong"),
+        }
+    )
     def verify_forgot_password(self, request, *args, **kwargs):
         otp_key = request.data.get('otp_key')
         otp_code = request.data.get('otp_code')
@@ -579,6 +656,21 @@ class TestViewSet(ViewSet):
             return Response(data={"error": "Otp code is wrong"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(data={"message": "Success", "token": otp_obj.otp_token}, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_description="ReSet Password",
+        operation_summary="ReSet Password",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'otp_token': openapi.Schema(type=openapi.TYPE_STRING, description='otp_token'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='password'),
+                'confirm_password': openapi.Schema(type=openapi.TYPE_STRING, description='confirm_password'),
+            },
+            required=['password', 'confirm_password', 'otp_token']
+        ),
+        responses={200: 'Password reseted.'},
+        tags=['auth'],
+    )
     def reset_password(self, request, *args, **kwargs):
         token = request.data.get('otp_token')
         obj = OTPSetPassword.objects.filter(otp_token=token, deleted_at=None).first()
@@ -596,7 +688,7 @@ class TestViewSet(ViewSet):
         user = User.objects.filter(id=obj.otp_user.id).first()
         if not user:
             return Response(data={"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = UserSerializer(user, data={'password': make_password(password)}, partial=True)
+        serializer = TestSerializer(user, data={'password': password}, partial=True)
         if serializer.is_valid():
             serializer.save()
             obj.deleted_at = datetime.now()
@@ -604,34 +696,73 @@ class TestViewSet(ViewSet):
             return Response(data={"detail": "success"}, status=status.HTTP_200_OK)
         return Response(data={"error": "Please enter a valid password"}, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(
+        operation_description="Resend Otp",
+        operation_summary="Resend Otp",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'otp_key': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
+                'type': openapi.Schema(type=openapi.TYPE_STRING, description="type"),
+            },
+            required=['otp_key']
+        ),
+        responses={
+            201: openapi.Response(description="Otp send"),
+            400: openapi.Response(description="Failed to send otp code"),
+        }
+    )
     def resend_otp(self, request, *args, **kwargs):
         otp_key = request.data.get('otp_key')
-        otp_obj = OTPRegisterResend.objects.filter(otp_key=otp_key, deleted_at=None).first()
-        if not otp_obj:
-            return Response(data={"error": "Otp key is wrong"}, status=status.HTTP_400_BAD_REQUEST)
+        f_type = request.data.get('type')
 
-        objs = OTPRegisterResend.objects.filter(otp_user=otp_obj.otp_user, otp_type=2, deleted_at=None).order_by(
-            '-created_at')
-        if not checking_number_of_otp(objs):
-            return Response(data={"error": "Try again 12 hours later"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if not check_resend_otp_code(otp_obj.created_at):
-            return Response(data={"error": "Try again a minute later"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if checking_number_of_otp(objs) == 'delete':
-            objs = OTPRegisterResend.objects.filter(otp_user=otp_obj.otp_user, otp_type=2, deleted_at=None)
-            for obj in objs:
-                obj.deleted_at = datetime.now()
-                obj.save(update_fields=['deleted_at'])
-
-        new_otp = OTPRegisterResend.objects.create(otp_user=otp_obj.otp_user, otp_type=2)
-        new_otp.save()
-        response = send_message_telegram(new_otp)
-        if response.status_code != 200:
-            new_otp.deleted_at = datetime.now()
-            new_otp.save(update_fields=['deleted_at'])
-            return Response(data={"error": "Failed to send otp code"}, status=status.HTTP_400_BAD_REQUEST)
-        otp_obj.deleted_at = datetime.now()
-        otp_obj.save(update_fields=['deleted_at'])
-        return Response(data={"otp_key": new_otp.otp_key}, status=status.HTTP_200_OK)
-
+        if f_type == 'register':
+            otp_obj = OTPRegisterResend.objects.filter(otp_key=otp_key, deleted_at=None).first()
+            if not otp_obj:
+                return Response(data={"error": "Otp key is wrong"}, status=status.HTTP_400_BAD_REQUEST)
+            objs = OTPRegisterResend.objects.filter(otp_user=otp_obj.otp_user, deleted_at=None).order_by(
+                '-created_at')
+            if not checking_number_of_otp(objs):
+                return Response(data={"error": "Try again 12 hours later"}, status=status.HTTP_400_BAD_REQUEST)
+            if not check_resend_otp_code(otp_obj.created_at):
+                return Response(data={"error": "Try again a minute later"}, status=status.HTTP_400_BAD_REQUEST)
+            if checking_number_of_otp(objs) == 'delete':
+                objs = OTPRegisterResend.objects.filter(otp_user=otp_obj.otp_user, deleted_at=None)
+                for obj in objs:
+                    obj.deleted_at = datetime.now()
+                    obj.save(update_fields=['deleted_at'])
+            new_otp = OTPRegisterResend.objects.create(otp_user=otp_obj.otp_user)
+            new_otp.save()
+            response = send_message_telegram(new_otp)
+            if response.status_code != 200:
+                new_otp.deleted_at = datetime.now()
+                new_otp.save(update_fields=['deleted_at'])
+                return Response(data={"error": "Failed to send otp code"}, status=status.HTTP_400_BAD_REQUEST)
+            otp_obj.deleted_at = datetime.now()
+            otp_obj.save(update_fields=['deleted_at'])
+            return Response(data={"otp_key": new_otp.otp_key}, status=status.HTTP_200_OK)
+        else:
+            otp_obj = OTPSetPassword.objects.filter(otp_key=otp_key, deleted_at=None).first()
+            if not otp_obj:
+                return Response(data={"error": "Otp key is wrong"}, status=status.HTTP_400_BAD_REQUEST)
+            objs = OTPSetPassword.objects.filter(otp_user=otp_obj.otp_user, deleted_at=None).order_by(
+                '-created_at')
+            if not checking_number_of_otp(objs):
+                return Response(data={"error": "Try again 12 hours later"}, status=status.HTTP_400_BAD_REQUEST)
+            if not check_resend_otp_code(otp_obj.created_at):
+                return Response(data={"error": "Try again a minute later"}, status=status.HTTP_400_BAD_REQUEST)
+            if checking_number_of_otp(objs) == 'delete':
+                objs = OTPSetPassword.objects.filter(otp_user=otp_obj.otp_user, deleted_at=None)
+                for obj in objs:
+                    obj.deleted_at = datetime.now()
+                    obj.save(update_fields=['deleted_at'])
+            new_otp = OTPSetPassword.objects.create(otp_user=otp_obj.otp_user)
+            new_otp.save()
+            response = send_message_telegram(new_otp)
+            if response.status_code != 200:
+                new_otp.deleted_at = datetime.now()
+                new_otp.save(update_fields=['deleted_at'])
+                return Response(data={"error": "Failed to send otp code"}, status=status.HTTP_400_BAD_REQUEST)
+            otp_obj.deleted_at = datetime.now()
+            otp_obj.save(update_fields=['deleted_at'])
+            return Response(data={"otp_key": new_otp.otp_key}, status=status.HTTP_200_OK)

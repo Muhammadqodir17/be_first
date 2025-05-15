@@ -74,13 +74,29 @@ class ChildViewSet(ViewSet):
                     description="The last name of the child.",
                     example="Doe"
                 ),
+                'middle_name': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="The last name of the child.",
+                    example="Doe"
+                ),
                 'birth_date': openapi.Schema(
                     type=openapi.TYPE_STRING,
                     description="The birth date of the child.",
                     example="2015-06-15"
                 ),
+                'place_of_study': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="place_of_study",
+                    example="school"
+                ),
+
+                'degree_of_kinship': openapi.Schema(
+                    type=openapi.TYPE_INTEGER,
+                    description="degree_of_kinship",
+                    example="son"
+                ),
             },
-            required=['first_name', 'last_name', 'birth_date'],
+            required=['first_name', 'last_name', 'middle_name', 'birth_date', 'place_of_study', 'degree_of_kinship'],
         ),
         responses={
             201: openapi.Response(
@@ -90,7 +106,10 @@ class ChildViewSet(ViewSet):
                         "id": 1,
                         "first_name": "John",
                         "last_name": "Doe",
+                        "middle_name": "Doe",
                         "birth_date": "2015-06-15",
+                        "place_of_study": "school",
+                        "degree_of_kinship": "son",
                         "user": 123
                     }
                 }
@@ -112,6 +131,7 @@ class ChildViewSet(ViewSet):
     )
     def create(self, request, *args, **kwargs):
         phone_number = request.data.get('phone_number')
+        request.data['user'] = request.user
         try:
             user = User.objects.filter(phone_number=phone_number).first()
         except User.DoesNotExist:
@@ -119,15 +139,16 @@ class ChildViewSet(ViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
         if user.children_count >= 5:
-            return Response({'message': _('You have already registered 5 children')}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': _('You have already registered 5 children')},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ChildSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
+            serializer.validated_data['user'] = request.user.id
             serializer.save(user=user)
             user.children_count += 1
             user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
@@ -362,7 +383,8 @@ class ChildViewSet(ViewSet):
         try:
             child = Child.objects.get(id=pk, user=user)
         except Child.DoesNotExist:
-            return Response({'message': _('Child not found or does not belong to you.')}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': _('Child not found or does not belong to you.')},
+                            status=status.HTTP_404_NOT_FOUND)
 
         child.delete()
         user.children_count -= 1

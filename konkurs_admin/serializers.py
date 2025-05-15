@@ -273,6 +273,12 @@ class WinnerSerializer(serializers.ModelSerializer):
         data['place'] = dict(PLACE).get(instance.place, 'Unknown')
         return data
 
+    def validate(self, data):
+        winner = Winner.objects.filter(place=data.place).first()
+        if winner:
+            raise serializers.ValidationError(f"You've already created {data.place} place")
+        return data
+
 
 class WinnerListSerializer(serializers.ModelSerializer):
     child = serializers.SerializerMethodField(source='get_child')
@@ -483,3 +489,19 @@ class GetExistAboutResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = AboutResult
         fields = ['id', 'description', 'description_uz', 'description_ru', 'description_en', 'image']
+
+
+class ExistWinnerSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+    birth_date = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Winner
+        fields = ['id', 'place', 'first_name', 'last_name', 'birth_date', 'email', 'phone_number',
+                  'grade', 'jury_comment', 'certificate', 'address_for_physical_certificate']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['place'] = dict(PLACE).get(instance.place, 'Unknown')
+        return data
