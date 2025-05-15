@@ -33,6 +33,7 @@ from .models import (
     # ResultImage,
     SocialMedia,
 )
+from django.utils.translation import gettext as _
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -57,8 +58,8 @@ class GetCompetitionSerializer(serializers.ModelSerializer):
 class GetCompetitionByIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
-        fields = ['id', 'image', 'name', 'category', 'description', 'application_start_date', 'application_start_time',
-                  'application_end_date', 'application_end_time', 'rules', 'status']
+        fields = ['id', 'image', 'name', 'category', 'description', 'comp_start_date', 'comp_start_time',
+                  'comp_end_date', 'comp_end_time', 'application_start_date', 'application_start_time', 'application_end_date', 'application_end_time', 'rules', 'status']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -492,6 +493,47 @@ class GetExistAboutResultSerializer(serializers.ModelSerializer):
 
 
 class ExistWinnerSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+    birth_date = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Winner
+        fields = ['id', 'place', 'first_name', 'last_name', 'birth_date', 'email', 'phone_number',
+                  'grade', 'jury_comment', 'certificate', 'address_for_physical_certificate']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['place'] = dict(PLACE).get(instance.place, 'Unknown')
+        data['first_name'] = instance.participant.child.first_name
+        data['last_name'] = instance.participant.child.last_name
+        data['birth_date'] = instance.participant.child.date_of_birth
+        return data
+
+#
+class ForUpdateWinnerSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+    birth_date = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Winner
+        fields = ['id', 'place', 'first_name', 'last_name', 'birth_date', 'email', 'phone_number',
+                  'grade', 'jury_comment', 'certificate', 'address_for_physical_certificate', 'participant']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['place'] = dict(PLACE).get(instance.place, 'Unknown')
+        return data
+
+    def validate(self, data):
+        winner = Winner.objects.filter(place=data.place).first()
+        if winner:
+            raise serializers.ValidationError(f"You've already created {data.place} place")
+        return data
+
+
+class GetForUpdateWinnerSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
     birth_date = serializers.CharField(read_only=True)
