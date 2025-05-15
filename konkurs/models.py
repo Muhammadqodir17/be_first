@@ -45,7 +45,7 @@ class Competition(BaseModel):
     rules = models.TextField()
     physical_certificate = models.ImageField(upload_to='media/', blank=True)
     image = models.ImageField(upload_to='media/', blank=True)
-    status = models.IntegerField(choices=STATUS, default=0)
+    status = models.IntegerField(choices=STATUS, default=1)
 
     def __str__(self):
         return f'{self.name}'
