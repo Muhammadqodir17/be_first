@@ -25,6 +25,7 @@ urlpatterns = [
     path('search_participant/<int:pk>/', CompetitionViewSet.as_view({'get': 'search_participant'}),
          name='search_participant'),  #
     path('get_winners/<int:pk>/', CompetitionViewSet.as_view({'get': 'winners'}), name='get_winners'),
+    path('get_winners_for_active/<int:pk>/', CompetitionViewSet.as_view({'get': 'get_exist_winners'}), name='get_winners_for_active'),
     path('search_winners/<int:pk>/', CompetitionViewSet.as_view({'get': 'search_winners'}), name='search_winners'),  #
     path('get_competitions/', CompetitionViewSet.as_view({'get': 'get_comp'}), name='get_competitions'),
     path('search_comp/', CompetitionViewSet.as_view({'get': 'search_comp'}), name='search_comp'),  #

@@ -21,8 +21,8 @@ def is_valid_tokens(refresh_token, access_token):
 
 def send_message_telegram(otp_obj):
     message = {
-        'uuid': otp_obj.uuid,
-        'otp': otp_obj.otp_code
+        'otp_key': otp_obj.otp_key,
+        'otp_code': otp_obj.otp_code
     }
     return requests.get(TELEGRAM_API_URL.format(BOT_ID, message, CHAT_ID))
 
@@ -53,7 +53,7 @@ def check_resend_otp_code(created_at):
 
 def check_token_expire(created_at):
     current_time = datetime.now()
-    if current_time - created_at < timedelta(minutes=30):
+    if (current_time - created_at) > timedelta(minutes=30):
         return False
     return True
 

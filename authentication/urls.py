@@ -10,6 +10,7 @@ from .views import (
 urlpatterns = [
     path('get_user/', RegistrationViewSet.as_view({'get': 'get_user'}), name='get_user_for_set_profile'),
     path('register/', TestViewSet.as_view({'post': 'register'}), name='register'),
+    path('verify_register/', TestViewSet.as_view({'post': 'verify_register'}), name='verify_register'),
     # path('register/', RegistrationViewSet.as_view({'post': 'register'}), name='register'),
     path('verify_forgot_password/', TestViewSet.as_view({'post': 'verify_forgot_password'}), name='verify'),
     # path('verify_otp/', OTPVerificationViewSet.as_view({'post': 'verify'}), name='verify'),

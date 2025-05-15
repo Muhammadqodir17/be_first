@@ -328,3 +328,11 @@ class ReSetPassSerializer(serializers.Serializer):
     #     return data
 
 
+class TestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'password']
+
+    def validate(self, attrs):
+        attrs['password'] = make_password(attrs['password'])
+        return attrs

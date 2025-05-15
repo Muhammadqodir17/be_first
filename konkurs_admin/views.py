@@ -42,7 +42,7 @@ from .serializers import (
     AboutUsSerializer,
     SpecialAboutUsSerializer,
     PolicySerializer,
-    SpecialPolicySerializer, GetExistJurySerializer,
+    SpecialPolicySerializer, GetExistJurySerializer, ExistWinnerSerializer,
 )
 from konkurs.serializers import ResultImageSerializer, ContactUsSerializer
 from konkurs.models import ContactUs
@@ -1146,6 +1146,22 @@ class CompetitionViewSet(ViewSet):
         serializer.validated_data['participant'] = participant
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    @swagger_auto_schema(
+        operation_description="Get Exist Winner By Id for active comp",
+        operation_summary="Get Exist Winner By Id for active comp",
+        responses={
+            200: CategorySerializer(),
+        },
+        tags=['admin']
+    )
+    def get_exist_winners(self, request, *args, **kwargs):
+        comp = Competition.objects.filter(id=kwargs['pk']).first()
+        if comp is None:
+            return Response(data={'error': 'Comp not found'}, status=status.HTTP_404_NOT_FOUND)
+        winner = Winner.objects.filter(competition=comp)
+        serializer = ExistWinnerSerializer(winner, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Get Others for active comp",
