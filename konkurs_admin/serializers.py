@@ -549,6 +549,7 @@ class GetForUpdateWinnerSerializer(serializers.ModelSerializer):
 
 
 class UpdateJurySerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     confirm_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
