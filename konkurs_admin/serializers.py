@@ -546,3 +546,22 @@ class GetForUpdateWinnerSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data['place'] = dict(PLACE).get(instance.place, 'Unknown')
         return data
+
+
+class UpdateJurySerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'middle_name', 'phone_number', 'birth_date',
+                  'place_of_work', 'place_of_work_uz', 'place_of_work_ru', 'place_of_work_en', 'academic_degree',
+                  'speciality', 'speciality_uz', 'speciality_ru', 'speciality_en', 'category', 'username', 'password',
+                  'confirm_password', 'image']
+
+    def validate(self, data):
+        if data.get('password') and data.get('confirm_password'):
+            if data['password'] != data['confirm_password']:
+                raise serializers.ValidationError({"error": "Passwords do not match"})
+            data.pop('confirm_password')
+            data['password'] = make_password(data['password'])
+        return data

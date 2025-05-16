@@ -43,7 +43,7 @@ from .serializers import (
     SpecialAboutUsSerializer,
     PolicySerializer,
     SpecialPolicySerializer, GetExistJurySerializer, ExistWinnerSerializer, ForUpdateWinnerSerializer,
-    GetForUpdateWinnerSerializer,
+    GetForUpdateWinnerSerializer, UpdateJurySerializer,
 )
 from konkurs.serializers import ResultImageSerializer, ContactUsSerializer
 from konkurs.models import ContactUs
@@ -1847,14 +1847,14 @@ class JuryViewSet(ViewSet):
                 description="email",
             ),
         ],
-        responses={200: JurySerializer()},
+        responses={200: UpdateJurySerializer()},
         tags=['admin'],
     )
     def update(self, request, *args, **kwargs):
         jury = User.objects.filter(id=kwargs['pk'], role=2).first()
         if jury is None:
             return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = JurySerializer(jury, data=request.data, partial=True, context={'request': request})
+        serializer = UpdateJurySerializer(jury, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
