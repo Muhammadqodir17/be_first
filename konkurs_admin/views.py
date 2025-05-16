@@ -1258,6 +1258,12 @@ class CompetitionViewSet(ViewSet):
         if not participant:
             return Response(data={'error': _('Matching participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
+        if participant.competition != winner.competition:
+            return Response(data={
+                'error': 'Participant is not belong to this competition!!!. '
+                         'Please, choose participant which belongs to current competition'},
+            status=status.HTTP_400_BAD_REQUEST)
+
         serializer.validated_data['participant'] = participant
         serializer.save()
 
