@@ -1851,7 +1851,7 @@ class JuryViewSet(ViewSet):
         tags=['admin'],
     )
     def update(self, request, *args, **kwargs):
-        jury = User.objects.filter(id=kwargs['pk'], role=2).first()
+        jury = User.objects.filter(id=kwargs['pk']).first()
         if jury is None:
             return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = UpdateJurySerializer(jury, data=request.data, partial=True, context={'request': request})
