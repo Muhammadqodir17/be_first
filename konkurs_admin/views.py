@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Max
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -105,8 +105,8 @@ class CategoryViewSet(ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
-        operation_description="Get all Categories for comp",
-        operation_summary="Get all Categories for comp",
+        operation_description="Get all Categories for front",
+        operation_summary="Get all Categories for front",
         responses={
             200: CategorySerializer(),
         },
@@ -495,7 +495,8 @@ class CompetitionViewSet(ViewSet):
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 2:
             return Response(data={'error': _('This comp is not finished')}, status=status.HTTP_400_BAD_REQUEST)
-        participants = Participant.objects.filter(competition=comp, marked_status=2)
+        participants = Participant.objects.filter(
+            competition=comp, action=2).annotate(grade=Max('assessment__grade')).order_by('-grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
@@ -1053,7 +1054,8 @@ class CompetitionViewSet(ViewSet):
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 1:
             return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
-        participants = Participant.objects.filter(competition=comp, action=2).order_by()
+        participants = Participant.objects.filter(
+            competition=comp, action=2).annotate(grade=Max('assessment__grade')).order_by('-grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
@@ -1270,7 +1272,6 @@ class CompetitionViewSet(ViewSet):
 
         serializer.validated_data['participant'] = participant
         serializer.save()
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(

@@ -10,4 +10,6 @@ def post_save_for_winner(sender, instance, created, **kwargs):
         _('Congratulations %(name)s!.') % {'name': instance.participant.child.first_name},
         _('You are the Winner of the %(comp)s Competition') % {'comp': instance.participant.child.first_name}
     )
+    instance.participant.winner = True
+    instance.participant.save()
     Notification.objects.create(competition=instance.competition, message=message)
