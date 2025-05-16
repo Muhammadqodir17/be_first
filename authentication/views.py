@@ -571,14 +571,14 @@ class TestViewSet(ViewSet):
         if otp_obj is None:
             return Response(data={"error": "Make sure otp key is right"}, status=status.HTTP_400_BAD_REQUEST)
         if otp_obj.attempts > 2:
-            return Response(data={"error": "Come back 12 hours later"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": "Come back an hours later"}, status=status.HTTP_400_BAD_REQUEST)
         if otp_obj.otp_code != otp_code:
             otp_obj.attempts += 1
             otp_obj.save(update_fields=['attempts'])
             return Response(data={"error": "otp code is wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
         if not check_code_expire(otp_obj.created_at):
-            return Response(data={"error": "Code is expired"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": "Code is expired, get new Otp code"}, status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.filter(id=otp_obj.otp_user.id).first()
         if not user:
