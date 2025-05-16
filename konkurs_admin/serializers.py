@@ -524,9 +524,9 @@ class ForUpdateWinnerSerializer(serializers.ModelSerializer):
         return data
 
     def validate(self, data):
-        winner = Winner.objects.filter(place=data.place).first()
+        winner = Winner.objects.filter(place=data['place']).first()
         if winner:
-            raise serializers.ValidationError(f"You've already created {data.place} place")
+            raise serializers.ValidationError(f"You've already created {data['place']} place")
         return data
 
 
