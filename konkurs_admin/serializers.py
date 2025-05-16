@@ -520,13 +520,15 @@ class ForUpdateWinnerSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['place'] = dict(PLACE).get(instance.place, 'Unknown')
+        if data['place']:
+            data['place'] = dict(PLACE).get(instance.place, 'Unknown')
         return data
 
     def validate(self, data):
-        winner = Winner.objects.filter(place=data['place']).first()
-        if winner:
-            raise serializers.ValidationError(f"You've already created {data['place']} place")
+        if data['place']:
+            winner = Winner.objects.filter(place=data['place']).first()
+            if winner:
+                raise serializers.ValidationError(f"You've already created {data['place']} place")
         return data
 
 
