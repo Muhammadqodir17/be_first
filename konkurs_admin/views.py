@@ -1262,7 +1262,11 @@ class CompetitionViewSet(ViewSet):
             return Response(data={
                 'error': 'Participant is not belong to this competition!!!. '
                          'Please, choose participant which belongs to current competition'},
-            status=status.HTTP_400_BAD_REQUEST)
+                status=status.HTTP_400_BAD_REQUEST)
+
+        if participant.action != 2 and participant.marked_status != 2:
+            return Response(data={'error': 'Participant must be marked and participants '
+                                           'request must be accepted'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.validated_data['participant'] = participant
         serializer.save()
