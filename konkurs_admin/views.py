@@ -43,7 +43,7 @@ from .serializers import (
     SpecialAboutUsSerializer,
     PolicySerializer,
     SpecialPolicySerializer, GetExistJurySerializer, ExistWinnerSerializer, ForUpdateWinnerSerializer,
-    GetForUpdateWinnerSerializer, UpdateJurySerializer,
+    GetForUpdateWinnerSerializer, UpdateJurySerializer, GetExistCompetitionByIdSerializer,
 )
 from konkurs.serializers import ResultImageSerializer, ContactUsSerializer
 from konkurs.models import ContactUs
@@ -380,6 +380,13 @@ class CompetitionViewSet(ViewSet):
         if competition is None:
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = GetCompetitionByIdSerializer(competition, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def get_exist_comp_by_id(self, request, *args, **kwargs):
+        competition = Competition.objects.filter(id=kwargs['pk']).first()
+        if competition is None:
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
+        serializer = GetExistCompetitionByIdSerializer(competition, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
