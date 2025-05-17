@@ -1,14 +1,17 @@
 from datetime import date
 from django.conf import settings
 from rest_framework import serializers
-from authentication.validators import validate_uz_phone_number
+from authentication.validators import (
+    validate_uz_phone_number,
+    validate_name,
+    validate_password
+)
 from jury.models import Assessment
 from konkurs.models import (
     Category,
     Competition,
     Participant,
     APPROVEMENT,
-    MARKED_STATUS,
     STATUS,
     GradeCriteria,
     ChildWork
@@ -27,7 +30,6 @@ from .models import (
     AboutResult,
     AboutUs,
     Policy,
-    # ResultImage,
     SocialMedia,
 )
 from django.utils.translation import gettext as _
@@ -56,7 +58,8 @@ class GetCompetitionByIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'image', 'name', 'category', 'description', 'comp_start_date', 'comp_start_time',
-                  'comp_end_date', 'comp_end_time', 'application_start_date', 'application_start_time', 'application_end_date', 'application_end_time', 'rules', 'status']
+                  'comp_end_date', 'comp_end_time', 'application_start_date', 'application_start_time',
+                  'application_end_date', 'application_end_time', 'rules', 'status']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -127,8 +130,24 @@ class JurySerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'first_name', 'last_name', 'middle_name', 'phone_number', 'birth_date',
                   'place_of_work', 'place_of_work_uz', 'place_of_work_ru', 'place_of_work_en', 'academic_degree',
-                  'speciality', 'speciality_uz', 'speciality_ru', 'speciality_en', 'category', 'username', 'password',
+                  'speciality', 'speciality_uz', 'speciality_ru', 'speciality_en', 'category',
+                  'username', 'password',
                   'confirm_password', 'role', 'image']
+
+    def validate_first_name(self, data):
+        return validate_name(data)
+
+    def validate_last_name(self, data):
+        return validate_name(data)
+
+    def validate_middle_name(self, data):
+        return validate_name(data)
+
+    def validate_phone_number(self, data):
+        return validate_uz_phone_number(data)
+
+    def validate_password(self, data):
+        return validate_password(data)
 
     def validate(self, data):
         if data.get('password') and data.get('confirm_password'):
@@ -162,28 +181,6 @@ class GradeCriteriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = GradeCriteria
         fields = ['id', 'criteria']
-
-
-class CompetitionSerializer(serializers.ModelSerializer):
-    criteria = serializers.SerializerMethodField(source='get_criteria')
-
-    class Meta:
-        model = Competition
-        fields = ['id', 'name', 'category', 'description', 'comp_start_date', 'comp_start_time', 'comp_end_date',
-                  'comp_end_time', 'application_start_date', 'application_start_time',
-                  'application_end_date', 'application_end_time', 'status', 'rules', 'participation_fee', 'image',
-                  'prize', 'criteria']
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['status'] = dict(STATUS).get(instance.status, 'Unknown')
-        return data
-
-    def get_criteria(self, obj):
-        criteria_instance = GradeCriteria.objects.filter(competition__id=obj.id)
-        if criteria_instance:
-            return GradeCriteriaSerializer(criteria_instance, many=True).data
-        return None
 
 
 class CreateCompetitionSerializer(serializers.ModelSerializer):
@@ -274,8 +271,11 @@ class WinnerSerializer(serializers.ModelSerializer):
     def validate(self, data):
         winner = Winner.objects.filter(place=data['place']).first()
         if winner:
-            raise serializers.ValidationError(f"You've already created {data['place']} place")
+            raise serializers.ValidationError(_("You've already created %(place)s place") % {'place': data['place']})
         return data
+
+    def validate_phone_number(self, data):
+        return validate_uz_phone_number(data)
 
 
 class WinnerListSerializer(serializers.ModelSerializer):
@@ -432,6 +432,7 @@ class SpecialAboutUsSerializer(serializers.ModelSerializer):
                   'co_founder_position_en', 'co_founder_image']
 
 
+#
 class GetExistJurySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -507,6 +508,7 @@ class ExistWinnerSerializer(serializers.ModelSerializer):
         data['birth_date'] = instance.participant.child.date_of_birth
         return data
 
+
 #
 class ForUpdateWinnerSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(read_only=True)
@@ -528,8 +530,11 @@ class ForUpdateWinnerSerializer(serializers.ModelSerializer):
         if data.get('place'):
             winner = Winner.objects.filter(place=data['place']).first()
             if winner:
-                raise serializers.ValidationError(f"You've already created {data['place']} place")
+                raise serializers.ValidationError(_("You've already created %(place)s place") % {'place': data['place']})
         return data
+
+    def validate_phone_number(self, data):
+        return validate_uz_phone_number(data)
 
 
 class GetForUpdateWinnerSerializer(serializers.ModelSerializer):
@@ -559,10 +564,25 @@ class UpdateJurySerializer(serializers.ModelSerializer):
                   'speciality', 'speciality_uz', 'speciality_ru', 'speciality_en', 'category', 'username', 'password',
                   'confirm_password', 'image']
 
+    def validate_first_name(self, data):
+        return validate_name(data)
+
+    def validate_last_name(self, data):
+        return validate_name(data)
+
+    def validate_middle_name(self, data):
+        return validate_name(data)
+
+    def validate_phone_number(self, data):
+        return validate_uz_phone_number(data)
+
+    def validate_password(self, data):
+        return validate_password(data)
+
     def validate(self, data):
         if data.get('password') and data.get('confirm_password'):
             if data['password'] != data['confirm_password']:
-                raise serializers.ValidationError({"error": "Passwords do not match"})
+                raise serializers.ValidationError({"error": _("Passwords do not match")})
             data.pop('confirm_password')
             data['password'] = make_password(data['password'])
         return data

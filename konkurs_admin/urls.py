@@ -61,6 +61,7 @@ urlpatterns = [
     path('update_jury/<int:pk>/', JuryViewSet.as_view({'patch': 'update'}), name='update_jury'),
     path('delete_jury/<int:pk>/', JuryViewSet.as_view({'delete': 'delete'}), name='delete_jury'),
     # dynamic
+    # Social media
     path('get_social_media_by_id/<int:pk>/', WebSocialMediaViewSet.as_view({'get': 'get_by_id'}),
          name='get_social_media_by_id'),
     path('get_all_social_media/', WebSocialMediaViewSet.as_view({'get': 'get_all'}), name='get_all_social_media'),
@@ -69,6 +70,7 @@ urlpatterns = [
          name='update_social_media'),
     path('delete_social_media/<int:pk>/', WebSocialMediaViewSet.as_view({'delete': 'delete'}),
          name='delete_social_media'),
+    # Contact info
     path('get_contact_info_by_id/<int:pk>/', ContactInformationViewSet.as_view({'get': 'get_by_id'}),
          name='get_contact_info_by_id'),
     path('get_all_contact_info/', ContactInformationViewSet.as_view({'get': 'get_all'}), name='get_all_contact_info'),
@@ -80,6 +82,7 @@ urlpatterns = [
          name='update_get_contact_info'),
     path('delete_contact_info_by_id/<int:pk>/', ContactInformationViewSet.as_view({'delete': 'delete'}),
          name='delete_contact_info_by_id'),
+    # About Res
     path('get_about_result_by_id/<int:pk>/', AboutResultViewSet.as_view({'get': 'get_by_id'}),
          name='get_about_result_by_id'),
     path('get_all_about_result/', AboutResultViewSet.as_view({'get': 'get_all'}), name='get_all_about_result'),
@@ -90,6 +93,7 @@ urlpatterns = [
          name='update_about_result'),
     path('delete_about_result/<int:pk>/', AboutResultViewSet.as_view({'delete': 'delete'}),
          name='delete_about_result'),
+    # About Us
     path('get_about_us_by_id/<int:pk>/', AboutUsViewSet.as_view({'get': 'get_by_id'}),
          name='get_about_us_by_id'),
     path('get_all_about_us/', AboutUsViewSet.as_view({'get': 'get_all'}), name='get_all_about_us'),
@@ -100,6 +104,7 @@ urlpatterns = [
          name='update_about_us'),
     path('delete_about_us/<int:pk>/', AboutUsViewSet.as_view({'delete': 'delete'}),
          name='delete_about_us'),
+    # Policy
     path('get_policy_by_id/<int:pk>/', PolicyViewSet.as_view({'get': 'get_by_id'}),
          name='get_policy_by_id'),
     path('get_all_policy/', PolicyViewSet.as_view({'get': 'get_all'}), name='get_all_policy'),
@@ -110,6 +115,7 @@ urlpatterns = [
          name='update_policy'),
     path('delete_policy/<int:pk>/', PolicyViewSet.as_view({'delete': 'delete'}),
          name='delete_policy'),
+    # Result Img
     path('get_result_img_by_id/<int:pk>/', WebResultImageViewSet.as_view({'get': 'get_by_id'}),
          name='get_result_img_by_id'),
     path('get_all_result_img/', WebResultImageViewSet.as_view({'get': 'get_all'}), name='get_all_result_img'),
@@ -118,6 +124,7 @@ urlpatterns = [
          name='update_result_img'),
     path('delete_result_img/<int:pk>/', WebResultImageViewSet.as_view({'delete': 'delete'}),
          name='delete_result_img'),
+    # Contact Us
     path('get_contact_us_by_id/<int:pk>/', ContactUsViewSet.as_view({'get': 'get_by_id'}),
          name='get_contact_us_by_id'),
     path('get_all_contact_us/', ContactUsViewSet.as_view({'get': 'get_all'}), name='get_all_contact_us'),

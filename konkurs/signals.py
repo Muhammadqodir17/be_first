@@ -37,16 +37,3 @@ def post_save_for_winner(sender, instance, created, **kwargs):
         ]
         with transaction.atomic():
             Notification.objects.bulk_create(notifications)
-
-    # if instance.status == 0:
-    #     message = (
-    #         f'{instance.name} competition coming soon!!!'
-    #     )
-    #     participants = User.objects.filter(role=1)
-    #     notifications = [
-    #         Notification(user=participant,
-    #                      message=message, competition=instance)
-    #         for participant in participants
-    #     ]
-    #     with transaction.atomic():
-    #         Notification.objects.bulk_create(notifications)

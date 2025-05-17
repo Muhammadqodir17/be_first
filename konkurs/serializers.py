@@ -3,7 +3,12 @@ from rest_framework import serializers
 from authentication.models import User
 from child.models import Child
 from jury.models import Assessment
-from konkurs_admin.models import Notification, Winner, ResultImage, WebCertificate
+from konkurs_admin.models import (
+    Notification,
+    Winner,
+    ResultImage,
+    WebCertificate
+)
 from .models import (
     Competition,
     STATUS,
@@ -65,25 +70,10 @@ class GetCompSerializer(serializers.ModelSerializer):
         return Participant.objects.filter(competition=obj).count()
 
 
-
 class CompAssessmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessment
         fields = ['id', 'grade', 'comment']
-
-
-class FinishedCompetitionSerializer(serializers.ModelSerializer):
-    grade = CompAssessmentSerializer()
-    class Meta:
-        model = Competition
-        fields = ['id', 'name', 'grade', 'category', 'prize', 'description', 'application_start_date',
-                  'application_start_time', 'application_end_date', 'application_end_time',
-                  'rules', 'physical_certificate', 'image', 'status']
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['status'] = dict(STATUS).get(instance.status, 'Unknown')
-        return data
 
 
 class HomeCompetitionSerializer(serializers.ModelSerializer):
@@ -169,13 +159,6 @@ class ParticipantSerializer(serializers.ModelSerializer):
         return data
 
 
-class AssessmentSerializer(serializers.ModelSerializer):
-    participant = ParticipantSerializer()
-    class Meta:
-        model = Assessment
-        fields = ['id', 'participant', 'grade', 'comment']
-
-
 class CompSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
@@ -197,6 +180,7 @@ class CompParticipantSerializer(serializers.ModelSerializer):
         model = Participant
         fields = ['competition']
 
+
 class ActiveCompSerializer(serializers.ModelSerializer):
     participants = serializers.SerializerMethodField()
     class Meta:
@@ -216,6 +200,7 @@ class ActiveCompSerializer(serializers.ModelSerializer):
     def get_participants(self, obj):
         participants = Participant.objects.filter(competition__id=obj.id).count()
         return participants
+
 
 class ActiveParticipantSerializer(serializers.ModelSerializer):
     competition = ActiveCompSerializer()
@@ -292,7 +277,7 @@ class GallerySerializer(serializers.ModelSerializer):
         if lang in lang_options:
             data['competition'] = getattr(instance.competition, f'name_{lang}')
         if instance.competition is None:
-            raise serializers.ValidationError('Competition is None')
+            raise serializers.ValidationError(_('Competition is None'))
         else:
             data['competition'] = instance.competition.name
         return data
@@ -360,6 +345,7 @@ class ResultImageSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data['name'] = instance.get_name_display()
         return data
+
 
 class WebCerSerializer(serializers.ModelSerializer):
     class Meta:
