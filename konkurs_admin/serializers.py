@@ -566,3 +566,18 @@ class UpdateJurySerializer(serializers.ModelSerializer):
             data.pop('confirm_password')
             data['password'] = make_password(data['password'])
         return data
+
+
+class GetExistCompetitionByIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        fields = ['id', 'image', 'name', 'name_uz', 'name_ru', 'name_en', 'category', 'description',
+                  'description_uz', 'description_ru', 'description_en', 'comp_start_date', 'comp_start_time',
+                  'comp_end_date', 'comp_end_time', 'application_start_date', 'application_start_time',
+                  'application_end_date', 'application_end_time', 'rules', 'status']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['category'] = instance.category.name
+        data['status'] = dict(STATUS).get(instance.status, 'Unknown')
+        return data
