@@ -438,7 +438,7 @@ class GetExistJurySerializer(serializers.ModelSerializer):
         fields = ['id', 'first_name', 'last_name', 'middle_name', 'phone_number', 'birth_date',
                   'place_of_work', 'place_of_work_uz', 'place_of_work_ru', 'place_of_work_en', 'academic_degree',
                   'speciality', 'speciality_uz', 'speciality_ru', 'speciality_en', 'category',
-                  'image']
+                  'image', 'username']
 
 
 class GetExistCompetitionSerializer(serializers.ModelSerializer):
