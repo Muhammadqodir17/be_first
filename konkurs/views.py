@@ -5,14 +5,26 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from jury.models import Assessment
 from jury.serializers import AssessmentHistorySerializer
-
 from authentication.models import User
-from konkurs_admin.models import Notification, Winner, WebCertificate, ResultImage, Policy, AboutUs, AboutResult, \
-    ContactInformation, SocialMedia
-from konkurs_admin.serializers import PolicySerializer, AboutUsSerializer, AboutResultSerializer, \
-    ContactInformationSerializer, WebSocialMediaSerializer
+from konkurs_admin.models import (
+    Notification,
+    Winner,
+    WebCertificate,
+    ResultImage,
+    Policy,
+    AboutUs,
+    AboutResult,
+    ContactInformation,
+    SocialMedia
+)
+from konkurs_admin.serializers import (
+    PolicySerializer,
+    AboutUsSerializer,
+    AboutResultSerializer,
+    ContactInformationSerializer,
+    WebSocialMediaSerializer
+)
 from .serializers import (
-    CompetitionSerializer,
     HomeCompetitionSerializer,
     CompParticipantSerializer,
     ActiveParticipantSerializer,
@@ -25,7 +37,9 @@ from .serializers import (
     NotificationSerializer,
     ResultsSerializer,
     GetCompSerializer,
-    ContactUsSerializer, ResultImageSerializer, WebCerSerializer,
+    ContactUsSerializer,
+    ResultImageSerializer,
+    WebCerSerializer,
 )
 from .models import (
     Competition,
@@ -411,6 +425,3 @@ class DynamicInfoViewSet(ViewSet):
         social_media = SocialMedia.objects.all()
         serializer = WebSocialMediaSerializer(social_media, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-
-

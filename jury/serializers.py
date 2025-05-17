@@ -38,6 +38,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
 class CompetitionSerializer(serializers.ModelSerializer):
     participants = serializers.SerializerMethodField(source='get_participants')
     participants_number = serializers.SerializerMethodField(source='get_participants_number')
+
     class Meta:
         model = Competition
         fields = ['id', 'name', 'participants_number', 'comp_end_date', 'participants']
@@ -69,6 +70,7 @@ class WorkSerializer(serializers.ModelSerializer):
 
 class ParticipantWorkSerializer(serializers.ModelSerializer):
     works = serializers.SerializerMethodField(source='get_works')
+
     class Meta:
         model = Participant
         fields = ['id', 'child', 'works']
@@ -83,6 +85,7 @@ class ParticipantWorkSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data['child'] = instance.child.first_name
         return data
+
 
 class MarkSerializer(serializers.ModelSerializer):
     class Meta:
@@ -99,5 +102,3 @@ class AssessmentHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessment
         fields = ['id', 'participant', 'grade', 'comment']
-
-

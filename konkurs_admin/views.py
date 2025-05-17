@@ -8,7 +8,10 @@ from konkurs.models import (
     Participant,
     Category,
 )
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import (
+    MultiPartParser,
+    FormParser
+)
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from .models import (
@@ -42,10 +45,18 @@ from .serializers import (
     AboutUsSerializer,
     SpecialAboutUsSerializer,
     PolicySerializer,
-    SpecialPolicySerializer, GetExistJurySerializer, ExistWinnerSerializer, ForUpdateWinnerSerializer,
-    GetForUpdateWinnerSerializer, UpdateJurySerializer, GetExistCompetitionByIdSerializer,
+    SpecialPolicySerializer,
+    GetExistJurySerializer,
+    ExistWinnerSerializer,
+    ForUpdateWinnerSerializer,
+    GetForUpdateWinnerSerializer,
+    UpdateJurySerializer,
+    GetExistCompetitionByIdSerializer,
 )
-from konkurs.serializers import ResultImageSerializer, ContactUsSerializer
+from konkurs.serializers import (
+    ResultImageSerializer,
+    ContactUsSerializer
+)
 from konkurs.models import ContactUs
 from .pagination import CustomPagination
 from django.utils.translation import gettext as _
@@ -252,7 +263,6 @@ class CompetitionViewSet(ViewSet):
         paginated_competitions = paginator.paginate_queryset(competitions, request)
         serializer = GetCompetitionSerializer(paginated_competitions, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
-        # return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Search Competition",
@@ -382,6 +392,14 @@ class CompetitionViewSet(ViewSet):
         serializer = GetCompetitionByIdSerializer(competition, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_description="Get Exist Competition By Id for Update",
+        operation_summary="Get Exist Competition By Id for Update",
+        responses={
+            200: GetCompetitionByIdSerializer(),
+        },
+        tags=['admin']
+    )
     def get_exist_comp_by_id(self, request, *args, **kwargs):
         competition = Competition.objects.filter(id=kwargs['pk']).first()
         if competition is None:
@@ -1169,7 +1187,7 @@ class CompetitionViewSet(ViewSet):
     def get_winner_to_update(self, request, *args, **kwargs):
         winner = Winner.objects.filter(id=kwargs['pk']).first()
         if winner is None:
-            return Response(data={'error': 'Winner not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Winner not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = GetForUpdateWinnerSerializer(winner)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -1269,13 +1287,13 @@ class CompetitionViewSet(ViewSet):
 
         if participant.competition != winner.competition:
             return Response(data={
-                'error': 'Participant is not belong to this competition!!!. '
-                         'Please, choose participant which belongs to current competition'},
+                'error': _('Participant is not belong to this competition!!!. '
+                         'Please, choose participant which belongs to current competition')},
                 status=status.HTTP_400_BAD_REQUEST)
 
         if participant.action != 2 and participant.marked_status != 2:
-            return Response(data={'error': 'Participant must be marked and participants '
-                                           'request must be accepted'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Participant must be marked and participants '
+                                           'request must be accepted')}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.validated_data['participant'] = participant
         serializer.save()
@@ -1292,9 +1310,9 @@ class CompetitionViewSet(ViewSet):
     def delete_winner(self, request, *args, **kwargs):
         winner = Winner.objects.filter(id=kwargs['id']).first()
         if winner is None:
-            return Response(data={'error': 'Winner not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Winner not found')}, status=status.HTTP_404_NOT_FOUND)
         winner.delete()
-        return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Get Exist Winner By Id for active comp",
@@ -1307,7 +1325,7 @@ class CompetitionViewSet(ViewSet):
     def get_exist_winners(self, request, *args, **kwargs):
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Comp not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Comp not found')}, status=status.HTTP_404_NOT_FOUND)
         winner = Winner.objects.filter(competition=comp)
         serializer = ExistWinnerSerializer(winner, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -1990,7 +2008,7 @@ class WebSocialMediaViewSet(ViewSet):
         if social_media is None:
             return Response(data={'error': _('SocialMedia not found')}, status=status.HTTP_404_NOT_FOUND)
         social_media.delete()
-        return Response(data={'message': 'Social media successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Social media successfully deleted')}, status=status.HTTP_200_OK)
 
 
 class ContactInformationViewSet(ViewSet):
@@ -2007,8 +2025,23 @@ class ContactInformationViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         contact_info = ContactInformation.objects.filter(id=kwargs['pk']).first()
         if contact_info is None:
-            return Response(data={'error': 'Contact Info not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Contact Info not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ContactInformationSerializer(contact_info, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get Contact Info By Id",
+        operation_summary="Get Contact Info By Id",
+        responses={
+            200: SpecialContactInformationSerializer(),
+        },
+        tags=['admin']
+    )
+    def get_exist_contact_info_by_id(self, request, *args, **kwargs):
+        contact_info = ContactInformation.objects.filter(id=kwargs['pk']).first()
+        if contact_info is None:
+            return Response(data={'error': _('Contact Info not found')}, status=status.HTTP_404_NOT_FOUND)
+        serializer = SpecialContactInformationSerializer(contact_info, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -2148,7 +2181,7 @@ class ContactInformationViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         contact_info = ContactInformation.objects.filter(id=kwargs['pk']).first()
         if contact_info is None:
-            return Response(data={'error': 'Contact Info not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Contact Info not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = SpecialContactInformationSerializer(contact_info, data=request.data, partial=True,
                                                          context={'request': request})
         if not serializer.is_valid():
@@ -2168,9 +2201,9 @@ class ContactInformationViewSet(ViewSet):
     def delete(self, request, *args, **kwargs):
         contact_info = ContactInformation.objects.filter(id=kwargs['pk']).first()
         if contact_info is None:
-            return Response(data={'error': 'Contact Info not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Contact Info not found')}, status=status.HTTP_404_NOT_FOUND)
         contact_info.delete()
-        return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
 
 
 class AboutResultViewSet(ViewSet):
@@ -2187,7 +2220,22 @@ class AboutResultViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         about_result = AboutResult.objects.filter(id=kwargs['pk']).first()
         if about_result is None:
-            return Response(data={'error': 'About result not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('About result not found')}, status=status.HTTP_404_NOT_FOUND)
+        serializer = AboutResultSerializer(about_result, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get Exist About Result By Id for Update",
+        operation_summary="Get Exist About Result By Id for Update",
+        responses={
+            200: SpecialAboutResultSerializer(),
+        },
+        tags=['admin']
+    )
+    def get_exist_about_result_by_id(self, request, *args, **kwargs):
+        about_result = SpecialAboutResultSerializer.objects.filter(id=kwargs['pk']).first()
+        if about_result is None:
+            return Response(data={'error': _('About result not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = AboutResultSerializer(about_result, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -2300,7 +2348,7 @@ class AboutResultViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         about_result = AboutResult.objects.filter(id=kwargs['pk']).first()
         if about_result is None:
-            return Response(data={'error': 'About result not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('About result not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = SpecialAboutResultSerializer(about_result, data=request.data, partial=True,
                                                   context={'request': request})
         if not serializer.is_valid():
@@ -2320,9 +2368,9 @@ class AboutResultViewSet(ViewSet):
     def delete(self, request, *args, **kwargs):
         about_result = AboutResult.objects.filter(id=kwargs['pk']).first()
         if about_result is None:
-            return Response(data={'error': 'About result not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('About result not found')}, status=status.HTTP_404_NOT_FOUND)
         about_result.delete()
-        return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
 
 
 class AboutUsViewSet(ViewSet):
@@ -2339,8 +2387,23 @@ class AboutUsViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         about_us = AboutUs.objects.filter(id=kwargs['pk']).first()
         if about_us is None:
-            return Response(data={'error': 'About us not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('About us not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = AboutUsSerializer(about_us, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get Exist About Us By Id for Update",
+        operation_summary="Get Exist About Us By Id for Update",
+        responses={
+            200: SpecialAboutUsSerializer(),
+        },
+        tags=['admin']
+    )
+    def get_exist_about_us_by_id(self, request, *args, **kwargs):
+        about_us = AboutUs.objects.filter(id=kwargs['pk']).first()
+        if about_us is None:
+            return Response(data={'error': _('About us not found')}, status=status.HTTP_404_NOT_FOUND)
+        serializer = SpecialAboutUsSerializer(about_us, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -2712,7 +2775,7 @@ class AboutUsViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         about_us = AboutUs.objects.filter(id=kwargs['pk']).first()
         if about_us is None:
-            return Response(data={'error': 'About us not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('About us not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = SpecialAboutUsSerializer(about_us, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -2731,9 +2794,9 @@ class AboutUsViewSet(ViewSet):
     def delete(self, request, *args, **kwargs):
         about_us = AboutUs.objects.filter(id=kwargs['pk']).first()
         if about_us is None:
-            return Response(data={'error': 'About us not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('About us not found')}, status=status.HTTP_404_NOT_FOUND)
         about_us.delete()
-        return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
 
 
 class PolicyViewSet(ViewSet):
@@ -2748,8 +2811,23 @@ class PolicyViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         policy = Policy.objects.filter(id=kwargs['pk']).first()
         if policy is None:
-            return Response(data={'error': 'Policy not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Policy not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = PolicySerializer(policy, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get Exist Policy By Id for Update",
+        operation_summary="Get Exist Policy By Id for Update",
+        responses={
+            200: SpecialPolicySerializer(),
+        },
+        tags=['admin']
+    )
+    def get_exist_policy_by_id(self, request, *args, **kwargs):
+        policy = Policy.objects.filter(id=kwargs['pk']).first()
+        if policy is None:
+            return Response(data={'error': _('Policy not found')}, status=status.HTTP_404_NOT_FOUND)
+        serializer = SpecialPolicySerializer(policy, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -2807,7 +2885,7 @@ class PolicyViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         policy = Policy.objects.filter(id=kwargs['pk']).first()
         if policy is None:
-            return Response(data={'error': 'Policy not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Policy not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = SpecialPolicySerializer(policy, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -2826,9 +2904,9 @@ class PolicyViewSet(ViewSet):
     def delete(self, request, *args, **kwargs):
         policy = Policy.objects.filter(id=kwargs['pk']).first()
         if policy is None:
-            return Response(data={'error': 'Policy not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Policy not found')}, status=status.HTTP_404_NOT_FOUND)
         policy.delete()
-        return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
 
 
 class WebResultImageViewSet(ViewSet):
@@ -2845,7 +2923,7 @@ class WebResultImageViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         web_res = ResultImage.objects.filter(id=kwargs['pk']).first()
         if web_res is None:
-            return Response(data={'error': 'Result image not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Result image not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ResultImageSerializer(web_res, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -2916,7 +2994,7 @@ class WebResultImageViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         web_res = ResultImage.objects.filter(id=kwargs['pk']).first()
         if web_res is None:
-            return Response(data={'error': 'Result image not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Result image not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ResultImageSerializer(web_res, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -2935,9 +3013,9 @@ class WebResultImageViewSet(ViewSet):
     def delete(self, request, *args, **kwargs):
         web_res = ResultImage.objects.filter(id=kwargs['pk']).first()
         if web_res is None:
-            return Response(data={'error': 'Result image not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Result image not found')}, status=status.HTTP_404_NOT_FOUND)
         web_res.delete()
-        return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
 
 
 class ContactUsViewSet(ViewSet):
@@ -2954,7 +3032,7 @@ class ContactUsViewSet(ViewSet):
     def get_by_id(self, request, *args, **kwargs):
         contact_us = ContactUs.objects.filter(id=kwargs['pk']).first()
         if contact_us is None:
-            return Response(data={'error': 'Contact us not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Contact us not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ContactUsSerializer(contact_us, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -3024,7 +3102,7 @@ class ContactUsViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         contact_us = ContactUs.objects.filter(id=kwargs['pk']).first()
         if contact_us is None:
-            return Response(data={'error': 'Contact us not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Contact us not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = ContactUsSerializer(contact_us, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -3043,6 +3121,6 @@ class ContactUsViewSet(ViewSet):
     def delete(self, request, *args, **kwargs):
         contact_us = ContactUs.objects.filter(id=kwargs['pk']).first()
         if contact_us is None:
-            return Response(data={'error': 'Contact us not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Contact us not found')}, status=status.HTTP_404_NOT_FOUND)
         contact_us.delete()
-        return Response(data={'message': 'Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)

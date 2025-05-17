@@ -11,7 +11,8 @@ from .serializers import (
     CompetitionSerializer,
     ParticipantWorkSerializer,
     MarkSerializer,
-    AssessmentHistorySerializer, ParticipantSerializer
+    AssessmentHistorySerializer,
+    ParticipantSerializer,
 )
 from rest_framework.response import Response
 from rest_framework import status
@@ -44,7 +45,7 @@ class JuryViewSet(ViewSet):
     def get_active_comps(self, request, *args, **kwargs):
         user = User.objects.filter(id=request.user.id).first()
         if user is None:
-            return Response(data={'error': 'User not found'})
+            return Response(data={'error': _('User not found')})
         comps = Competition.objects.filter(status=1, category=user.category)
         serializer = ActiveCompetitionSerializer(comps, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -201,10 +202,15 @@ class JuryViewSet(ViewSet):
         request.data['jury'] = request.user
         if assessment is None:
             return Response(data={'error': _('Assessment not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = AssessmentHistorySerializer(assessment, data=request.data, partial=True, context={'request': request})
+        serializer = AssessmentHistorySerializer(assessment, data=request.data, partial=True,
+                                                 context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if assessment.competition.status == 2:
-            return Response(data={'error': _('You can not change this grade')})
+            return Response(data={'error': _('You can not change this grade because Competition is '
+                                             'finished')}, status=status.HTTP_400_BAD_REQUEST)
+        if assessment.jury.id != request.user.id:
+            return Response(data={'error': _('You can not change this grade')},
+                            status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)

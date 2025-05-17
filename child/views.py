@@ -4,7 +4,10 @@ from drf_yasg import openapi
 from authentication.models import User
 from rest_framework.response import Response
 from rest_framework import status
-from konkurs.serializers import ChildrenSerializer, GetRegisteredChild
+from konkurs.serializers import (
+    ChildrenSerializer,
+    GetRegisteredChild
+)
 from .serializers import (
     ChildSerializer,
     ChildWorkSerializer,
@@ -12,7 +15,6 @@ from .serializers import (
 from .models import Child
 from rest_framework.parsers import MultiPartParser
 from konkurs_admin.serializers import (
-    ParticipantSerializer,
     RegisterParticipantSerializer
 )
 from konkurs.models import (
@@ -58,7 +60,7 @@ class ChildViewSet(ViewSet):
     def get_registered_child(self, request, *args, **kwargs):
         comp = Competition.objects.filter(id=kwargs['pk']).first()
         if comp is None:
-            return Response(data={'error': 'Comp is not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Comp is not found')}, status=status.HTTP_404_NOT_FOUND)
         participants = Participant.objects.filter(child__user=request.user, competition=comp)
         serializer = GetRegisteredChild(participants, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -82,7 +84,7 @@ class ChildViewSet(ViewSet):
             serializer = ChildSerializer(child)
             return Response(serializer.data)
         except Child.DoesNotExist:
-            return Response({'error': 'Bola topilmadi'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': _('Bola topilmadi')}, status=status.HTTP_404_NOT_FOUND)
 
     @swagger_auto_schema(
         request_body=openapi.Schema(
@@ -126,14 +128,13 @@ class ChildViewSet(ViewSet):
         request.data['user'] = request.user.id
         user = User.objects.filter(id=request.user.id).first()
         if user is None:
-            return Response(data={'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('User not found')}, status=status.HTTP_404_NOT_FOUND)
         if user.children_count >= 5:
             return Response({'message': _('You have already registered 5 children')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ChildSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            # serializer.validated_data['user'] = request.user.id
             serializer.save(user=user)
             user.children_count += 1
             user.save()
@@ -149,7 +150,7 @@ class ChildViewSet(ViewSet):
         try:
             child = Child.objects.get(id=pk, user=request.user)
         except Child.DoesNotExist:
-            return Response({'error': 'Bola topilmadi'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': _('Bola topilmadi')}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = ChildSerializer(child, data=request.data, partial=True)
         if serializer.is_valid():
@@ -165,9 +166,9 @@ class ChildViewSet(ViewSet):
         try:
             child = Child.objects.get(id=pk, user=request.user)
             child.delete()
-            return Response({'message': 'Bola muvaffaqiyatli o\'chirildi'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': _('Bola muvaffaqiyatli o\'chirildi')}, status=status.HTTP_204_NO_CONTENT)
         except Child.DoesNotExist:
-            return Response({'error': 'Bola topilmadi'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': _('Bola topilmadi')}, status=status.HTTP_404_NOT_FOUND)
 
 
 class RegisterChildToCompViewSet(ViewSet):

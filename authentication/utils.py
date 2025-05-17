@@ -2,9 +2,9 @@ import random
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from django.conf import settings
-from django.utils.translation import gettext as _
 from datetime import datetime, timedelta
 import requests
+
 BOT_ID = settings.BOT_ID
 CHAT_ID = settings.CHAT_ID
 TELEGRAM_API_URL = settings.TELEGRAM_API_URL
@@ -23,13 +23,6 @@ def send_message_telegram(otp_obj):
     message = {
         'otp_key': otp_obj.otp_key,
         'otp_code': otp_obj.otp_code
-    }
-    return requests.get(TELEGRAM_API_URL.format(BOT_ID, message, CHAT_ID))
-
-def send_message_to_telegram(phone_number, otp_code):
-    message = _("Telefon raqami: %(phone)s\nOTP kodi: %(otp)s") % {
-        'phone': phone_number,
-        'otp': otp_code
     }
     return requests.get(TELEGRAM_API_URL.format(BOT_ID, message, CHAT_ID))
 

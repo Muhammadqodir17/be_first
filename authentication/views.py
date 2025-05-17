@@ -22,7 +22,7 @@ from .serializers import (
     SetProfileSerializer,
     RegisterSerializers,
     SetPasswordSerializer,
-    TestSerializer
+    TestSerializer,
 )
 from .validators import validate_uz_phone_number
 from .utils import (
@@ -31,7 +31,6 @@ from .utils import (
     check_code_expire,
     check_token_expire,
     check_resend_otp_code,
-    send_message_to_telegram
 )
 
 
@@ -224,7 +223,7 @@ class PersonalInfoViewSet(ViewSet):
         user_id = request.user.id
         user_info = User.objects.filter(id=user_id).first()
         if user_info is None:
-            return Response(data={'error': _('unauthorized')}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(data={'error': _('User not found')}, status=status.HTTP_400_BAD_REQUEST)
         serializer = SetProfileSerializer(user_info, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -292,7 +291,7 @@ class TestViewSet(ViewSet):
             '-created_at')
 
         if not checking_number_of_otp(objs):
-            return Response(data={"error": "Try again 12 hours later"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Try again 12 hours later")}, status=status.HTTP_400_BAD_REQUEST)
 
         if checking_number_of_otp(objs) == 'delete':
             objs = OTPRegisterResend.objects.filter(otp_user=serializer.instance, otp_type=1, deleted_at=None)
@@ -306,8 +305,9 @@ class TestViewSet(ViewSet):
         response = send_message_telegram(otp)
         if response.status_code != 200:
             otp.delete()
-            return Response(data={"error": "Error occured while sending otp code"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(data={"otp_key": otp.otp_key, 'type': 'register', 'message': 'Otp successfully send'}, status=status.HTTP_200_OK)
+            return Response(data={"error": _("Error occured while sending otp code")}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"otp_key": otp.otp_key, 'type': 'register', 'message': _('Otp successfully send')},
+                        status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="OTP kodini tekshirish va foydalanuvchini yaratish",
@@ -330,25 +330,25 @@ class TestViewSet(ViewSet):
         otp_key = request.data.get('otp_key')
         otp_code = request.data.get('otp_code')
         if request.user.is_active:
-            return Response(data={"detail": "U already verified"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"detail": _("U already verified")}, status=status.HTTP_400_BAD_REQUEST)
         if not otp_code:
-            return Response(data={"error": "Send otp code"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Send otp code")}, status=status.HTTP_400_BAD_REQUEST)
         otp_obj = OTPRegisterResend.objects.filter(otp_key=otp_key, deleted_at=None).first()
         if otp_obj is None:
-            return Response(data={"error": "Make sure otp key is right"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Make sure otp key is right")}, status=status.HTTP_400_BAD_REQUEST)
         if otp_obj.attempts > 2:
-            return Response(data={"error": "Come back an hours later"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Come back an hours later")}, status=status.HTTP_400_BAD_REQUEST)
         if otp_obj.otp_code != otp_code:
             otp_obj.attempts += 1
             otp_obj.save(update_fields=['attempts'])
-            return Response(data={"error": "otp code is wrong"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("otp code is wrong")}, status=status.HTTP_400_BAD_REQUEST)
 
         if not check_code_expire(otp_obj.created_at):
-            return Response(data={"error": "Code is expired, get new Otp code"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Code is expired, get new Otp code")}, status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.filter(id=otp_obj.otp_user.id).first()
         if not user:
-            return Response(data={"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={"error": _("User does not exist")}, status=status.HTTP_404_NOT_FOUND)
 
         user.is_active = True
         user.save(update_fields=['is_active'])
@@ -360,7 +360,7 @@ class TestViewSet(ViewSet):
         access_token = refresh_token.access_token
         access_token['role'] = user.role
         return Response(
-            data={"message": "Success", 'refresh_token': str(refresh_token), 'access_token': str(access_token)},
+            data={"message": _("Success"), 'refresh_token': str(refresh_token), 'access_token': str(access_token)},
             status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -382,14 +382,14 @@ class TestViewSet(ViewSet):
         phone_number = request.data.get('phone_number')
         user = User.objects.filter(phone_number=phone_number).first()
         if not user:
-            return Response(data={"error": "User not found with this number!!!"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={"error": _("User not found with this number!!!")}, status=status.HTTP_404_NOT_FOUND)
         otp_obj = OTPSetPassword.objects.create(otp_user=user)
         otp_obj.save()
         response = send_message_telegram(otp_obj)
         if response.status_code != 200:
             otp_obj.deleted_at = datetime.now()
             otp_obj.save(update_fields=['deleted_at'])
-            return Response({"error": "Error occured while sending otp"}, status.HTTP_400_BAD_REQUEST)
+            return Response({"error": _("Error occured while sending otp")}, status.HTTP_400_BAD_REQUEST)
         return Response(data={"otp_key": otp_obj.otp_key, 'type': 'forgot'}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -414,14 +414,14 @@ class TestViewSet(ViewSet):
 
         otp_obj = OTPSetPassword.objects.filter(otp_key=otp_key, deleted_at=None).first()
         if not otp_obj:
-            return Response(data={"Error": "Otp key is wrong"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"Error": _("Otp key is wrong")}, status=status.HTTP_400_BAD_REQUEST)
         if otp_obj.attempts > 2:
-            return Response(data={"error": "Try again 12 hours later"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Try again 12 hours later")}, status=status.HTTP_400_BAD_REQUEST)
         if otp_obj.otp_code != otp_code:
             otp_obj.attempts += 1
             otp_obj.save(update_fields=['attempts'])
-            return Response(data={"error": "Otp code is wrong"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(data={"message": "Success", "token": otp_obj.otp_token}, status=status.HTTP_200_OK)
+            return Response(data={"error": _("Otp code is wrong")}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"message": _("Success"), "token": otp_obj.otp_token}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="ReSet Password",
@@ -442,26 +442,25 @@ class TestViewSet(ViewSet):
         token = request.data.get('otp_token')
         obj = OTPSetPassword.objects.filter(otp_token=token, deleted_at=None).first()
         if not obj:
-            return Response(data={"error": "Otp token is wrong"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Otp token is wrong")}, status=status.HTTP_400_BAD_REQUEST)
 
         if not check_token_expire(obj.created_at):
-            return Response(data={"error": "Token is expired"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Token is expired")}, status=status.HTTP_400_BAD_REQUEST)
 
         password = request.data.get('password')
         confirm_password = request.data.get('confirm_password')
 
-        if password != confirm_password:
-            return Response(data={"error": "Password do not match!"}, status=status.HTTP_400_BAD_REQUEST)
         user = User.objects.filter(id=obj.otp_user.id).first()
         if not user:
-            return Response(data={"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = TestSerializer(user, data={'password': password}, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            obj.deleted_at = datetime.now()
-            obj.save(update_fields=['deleted_at'])
-            return Response(data={"detail": "success"}, status=status.HTTP_200_OK)
-        return Response(data={"error": "Please enter a valid password"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("User not found")}, status=status.HTTP_404_NOT_FOUND)
+        serializer = TestSerializer(user, data={"password": password, "confirm_password": confirm_password},
+                                    partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        obj.deleted_at = datetime.now()
+        obj.save(update_fields=['deleted_at'])
+        return Response(data={"detail": _("success")}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Resend Otp",
@@ -486,13 +485,13 @@ class TestViewSet(ViewSet):
         if f_type == 'register':
             otp_obj = OTPRegisterResend.objects.filter(otp_key=otp_key, deleted_at=None).first()
             if not otp_obj:
-                return Response(data={"error": "Otp key is wrong"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={"error": _("Otp key is wrong")}, status=status.HTTP_400_BAD_REQUEST)
             objs = OTPRegisterResend.objects.filter(otp_user=otp_obj.otp_user, deleted_at=None).order_by(
                 '-created_at')
             if not checking_number_of_otp(objs):
-                return Response(data={"error": "Try again 12 hours later"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={"error": _("Try again 12 hours later")}, status=status.HTTP_400_BAD_REQUEST)
             if not check_resend_otp_code(otp_obj.created_at):
-                return Response(data={"error": "Try again a minute later"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={"error": _("Try again a minute later")}, status=status.HTTP_400_BAD_REQUEST)
             if checking_number_of_otp(objs) == 'delete':
                 objs = OTPRegisterResend.objects.filter(otp_user=otp_obj.otp_user, deleted_at=None)
                 for obj in objs:
@@ -504,20 +503,20 @@ class TestViewSet(ViewSet):
             if response.status_code != 200:
                 new_otp.deleted_at = datetime.now()
                 new_otp.save(update_fields=['deleted_at'])
-                return Response(data={"error": "Failed to send otp code"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={"error": _("Failed to send otp code")}, status=status.HTTP_400_BAD_REQUEST)
             otp_obj.deleted_at = datetime.now()
             otp_obj.save(update_fields=['deleted_at'])
             return Response(data={"otp_key": new_otp.otp_key}, status=status.HTTP_200_OK)
         else:
             otp_obj = OTPSetPassword.objects.filter(otp_key=otp_key, deleted_at=None).first()
             if not otp_obj:
-                return Response(data={"error": "Otp key is wrong"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={"error": _("Otp key is wrong")}, status=status.HTTP_400_BAD_REQUEST)
             objs = OTPSetPassword.objects.filter(otp_user=otp_obj.otp_user, deleted_at=None).order_by(
                 '-created_at')
             if not checking_number_of_otp(objs):
-                return Response(data={"error": "Try again 12 hours later"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={"error": _("Try again 12 hours later")}, status=status.HTTP_400_BAD_REQUEST)
             if not check_resend_otp_code(otp_obj.created_at):
-                return Response(data={"error": "Try again a minute later"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={"error": _("Try again a minute later")}, status=status.HTTP_400_BAD_REQUEST)
             if checking_number_of_otp(objs) == 'delete':
                 objs = OTPSetPassword.objects.filter(otp_user=otp_obj.otp_user, deleted_at=None)
                 for obj in objs:
@@ -529,7 +528,7 @@ class TestViewSet(ViewSet):
             if response.status_code != 200:
                 new_otp.deleted_at = datetime.now()
                 new_otp.save(update_fields=['deleted_at'])
-                return Response(data={"error": "Failed to send otp code"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={"error": _("Failed to send otp code")}, status=status.HTTP_400_BAD_REQUEST)
             otp_obj.deleted_at = datetime.now()
             otp_obj.save(update_fields=['deleted_at'])
             return Response(data={"otp_key": new_otp.otp_key}, status=status.HTTP_200_OK)
