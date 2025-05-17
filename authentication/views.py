@@ -1,12 +1,5 @@
-import requests
-from django.contrib.auth.hashers import make_password
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import action
-import random
-from django.core.cache import cache
 from rest_framework import status
-from django.contrib.auth import login
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.utils.translation import gettext as _
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -14,29 +7,32 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser, FormParser
 from konkurs.serializers import PersonalInfoSerializer
-from .models import User, SMSCode, BlacklistedAccessToken, OTPRegisterResend, OTPSetPassword
-from .validators import validate_uz_phone_number
-from django.utils.crypto import get_random_string
+from .models import (
+    User,
+    BlacklistedAccessToken,
+    OTPRegisterResend,
+    OTPSetPassword
+)
 from rest_framework_simplejwt.tokens import (
     AccessToken,
     RefreshToken
 )
 from .serializers import (
-    UserSerializer,
-    SendSMSSerializer,
-    VerifySMSSerializer,
-    LoginSerializer,
-    SendTempPasswordSerializer,
-    ResetPasswordSerializer,
     LogoutSerializer,
     SetProfileSerializer,
     RegisterSerializers,
-    ChangePasswordSerializer,
-    SetPasswordSerializer, ReSetPassSerializer, TestSerializer
+    SetPasswordSerializer,
+    TestSerializer
 )
 from .validators import validate_uz_phone_number
-from .utils import send_message_telegram, checking_number_of_otp, check_code_expire, check_token_expire, \
-    check_resend_otp_code, send_message_to_telegram
+from .utils import (
+    send_message_telegram,
+    checking_number_of_otp,
+    check_code_expire,
+    check_token_expire,
+    check_resend_otp_code,
+    send_message_to_telegram
+)
 
 
 class RegistrationViewSet(ViewSet):
@@ -54,179 +50,6 @@ class RegistrationViewSet(ViewSet):
             return Response(data={'error': _('User not found')}, status=status.HTTP_404_NOT_FOUND)
         serializer = PersonalInfoSerializer(user, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-    @swagger_auto_schema(
-        operation_description="Foydalanuvchini ro'yxatdan o'tkazish va OTP kod yuborish",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
-                'first_name': openapi.Schema(type=openapi.TYPE_STRING, description="Ism"),
-                'last_name': openapi.Schema(type=openapi.TYPE_STRING, description="Familiya"),
-                'middle_name': openapi.Schema(type=openapi.TYPE_STRING, description="Otasi ismi"),
-                'birth_date': openapi.Schema(type=openapi.FORMAT_DATE, description="Tug'ilgan sana"),
-                'email': openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
-                'password': openapi.Schema(type=openapi.TYPE_STRING, description="Parol"),
-                'confirm_password': openapi.Schema(type=openapi.TYPE_STRING, description="Parolni tasdiqlash"),
-            },
-            required=['phone_number', 'first_name', 'last_name', 'password', 'confirm_password']
-        ),
-        responses={
-            200: openapi.Response(description="OTP kod yuborildi"),
-            400: openapi.Response(description="Parollar mos emas yoki foydalanuvchi allaqachon mavjud"),
-            500: openapi.Response(description="OTP yuborishda xato yuz berdi")
-        }
-    )
-    def register(self, request):
-        phone_number = request.data.get('phone_number')
-        first_name = request.data.get('first_name')
-        last_name = request.data.get('last_name')
-        middle_name = request.data.get('middle_name')
-        birth_date = request.data.get('birth_date')
-        email = request.data.get('email')
-        password = request.data.get('password')
-        serializer = RegisterSerializers(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        otp_code = random.randint(100000, 999999)
-
-        cache.set(f'register_{phone_number}', {
-            'first_name': first_name,
-            'last_name': last_name,
-            'middle_name': middle_name,
-            'birth_date': birth_date,
-            'email': email,
-            'password': password,
-        }, timeout=300)
-
-        cache.set(f'otp_{phone_number}', otp_code, timeout=300)
-
-        response = send_message_to_telegram(phone_number, otp_code)
-        if response.status_code != 200:
-            return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
-
-
-class OTPVerificationViewSet(ViewSet):
-    @swagger_auto_schema(
-        operation_description="OTP kodini tekshirish va foydalanuvchini yaratish",
-        operation_summary="Verify Otp",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
-                'otp_code': openapi.Schema(type=openapi.TYPE_STRING, description="OTP kod"),
-                'type': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="Qaysi holat uchun: 'register' yoki 'forgot'",
-                    enum=['register', 'forgot'])
-            },
-            required=['phone_number', 'otp_code']
-        ),
-        responses={
-            201: openapi.Response(description="Ro‘yxatdan o‘tish muvaffaqiyatli yakunlandi"),
-            400: openapi.Response(description="Kiritilgan kod noto‘g‘ri yoki muddati o‘tgan"),
-            500: openapi.Response(description="Foydalanuvchini yaratishda xato")
-        }
-    )
-    def verify(self, request):
-        phone_number = request.data.get('phone_number')
-        user = User.objects.filter(phone_number=phone_number).first()
-        otp_code = request.data.get('otp_code')
-        f_type = request.data.get('type')
-
-        if f_type not in ['register', 'forgot']:
-            return Response({'error': _('Noto‘g‘ri type')}, status=status.HTTP_400_BAD_REQUEST)
-
-        if f_type == 'register':
-            register = cache.get(f'otp_{phone_number}')
-            if not register:
-                return Response({'error': _('Kiritilgan kod muddati o‘tgan')},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if str(register) == otp_code:
-                user_data = cache.get(f'register_{phone_number}')
-
-                if user_data:
-                    try:
-                        user = User.objects.create_user(
-                            phone_number=phone_number,
-                            first_name=user_data.get('first_name'),
-                            last_name=user_data.get('last_name'),
-                            middle_name=user_data.get('middle_name'),
-                            birth_date=user_data.get('birth_date'),
-                            email=user_data.get('email'),
-                            password=user_data.get('password'),
-                        )
-                        user.is_active = True
-                        user.role = 1
-                        user.type = 2
-                        user.save()
-
-                        cache.delete(f'otp_{phone_number}')
-                        cache.delete(f'register_{phone_number}')
-
-                        refresh_token = RefreshToken.for_user(user)
-                        access_token = refresh_token.access_token
-                        access_token['role'] = user.role
-
-                        return Response(
-                            data={'refresh': str(refresh_token), 'access_token': str(access_token), 'type': 'register'},
-                            status=status.HTTP_200_OK)
-                    except Exception as e:
-                        return Response({'error': _("Foydalanuvchini yaratishda xato: %(error)s") % {'error': str(e)}},
-                                        status=status.HTTP_400_BAD_REQUEST)
-            return Response({'error': _('Kiritilgan kod noto‘g‘ri')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        elif f_type == 'forgot':
-            forgot = cache.get(f'forgot_otp_{phone_number}')
-            if not forgot:
-                return Response({'error': _('Kiritilgan kod muddati o‘tgan')},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if str(forgot) == otp_code:
-                user.is_verified = True
-                user.type = 1
-                user.save()
-                return Response(data={'verified': phone_number, 'type': 'forgot'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'error': _('Kiritilgan kod noto‘g‘ri')},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-    @swagger_auto_schema(
-        operation_description="Create Category",
-        operation_summary="Create Category",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='phone_number'),
-                'type': openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="Qaysi holat uchun: 'register' yoki 'forgot'",
-                    enum=['register', 'forgot']
-                ),
-            },
-            required=['phone_number']
-        ),
-        responses={200: 'OTP kod yuborildi',
-                   400: 'OTP yuborishda xato yuz berdi'},
-        tags=['auth'],
-    )
-    def resend_otp(self, request, *args, **kwargs):
-        phone_number = request.data['phone_number']
-        user = User.objects.filter(phone_number=phone_number).first()
-        if user is None:
-            return Response(data={'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        otp_code = random.randint(100000, 999999)
-        f_type = request.data.get('type')
-        if f_type == 'register':
-            cache.set(f'otp_{phone_number}', otp_code, timeout=300)
-        else:
-            cache.set(f'forgot_otp_{phone_number}', otp_code, timeout=300)
-        response = send_message_to_telegram(phone_number, otp_code)
-        if response.status_code != 200:
-            return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
 
 
 class LoginViewSet(ViewSet):
@@ -409,34 +232,6 @@ class PersonalInfoViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-class ForgotPasswordViewSet(ViewSet):
-    @swagger_auto_schema(
-        operation_description="Parolni tiklash uchun OTP kod yuborish",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description="Telefon raqam"),
-            },
-            required=['phone_number']
-        ),
-        responses={
-            200: openapi.Response(description="OTP kod yuborildi"),
-            400: openapi.Response(description="Foydalanuvchi topilmadi yoki OTP yuborishda xato yuz berdi"),
-        }
-    )
-    def forgot_password(self, request):
-        phone_number = request.data.get('phone_number')
-        user = User.objects.filter(phone_number=phone_number).first()
-        if user is None:
-            return Response(data={'error': 'User with this phone number not found'}, status=status.HTTP_404_NOT_FOUND)
-        otp_code = random.randint(100000, 999999)
-        cache.set(f'forgot_otp_{phone_number}', otp_code, timeout=300)
-        response = send_message_to_telegram(phone_number, otp_code)
-        if response.status_code != 200:
-            return Response({'error': _('OTP yuborishda xato yuz berdi')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response({'message': _('OTP kod yuborildi')}, status=status.HTTP_200_OK)
-
-
 class ResetPasswordViewSet(ViewSet):
     @swagger_auto_schema(
         operation_description="Set Password",
@@ -459,35 +254,6 @@ class ResetPasswordViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(data={'message': _("Password set.")}, status=status.HTTP_200_OK)
-
-    @swagger_auto_schema(
-        operation_description="ReSet Password",
-        operation_summary="ReSet Password",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='phone_number'),
-                'new_password': openapi.Schema(type=openapi.TYPE_STRING, description='new_password'),
-                'confirm_password': openapi.Schema(type=openapi.TYPE_STRING, description='confirm_password'),
-            },
-            required=['new_password', 'confirm_password', 'phone_number']
-        ),
-        responses={200: 'Password reseted.'},
-        tags=['auth'],
-    )
-    def reset_pass(self, request, *args, **kwargs):
-        # user = User.objects.filter(phone_number=request.data['phone_number']).first()
-        # if user is None:
-        #     return Response(data={'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        # if not user.is_verified:
-        #     return Response(data={'error': 'User not verified'}, status=status.HTTP_400_BAD_REQUEST)
-        # serializer = ReSetPassSerializer(data=request.data)
-        # if not serializer.is_valid():
-        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # serializer.validated_data['is_verified'] = False
-        # serializer.save()
-        # return Response(data={'message': _("Password reseted.")}, status=status.HTTP_200_OK)
-        pass
 
 
 class TestViewSet(ViewSet):
