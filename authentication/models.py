@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from datetime import timedelta
 from base.model import BaseModel
 from .utils import generate_otp_code
+from .validators import validate_uz_phone_number_for_model, validate_name_for_model
 
 ROLE_CHOICES = (
     (0, '---'),
@@ -38,10 +39,10 @@ OTPTYPES = (
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    phone_number = models.CharField(max_length=15, unique=True)
-    first_name = models.CharField(max_length=50, blank=True, null=True)
-    last_name = models.CharField(max_length=50, blank=True, null=True)
-    middle_name = models.CharField(max_length=50, blank=True, null=True)
+    phone_number = models.CharField(max_length=15, unique=True, validators=[validate_uz_phone_number_for_model])
+    first_name = models.CharField(max_length=50, blank=True, null=True, validators=[validate_name_for_model])
+    last_name = models.CharField(max_length=50, blank=True, null=True, validators=[validate_name_for_model])
+    middle_name = models.CharField(max_length=50, blank=True, null=True, validators=[validate_name_for_model])
     birth_date = models.DateField(blank=True, null=True)
     email = models.EmailField(unique=True, blank=True, null=True)
 
