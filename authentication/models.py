@@ -15,12 +15,6 @@ ROLE_CHOICES = (
     (3, 'Admin'),
 )
 
-TYPE = (
-    (0, '---'),
-    (1, 'forgot'),
-    (2, 'register'),
-)
-
 ACADEMIC_DEGREE = (
     (0, '---'),
     (1, 'Associate'),
@@ -28,7 +22,6 @@ ACADEMIC_DEGREE = (
     (3, 'Master'),
     (4, 'Doctoral'),
 )
-
 
 OTPTYPES = (
     (0, '---'),
@@ -54,7 +47,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     children_count = models.PositiveIntegerField(default=0)
 
     is_verified = models.BooleanField(default=False)
-    type = models.IntegerField(choices=TYPE, default=0)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
