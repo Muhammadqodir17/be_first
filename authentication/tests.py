@@ -1,3 +1,2 @@
 from django.test import TestCase
-
-# Create your tests here.
+from .validators import validate_uz_phone_number_for_model
