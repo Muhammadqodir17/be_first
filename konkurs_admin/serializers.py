@@ -41,17 +41,41 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'name_uz', 'name_ru', 'name_en']
 
 
+class GetCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+        return data
+
+
 class GetCompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'name', 'category', 'description', 'application_start_date', 'application_start_time',
                   'application_end_date', 'application_end_time', 'status']
 
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
         data['status'] = dict(STATUS).get(instance.status, 'Unknown')
         data['category'] = instance.category.name
+        if lang in lang_options:
+            data['name'] = getattr(instance, f'name_{lang}')
+            data['category'] = getattr(instance.category, f'name_{lang}')
+            data['description'] = getattr(instance, f'description_{lang}')
         return data
+
 
 
 class GetCompetitionByIdSerializer(serializers.ModelSerializer):
@@ -173,7 +197,13 @@ class GetJurySerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
         data['academic_degree'] = dict(ACADEMIC_DEGREE).get(instance.academic_degree, 'Unknown')
+        if lang in lang_options:
+            data['place_of_work'] = getattr(instance, f'place_of_work_{lang}')
+            data['speciality'] = getattr(instance.category, f'speciality_{lang}')
         return data
 
 
@@ -381,11 +411,6 @@ class ContactInformationSerializer(serializers.ModelSerializer):
         model = ContactInformation
         fields = ['id', 'location', 'phone_number', 'email', 'image']
 
-    def validate(self, attrs):
-        phone_number = attrs['phone_number']
-        validate_uz_phone_number(phone_number)
-        return attrs
-
     def to_representation(self, instance):
         data = super().to_representation(instance)
         request = self.context.get('request')
@@ -399,7 +424,7 @@ class ContactInformationSerializer(serializers.ModelSerializer):
 class WebSocialMediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocialMedia
-        fields = ['id', 'name', 'link']
+        fields = ['id', 'name', 'link', 'image']
 
 
 class SpecialPolicySerializer(serializers.ModelSerializer):
@@ -419,6 +444,11 @@ class SpecialContactInformationSerializer(serializers.ModelSerializer):
         model = ContactInformation
         fields = ['id', 'location', 'location_uz', 'location_ru', 'location_en', 'phone_number',
                   'email', 'image']
+
+    def validate(self, attrs):
+        phone_number = attrs['phone_number']
+        validate_uz_phone_number(phone_number)
+        return attrs
 
 
 class SpecialAboutUsSerializer(serializers.ModelSerializer):

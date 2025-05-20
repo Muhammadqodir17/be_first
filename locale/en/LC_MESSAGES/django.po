@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 19:14+0500\n"
-"PO-Revision-Date: 2025-05-06 13:19+0500\n"
+"POT-Creation-Date: 2025-05-20 13:37+0500\n"
+"PO-Revision-Date: 2025-05-20 14:29+0500\n"
 "Last-Translator: None None <None>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -19,236 +19,217 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Translated-Using: django-rosetta 0.10.2\n"
 
-#: .\authentication\managers.py:8 .\authentication\views.py:309
-#: .\child\views.py:341
+#: .\authentication\managers.py:8
 msgid "Phone number is required."
 msgstr ""
 
-#: .\authentication\middlewares.py:36 .\authentication\middlewares.py:40
-#: .\authentication\middlewares.py:45 .\authentication\middlewares.py:52
+#: .\authentication\middlewares.py:62 .\authentication\middlewares.py:66
+#: .\authentication\middlewares.py:71 .\authentication\middlewares.py:78
 msgid "unauthorized"
 msgstr ""
 
-#: .\authentication\middlewares.py:48 .\authentication\middlewares.py:55
+#: .\authentication\middlewares.py:74 .\authentication\middlewares.py:82
 msgid "Permission denied"
 msgstr ""
 
-#: .\authentication\serializers.py:28
-msgid "Inccorrect email format"
+#: .\authentication\serializers.py:27
+msgid "Incorrect email format"
 msgstr ""
 
-#: .\authentication\serializers.py:37
-msgid "Phone number must be in the format +998XXXXXXXXX."
-msgstr ""
-
-#: .\authentication\serializers.py:50
-msgid "Phone number and code fields are required."
-msgstr ""
-
-#: .\authentication\serializers.py:55
-msgid "Incorrect code."
+#: .\authentication\serializers.py:41
+msgid "Password do not match"
 msgstr ""
 
 #: .\authentication\serializers.py:58
-msgid "Code expired."
+msgid "Access token or Refresh token is invalid or expired"
 msgstr ""
 
-#: .\authentication\serializers.py:70
-msgid "Phone number not verified."
+#: .\authentication\serializers.py:63
+msgid "Tokens are already in blacklist"
 msgstr ""
 
-#: .\authentication\serializers.py:76
-msgid ""
-"The password must contain a minimum of 8 characters, one capital letter, and"
-" one number."
+#: .\authentication\serializers.py:111
+msgid "Password confirmation does not match."
 msgstr ""
 
-#: .\authentication\serializers.py:103
-msgid "Phone number and password are required."
+#: .\authentication\serializers.py:132
+msgid "Confirm password does not match."
 msgstr ""
 
-#: .\authentication\serializers.py:107
-msgid "Invalid phone number or password."
-msgstr ""
-
-#: .\authentication\serializers.py:118
-msgid "Invalid phone number format."
-msgstr ""
-
-#: .\authentication\serializers.py:129
-#, python-format
-msgid "Your verification code to reset your password is: %(temp_password)s"
-msgstr ""
-
-#: .\authentication\serializers.py:134
-msgid "Failed to send message."
-msgstr ""
-
-#: .\authentication\serializers.py:147
-msgid "The password must contain a minimum of 8 characters."
-msgstr ""
-
-#: .\authentication\serializers.py:149
-msgid "The password must contain at least one uppercase letter."
-msgstr ""
-
-#: .\authentication\serializers.py:151
-msgid "The password must contain at least one number."
-msgstr ""
-
-#: .\authentication\serializers.py:162
-msgid ""
-"Phone number, temp password, new password, and confirm password are "
-"required."
-msgstr ""
-
-#: .\authentication\serializers.py:167
-msgid "New password and confirm password do not match."
-msgstr ""
-
-#: .\authentication\serializers.py:176
-msgid "Invalid temporary password or phone number."
-msgstr ""
-
-#: .\authentication\serializers.py:182
-msgid "Temporary password has expired."
-msgstr ""
-
-#: .\authentication\validators.py:9
+#: .\authentication\validators.py:10 .\authentication\validators.py:23
 msgid "Telefon raqamining uzuznligi 13 bo`lishi kerak!"
 msgstr "The length of the phone must be 13!"
 
-#: .\authentication\validators.py:11
+#: .\authentication\validators.py:12 .\authentication\validators.py:25
 msgid "Telefon raqami +998 bilan boshlanishi kerak!"
 msgstr "The phone number must start with +998!"
 
-#: .\authentication\validators.py:13
+#: .\authentication\validators.py:14 .\authentication\validators.py:27
 msgid "Telefon nomer kodi uzbek kodi emas"
 msgstr "The phone number code is not an Uzbek code."
 
-#: .\authentication\validators.py:15
+#: .\authentication\validators.py:16 .\authentication\validators.py:29
 msgid ""
 "Telefon raqami faqat butun sonlar(0,1,2,3,4,5,6,7,8,9) iborat bo`lishi "
 "kerak!"
 msgstr "The phone number must consist only of integers (0,1,2,3,4,5,6,7,8,9)!"
 
-#: .\authentication\views.py:76
-#, python-format
-msgid "Your verification code is: %(code)s"
+#: .\authentication\validators.py:34 .\authentication\validators.py:39
+msgid "This field must contain only letters."
 msgstr ""
 
-#: .\authentication\views.py:81
-msgid "SMS-code sent."
+#: .\authentication\validators.py:44
+msgid "The password must contain a minimum of 8 characters."
 msgstr ""
 
-#: .\authentication\views.py:83
-msgid "Failed to send message"
+#: .\authentication\validators.py:46
+msgid "The password must contain at least one uppercase letter."
 msgstr ""
 
-#: .\authentication\views.py:142
-msgid "Incorrect or expired code."
+#: .\authentication\validators.py:48
+msgid "The password must contain at least one number."
 msgstr ""
 
-#: .\authentication\views.py:153
-msgid "Code verified."
+#: .\authentication\validators.py:50
+msgid "The password must contain at least one letter."
 msgstr ""
 
-#: .\authentication\views.py:210
-msgid "Password set."
-msgstr ""
-
-#: .\authentication\views.py:223
+#: .\authentication\views.py:49 .\authentication\views.py:161
+#: .\authentication\views.py:226 .\authentication\views.py:455
+#: .\child\views.py:131 .\jury\views.py:48 .\konkurs\views.py:305
 msgid "User not found"
 msgstr ""
 
-#: .\authentication\views.py:311
-msgid "First name is required."
-msgstr ""
-
-#: .\authentication\views.py:313
-msgid "Last name is required."
-msgstr ""
-
-#: .\authentication\views.py:315
-msgid "Middle name is required."
-msgstr ""
-
-#: .\authentication\views.py:317
-msgid "Birth date is required."
-msgstr ""
-
-#: .\authentication\views.py:319
-msgid "Email is required."
-msgstr ""
-
-#: .\authentication\views.py:323 .\authentication\views.py:383
-#: .\authentication\views.py:387 .\child\views.py:344
+#: .\authentication\views.py:105 .\authentication\views.py:109
 msgid "User not found."
 msgstr ""
 
-#: .\authentication\views.py:328
-msgid "Personal data saved."
-msgstr ""
-
-#: .\authentication\views.py:389
+#: .\authentication\views.py:111
 msgid "Password is incorrect"
 msgstr ""
 
-#: .\authentication\views.py:438
-msgid "Temp password sent."
+#: .\authentication\views.py:145
+msgid "Logged out successfully"
 msgstr ""
 
-#: .\authentication\views.py:494
-msgid "Password reset successfully."
+#: .\authentication\views.py:255
+msgid "Password set."
 msgstr ""
 
-#: .\child\views.py:105 .\child\views.py:278
-msgid "User with this phone number does not exist."
+#: .\authentication\views.py:294 .\authentication\views.py:419
+#: .\authentication\views.py:492 .\authentication\views.py:517
+msgid "Try again 12 hours later"
 msgstr ""
 
-#: .\child\views.py:109
+#: .\authentication\views.py:308
+msgid "Error occured while sending otp code"
+msgstr ""
+
+#: .\authentication\views.py:309
+msgid "Otp successfully send"
+msgstr ""
+
+#: .\authentication\views.py:333
+msgid "U already verified"
+msgstr ""
+
+#: .\authentication\views.py:335
+msgid "Send otp code"
+msgstr ""
+
+#: .\authentication\views.py:338
+msgid "Make sure otp key is right"
+msgstr ""
+
+#: .\authentication\views.py:340
+msgid "Come back an hours later"
+msgstr ""
+
+#: .\authentication\views.py:344
+msgid "otp code is wrong"
+msgstr ""
+
+#: .\authentication\views.py:347
+msgid "Code is expired, get new Otp code"
+msgstr ""
+
+#: .\authentication\views.py:351
+msgid "User does not exist"
+msgstr ""
+
+#: .\authentication\views.py:363 .\authentication\views.py:424
+msgid "Success"
+msgstr ""
+
+#: .\authentication\views.py:385
+msgid "User not found with this number!!!"
+msgstr ""
+
+#: .\authentication\views.py:392
+msgid "Error occured while sending otp"
+msgstr ""
+
+#: .\authentication\views.py:417 .\authentication\views.py:488
+#: .\authentication\views.py:513
+msgid "Otp key is wrong"
+msgstr ""
+
+#: .\authentication\views.py:423
+msgid "Otp code is wrong"
+msgstr ""
+
+#: .\authentication\views.py:445
+msgid "Otp token is wrong"
+msgstr ""
+
+#: .\authentication\views.py:448
+msgid "Token is expired"
+msgstr ""
+
+#: .\authentication\views.py:463
+msgid "success"
+msgstr ""
+
+#: .\authentication\views.py:494 .\authentication\views.py:519
+msgid "Try again a minute later"
+msgstr ""
+
+#: .\authentication\views.py:506 .\authentication\views.py:531
+msgid "Failed to send otp code"
+msgstr ""
+
+#: .\child\views.py:63 .\konkurs_admin\views.py:906
+#: .\konkurs_admin\views.py:1014
+msgid "Comp is not found"
+msgstr ""
+
+#: .\child\views.py:87 .\child\views.py:153 .\child\views.py:171
+msgid "Bola topilmadi"
+msgstr "Child not found"
+
+#: .\child\views.py:133
 msgid "You have already registered 5 children"
 msgstr ""
 
-#: .\child\views.py:181 .\child\views.py:220
-msgid "Child not found"
-msgstr ""
+#: .\child\views.py:169
+msgid "Bola muvaffaqiyatli o'chirildi"
+msgstr "Child successfully deleted"
 
-#: .\child\views.py:274
-msgid "Phone_number is required"
-msgstr ""
-
-#: .\child\views.py:283
-msgid "You haven't added any children yet"
-msgstr ""
-
-#: .\child\views.py:347
-msgid "No children found to delete."
-msgstr ""
-
-#: .\child\views.py:352
-msgid "Child not found or does not belong to you."
-msgstr ""
-
-#: .\child\views.py:358
-msgid "Child successfully deleted."
-msgstr ""
-
-#: .\child\views.py:414 .\jury\views.py:106 .\jury\views.py:129
-#: .\konkurs\views.py:148 .\konkurs_admin\views.py:871
-#: .\konkurs_admin\views.py:1024
+#: .\child\views.py:227 .\jury\views.py:122 .\jury\views.py:145
+#: .\konkurs\views.py:179 .\konkurs_admin\views.py:1010
+#: .\konkurs_admin\views.py:1171
 msgid "Participant not found"
 msgstr ""
 
-#: .\config\settings.py:159
+#: .\config\settings.py:148
 msgid "Uzbek"
 msgstr ""
 
-#: .\config\settings.py:160
+#: .\config\settings.py:149
 msgid "Russian"
 msgstr ""
 
-#: .\config\settings.py:161
+#: .\config\settings.py:150
 msgid "English"
 msgstr ""
 
@@ -256,30 +237,40 @@ msgstr ""
 msgid "Jury graded your work. You can see your feedbacks"
 msgstr ""
 
-#: .\jury\views.py:68 .\jury\views.py:90 .\konkurs_admin\views.py:138
-#: .\konkurs_admin\views.py:156 .\konkurs_admin\views.py:340
-#: .\konkurs_admin\views.py:394 .\konkurs_admin\views.py:454
-#: .\konkurs_admin\views.py:513 .\konkurs_admin\views.py:573
-#: .\konkurs_admin\views.py:780 .\konkurs_admin\views.py:830
-#: .\konkurs_admin\views.py:934 .\konkurs_admin\views.py:1016
-#: .\konkurs_admin\views.py:1078 .\konkurs_admin\views.py:1107
+#: .\jury\views.py:84 .\jury\views.py:106 .\konkurs_admin\views.py:190
+#: .\konkurs_admin\views.py:208 .\konkurs_admin\views.py:391
+#: .\konkurs_admin\views.py:406 .\konkurs_admin\views.py:460
+#: .\konkurs_admin\views.py:520 .\konkurs_admin\views.py:580
+#: .\konkurs_admin\views.py:640 .\konkurs_admin\views.py:924
+#: .\konkurs_admin\views.py:974 .\konkurs_admin\views.py:1079
+#: .\konkurs_admin\views.py:1162 .\konkurs_admin\views.py:1379
+#: .\konkurs_admin\views.py:1408
 msgid "Competition not found"
 msgstr ""
 
-#: .\jury\views.py:87 .\konkurs_admin\views.py:96 .\konkurs_admin\views.py:320
+#: .\jury\views.py:103 .\konkurs_admin\views.py:142
+#: .\konkurs_admin\views.py:371
 msgid "Category not found"
 msgstr ""
 
-#: .\jury\views.py:134
+#: .\jury\views.py:150
 msgid "You've already marked this participant"
 msgstr ""
 
-#: .\jury\views.py:165 .\jury\views.py:188 .\konkurs\views.py:259
+#: .\jury\views.py:181 .\jury\views.py:204 .\konkurs\views.py:290
 msgid "Assessment not found"
 msgstr ""
 
-#: .\jury\views.py:193
+#: .\jury\views.py:210
+msgid "You can not change this grade because Competition is finished"
+msgstr ""
+
+#: .\jury\views.py:213
 msgid "You can not change this grade"
+msgstr ""
+
+#: .\konkurs\serializers.py:280
+msgid "Competition is None"
 msgstr ""
 
 #: .\konkurs\signals.py:17
@@ -292,22 +283,31 @@ msgstr ""
 msgid "%(name)s competition is started."
 msgstr ""
 
-#: .\konkurs\views.py:133
+#: .\konkurs\views.py:164 .\konkurs_admin\views.py:1328
 msgid "Comp not found"
 msgstr ""
 
-#: .\konkurs\views.py:200
+#: .\konkurs\views.py:231
 msgid "Not found"
 msgstr ""
 
-#: .\konkurs\views.py:206 .\konkurs_admin\views.py:832
-#: .\konkurs_admin\views.py:868 .\konkurs_admin\views.py:936
-#: .\konkurs_admin\views.py:1080
+#: .\konkurs\views.py:237 .\konkurs_admin\views.py:976
+#: .\konkurs_admin\views.py:1016 .\konkurs_admin\views.py:1081
+#: .\konkurs_admin\views.py:1381
 msgid "Comp is not active"
 msgstr ""
 
-#: .\konkurs\views.py:287
+#: .\konkurs\views.py:321
 msgid "Notification not found"
+msgstr ""
+
+#: .\konkurs_admin\serializers.py:304 .\konkurs_admin\serializers.py:563
+#, python-format
+msgid "You've already created %(place)s place"
+msgstr ""
+
+#: .\konkurs_admin\serializers.py:615
+msgid "Passwords do not match"
 msgstr ""
 
 #: .\konkurs_admin\signals.py:10
@@ -350,95 +350,203 @@ msgstr ""
 msgid "%(comp_name)s competition ends in 3 days!. HURRY!!!"
 msgstr ""
 
-#: .\konkurs_admin\views.py:72 .\konkurs_admin\views.py:202
-#: .\konkurs_admin\views.py:256 .\konkurs_admin\views.py:311
-#: .\konkurs_admin\views.py:384 .\konkurs_admin\views.py:445
-#: .\konkurs_admin\views.py:503 .\konkurs_admin\views.py:564
-#: .\konkurs_admin\views.py:821 .\konkurs_admin\views.py:925
-#: .\konkurs_admin\views.py:1069 .\konkurs_admin\views.py:1170
-#: .\konkurs_admin\views.py:1223
+#: .\konkurs_admin\views.py:105 .\konkurs_admin\views.py:254
+#: .\konkurs_admin\views.py:307 .\konkurs_admin\views.py:362
+#: .\konkurs_admin\views.py:450 .\konkurs_admin\views.py:511
+#: .\konkurs_admin\views.py:570 .\konkurs_admin\views.py:631
+#: .\konkurs_admin\views.py:965 .\konkurs_admin\views.py:1070
+#: .\konkurs_admin\views.py:1370 .\konkurs_admin\views.py:1472
+#: .\konkurs_admin\views.py:1525 .\konkurs_admin\views.py:3090
 msgid "Size or Page is needed"
 msgstr ""
 
-#: .\konkurs_admin\views.py:74 .\konkurs_admin\views.py:204
-#: .\konkurs_admin\views.py:258 .\konkurs_admin\views.py:313
-#: .\konkurs_admin\views.py:386 .\konkurs_admin\views.py:447
-#: .\konkurs_admin\views.py:505 .\konkurs_admin\views.py:566
-#: .\konkurs_admin\views.py:823 .\konkurs_admin\views.py:927
-#: .\konkurs_admin\views.py:1071 .\konkurs_admin\views.py:1172
-#: .\konkurs_admin\views.py:1225
+#: .\konkurs_admin\views.py:107 .\konkurs_admin\views.py:256
+#: .\konkurs_admin\views.py:309 .\konkurs_admin\views.py:364
+#: .\konkurs_admin\views.py:452 .\konkurs_admin\views.py:513
+#: .\konkurs_admin\views.py:572 .\konkurs_admin\views.py:633
+#: .\konkurs_admin\views.py:967 .\konkurs_admin\views.py:1072
+#: .\konkurs_admin\views.py:1372 .\konkurs_admin\views.py:1474
+#: .\konkurs_admin\views.py:1527 .\konkurs_admin\views.py:3092
 msgid "page must be greater than 0 or must be integer"
 msgstr ""
 
-#: .\konkurs_admin\views.py:77 .\konkurs_admin\views.py:207
-#: .\konkurs_admin\views.py:261 .\konkurs_admin\views.py:316
-#: .\konkurs_admin\views.py:389 .\konkurs_admin\views.py:450
-#: .\konkurs_admin\views.py:508 .\konkurs_admin\views.py:569
-#: .\konkurs_admin\views.py:826 .\konkurs_admin\views.py:930
-#: .\konkurs_admin\views.py:1074 .\konkurs_admin\views.py:1175
-#: .\konkurs_admin\views.py:1228
+#: .\konkurs_admin\views.py:110 .\konkurs_admin\views.py:259
+#: .\konkurs_admin\views.py:312 .\konkurs_admin\views.py:367
+#: .\konkurs_admin\views.py:455 .\konkurs_admin\views.py:516
+#: .\konkurs_admin\views.py:575 .\konkurs_admin\views.py:636
+#: .\konkurs_admin\views.py:970 .\konkurs_admin\views.py:1075
+#: .\konkurs_admin\views.py:1375 .\konkurs_admin\views.py:1477
+#: .\konkurs_admin\views.py:1530 .\konkurs_admin\views.py:3095
 msgid "page size must be greater than 0 or must be integer"
 msgstr ""
 
-#: .\konkurs_admin\views.py:158
+#: .\konkurs_admin\views.py:210 .\konkurs_admin\views.py:1315
+#: .\konkurs_admin\views.py:2220 .\konkurs_admin\views.py:2387
+#: .\konkurs_admin\views.py:2813 .\konkurs_admin\views.py:2923
+#: .\konkurs_admin\views.py:3032 .\konkurs_admin\views.py:3140
 msgid "Successfully deleted"
 msgstr ""
 
-#: .\konkurs_admin\views.py:396 .\konkurs_admin\views.py:456
-#: .\konkurs_admin\views.py:575
+#: .\konkurs_admin\views.py:462 .\konkurs_admin\views.py:522
+#: .\konkurs_admin\views.py:642
 msgid "This comp is not finished"
 msgstr ""
 
-#: .\konkurs_admin\views.py:515
+#: .\konkurs_admin\views.py:582
 msgid "This com is not finished"
 msgstr ""
 
-#: .\konkurs_admin\views.py:762 .\konkurs_admin\views.py:866
-msgid "Comp is not found"
-msgstr ""
-
-#: .\konkurs_admin\views.py:782
+#: .\konkurs_admin\views.py:926
 msgid "Competition successfully deleted"
 msgstr ""
 
-#: .\konkurs_admin\views.py:877
+#: .\konkurs_admin\views.py:1021
 #, python-format
 msgid "Dear %(participant_name)s."
 msgstr ""
 
-#: .\konkurs_admin\views.py:878
+#: .\konkurs_admin\views.py:1022
 #, python-format
 msgid "You have an error to fill register or work for the %(comp_name)s"
 msgstr ""
 
-#: .\konkurs_admin\views.py:884
+#: .\konkurs_admin\views.py:1029
 msgid "Invalid action"
 msgstr ""
 
-#: .\konkurs_admin\views.py:886
+#: .\konkurs_admin\views.py:1031
 #, python-format
 msgid "Request %(action)s"
 msgstr ""
 
-#: .\konkurs_admin\views.py:1109
+#: .\konkurs_admin\views.py:1190 .\konkurs_admin\views.py:1267
+#: .\konkurs_admin\views.py:1313
+msgid "Winner not found"
+msgstr ""
+
+#: .\konkurs_admin\views.py:1286
+msgid "Matching participant not found"
+msgstr ""
+
+#: .\konkurs_admin\views.py:1290
+msgid ""
+"Participant is not belong to this competition!!!. Please, choose participant"
+" which belongs to current competition"
+msgstr ""
+
+#: .\konkurs_admin\views.py:1295
+msgid "Participant must be marked and participants request must be accepted"
+msgstr ""
+
+#: .\konkurs_admin\views.py:1410
 msgid "Message cannot be empty"
 msgstr ""
 
-#: .\konkurs_admin\views.py:1121
+#: .\konkurs_admin\views.py:1422
 msgid "It has no any other participants to send notification"
 msgstr ""
 
-#: .\konkurs_admin\views.py:1127
+#: .\konkurs_admin\views.py:1428
 msgid "Thank you message sent to all participants"
 msgstr ""
 
-#: .\konkurs_admin\views.py:1253 .\konkurs_admin\views.py:1317
-#: .\konkurs_admin\views.py:1335
+#: .\konkurs_admin\views.py:1555 .\konkurs_admin\views.py:1726
+#: .\konkurs_admin\views.py:1881 .\konkurs_admin\views.py:1899
 msgid "Jury not found"
 msgstr ""
 
-#: .\konkurs_admin\views.py:1337
+#: .\konkurs_admin\views.py:1901
 msgid "Jury successfully deleted"
+msgstr ""
+
+#: .\konkurs_admin\views.py:1918 .\konkurs_admin\views.py:2003
+#: .\konkurs_admin\views.py:2023
+msgid "SocialMedia not found"
+msgstr ""
+
+#: .\konkurs_admin\views.py:2025
+msgid "Social media successfully deleted"
+msgstr ""
+
+#: .\konkurs_admin\views.py:2042 .\konkurs_admin\views.py:2057
+#: .\konkurs_admin\views.py:2198 .\konkurs_admin\views.py:2218
+msgid "Contact Info not found"
+msgstr ""
+
+#: .\konkurs_admin\views.py:2237 .\konkurs_admin\views.py:2252
+#: .\konkurs_admin\views.py:2365 .\konkurs_admin\views.py:2385
+msgid "About result not found"
+msgstr ""
+
+#: .\konkurs_admin\views.py:2404 .\konkurs_admin\views.py:2419
+#: .\konkurs_admin\views.py:2792 .\konkurs_admin\views.py:2811
+msgid "About us not found"
+msgstr ""
+
+#: .\konkurs_admin\views.py:2828 .\konkurs_admin\views.py:2843
+#: .\konkurs_admin\views.py:2902 .\konkurs_admin\views.py:2921
+msgid "Policy not found"
+msgstr ""
+
+#: .\konkurs_admin\views.py:2940 .\konkurs_admin\views.py:3011
+#: .\konkurs_admin\views.py:3030
+msgid "Result image not found"
+msgstr ""
+
+#: .\konkurs_admin\views.py:3049 .\konkurs_admin\views.py:3119
+#: .\konkurs_admin\views.py:3138
+msgid "Contact us not found"
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\forms.py:6
+msgid "Search files"
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:5
+msgid "Select an image to embed"
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:27
+msgid "Browse for the image you want, then click 'Embed Image' to continue..."
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:29
+msgid ""
+"No images found. Upload images using the 'Image Button' dialog's 'Upload' "
+"tab."
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:50
+msgid "Images in: "
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:62
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:80
+msgid "Embed Image"
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:146
+msgid "Play Slideshow"
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:147
+msgid "Pause Slideshow"
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:148
+msgid "&lsaquo; Previous Photo"
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:149
+msgid "Next Photo &rsaquo;"
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:150
+msgid "Next &rsaquo;"
+msgstr ""
+
+#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:151
+msgid "&lsaquo; Prev"
 msgstr ""
 
 #: .\venv\Lib\site-packages\click\_termui_impl.py:556

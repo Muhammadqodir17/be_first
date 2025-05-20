@@ -105,6 +105,7 @@ class ContactInformation(BaseModel):
 class SocialMedia(BaseModel):
     name = models.CharField(max_length=250)
     link = models.URLField()
+    image = models.ImageField(upload_to='media/', null=True)
 
     def __str__(self):
         return f'{self.link}'

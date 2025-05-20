@@ -51,7 +51,7 @@ from .serializers import (
     ForUpdateWinnerSerializer,
     GetForUpdateWinnerSerializer,
     UpdateJurySerializer,
-    GetExistCompetitionByIdSerializer,
+    GetExistCompetitionByIdSerializer, GetCategorySerializer,
 )
 from konkurs.serializers import (
     ResultImageSerializer,
@@ -112,7 +112,7 @@ class CategoryViewSet(ViewSet):
         categories = Category.objects.all()
         paginator = self.pagination_class()
         paginated_categories = paginator.paginate_queryset(categories, request)
-        serializer = CategorySerializer(paginated_categories, many=True, context={'request': request})
+        serializer = GetCategorySerializer(paginated_categories, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -125,7 +125,7 @@ class CategoryViewSet(ViewSet):
     )
     def get_all(self, request, *args, **kwargs):
         categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True, context={'request': request})
+        serializer = GetCategorySerializer(categories, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -258,7 +258,7 @@ class CompetitionViewSet(ViewSet):
         if not size.isdigit() or int(size) < 1:
             return Response(data={'error': _('page size must be greater than 0 or must be integer')},
                             status=status.HTTP_400_BAD_REQUEST)
-        competitions = Competition.objects.all()
+        competitions = Competition.objects.all().order_by('-created_at')
         paginator = self.pagination_class()
         paginated_competitions = paginator.paginate_queryset(competitions, request)
         serializer = GetCompetitionSerializer(paginated_competitions, many=True, context={'request': request})
@@ -1479,7 +1479,7 @@ class JuryViewSet(ViewSet):
         juries = User.objects.filter(role=2)
         paginator = self.pagination_class()
         paginated_juries = paginator.paginate_queryset(juries, request)
-        serializer = GetExistJurySerializer(paginated_juries, many=True, context={'request': request})
+        serializer = GetJurySerializer(paginated_juries, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -1553,7 +1553,7 @@ class JuryViewSet(ViewSet):
         jury = User.objects.filter(id=kwargs['pk'], role=2).first()
         if jury is None:
             return Response(data={'error': _('Jury not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = GetJurySerializer(jury, context={'request': request})
+        serializer = GetExistJurySerializer(jury, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -1905,8 +1905,8 @@ class WebSocialMediaViewSet(ViewSet):
     parser_classes = [MultiPartParser, FormParser]
 
     @swagger_auto_schema(
-        operation_description="Get Jury By Id",
-        operation_summary="Get Jury By Id",
+        operation_description="Get Web Social Media By Id",
+        operation_summary="Get Web Social Media By Id",
         responses={
             200: WebSocialMediaSerializer()
         },
@@ -1920,8 +1920,8 @@ class WebSocialMediaViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Get all Social Media",
-        operation_summary="Get Social Media",
+        operation_description="Get all Web Social Media",
+        operation_summary="Get all Web Social Media",
         responses={
             200: WebSocialMediaSerializer(),
         },
@@ -1933,8 +1933,8 @@ class WebSocialMediaViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Create Social Media",
-        operation_summary="Create Social Media",
+        operation_description="Create Web Social Media",
+        operation_summary="Create Web Social Media",
         manual_parameters=[
             openapi.Parameter(
                 name='image',
@@ -1949,6 +1949,13 @@ class WebSocialMediaViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="name",
+            ),
+            openapi.Parameter(
+                name='link',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="link",
             ),
         ],
         responses={201: WebSocialMediaSerializer()},
@@ -1962,8 +1969,8 @@ class WebSocialMediaViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
-        operation_description="Update Social Media",
-        operation_summary="Update Social Media",
+        operation_description="Update Web Social Media",
+        operation_summary="Update Web Social Media",
         manual_parameters=[
             openapi.Parameter(
                 name='image',
@@ -1978,6 +1985,13 @@ class WebSocialMediaViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=False,
                 description="name",
+            ),
+            openapi.Parameter(
+                name='link',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=False,
+                description="link",
             ),
         ],
         responses={200: WebSocialMediaSerializer()},
@@ -1995,8 +2009,8 @@ class WebSocialMediaViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Delete Social Media",
-        operation_summary="Delete Social Media",
+        operation_description="Delete Web Social Media",
+        operation_summary="Delete Web Social Media",
         responses={
             200: 'Successfully Deleted',
             404: 'Not found',
@@ -3124,3 +3138,6 @@ class ContactUsViewSet(ViewSet):
             return Response(data={'error': _('Contact us not found')}, status=status.HTTP_404_NOT_FOUND)
         contact_us.delete()
         return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
+
+
+
