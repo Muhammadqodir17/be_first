@@ -112,7 +112,7 @@ class CategoryViewSet(ViewSet):
         categories = Category.objects.all()
         paginator = self.pagination_class()
         paginated_categories = paginator.paginate_queryset(categories, request)
-        serializer = GetCategorySerializer(paginated_categories, many=True, context={'request': request})
+        serializer = CategorySerializer(paginated_categories, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
