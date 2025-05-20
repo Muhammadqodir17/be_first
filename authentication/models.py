@@ -39,7 +39,7 @@ OTPTYPES = (
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    phone_number = models.CharField(max_length=15, unique=True, validators=[validate_uz_phone_number_for_model])
+    phone_number = models.CharField(max_length=13, unique=True, validators=[validate_uz_phone_number_for_model])
     first_name = models.CharField(max_length=50, blank=True, null=True, validators=[validate_name_for_model])
     last_name = models.CharField(max_length=50, blank=True, null=True, validators=[validate_name_for_model])
     middle_name = models.CharField(max_length=50, blank=True, null=True, validators=[validate_name_for_model])
