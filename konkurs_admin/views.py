@@ -3,8 +3,8 @@ from django.db.models import Q, Max
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import F
-from django.db.models.expressions import OrderBy
+from django.db.models.functions import Coalesce
+from django.db.models import Value
 from konkurs.models import (
     Competition,
     Participant,
@@ -1082,8 +1082,9 @@ class CompetitionViewSet(ViewSet):
         if comp.status != 1:
             return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         participants = Participant.objects.filter(
-            competition=comp, action=2).annotate(grade=Max('assessment__grade')
-                                                 ).order_by(OrderBy(F('grade').desc(), nulls_last=True))
+            competition=comp, action=2).annotate(
+            grade=Max('assessment__grade')).annotate(sort_grade=Coalesce('grade', Value(-1))
+            ).order_by('-sort_grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
