@@ -11,7 +11,6 @@ while ! nc -z "$POSTGRES_HOST" "$POSTGRES_PORT"; do
     sleep 2
 done
 
-python manage.py makemigrations
 python ./manage.py migrate
 python ./manage.py collectstatic --no-input
 
