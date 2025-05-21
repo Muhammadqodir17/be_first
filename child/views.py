@@ -22,7 +22,7 @@ from konkurs.models import (
     Participant,
     Competition
 )
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 
 """ payment """
 from click_up import ClickUp

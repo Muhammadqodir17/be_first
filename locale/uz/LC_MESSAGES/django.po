@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-20 13:37+0500\n"
-"PO-Revision-Date: 2025-05-20 14:38+0500\n"
+"POT-Creation-Date: 2025-05-21 18:05+0500\n"
+"PO-Revision-Date: 2025-05-21 18:25+0500\n"
 "Last-Translator: None None <None>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -64,19 +64,7 @@ msgstr "Yangi parol va tasdiqlash paroli mos kelmaydi."
 msgid "Confirm password does not match."
 msgstr "Yangi parol va tasdiqlash paroli mos kelmaydi."
 
-#: .\authentication\validators.py:10 .\authentication\validators.py:23
-msgid "Telefon raqamining uzuznligi 13 bo`lishi kerak!"
-msgstr "Telefon telefonning uzuznligi 13 bo`lishi kerak!"
-
-#: .\authentication\validators.py:12 .\authentication\validators.py:25
-msgid "Telefon raqami +998 bilan boshlanishi kerak!"
-msgstr "Telefon raqami +998 bilan boshlanishi kerak!"
-
-#: .\authentication\validators.py:14 .\authentication\validators.py:27
-msgid "Telefon nomer kodi uzbek kodi emas"
-msgstr "Telefon nomer kodi uzbek kodi emas"
-
-#: .\authentication\validators.py:16 .\authentication\validators.py:29
+#: .\authentication\validators.py:10 .\authentication\validators.py:24
 msgid ""
 "Telefon raqami faqat butun sonlar(0,1,2,3,4,5,6,7,8,9) iborat bo`lishi "
 "kerak!"
@@ -84,30 +72,40 @@ msgstr ""
 "Telefon raqami faqat butun sonlar(0,1,2,3,4,5,6,7,8,9) iborat bo`lishi "
 "kerak!"
 
-#: .\authentication\validators.py:34 .\authentication\validators.py:39
-#| msgid "The password must contain at least one number."
+#: .\authentication\validators.py:12 .\authentication\validators.py:30
+msgid "Telefon raqamining uzuznligi 13 bo`lishi kerak!"
+msgstr "Telefon telefonning uzuznligi 13 bo`lishi kerak!"
+
+#: .\authentication\validators.py:14 .\authentication\validators.py:26
+msgid "Telefon raqami +998 bilan boshlanishi kerak!"
+msgstr "Telefon raqami +998 bilan boshlanishi kerak!"
+
+#: .\authentication\validators.py:16 .\authentication\validators.py:28
+msgid "Telefon nomer kodi uzbek kodi emas"
+msgstr "Telefon nomer kodi uzbek kodi emas"
+
+#: .\authentication\validators.py:35 .\authentication\validators.py:40
 msgid "This field must contain only letters."
 msgstr "Bu maydon faqat harflardan iborat bo'lishi kerak."
 
-#: .\authentication\validators.py:44
+#: .\authentication\validators.py:45
 msgid "The password must contain a minimum of 8 characters."
 msgstr "Parol kamida 8 ta belgidan iborat bo'lishi kerak."
 
-#: .\authentication\validators.py:46
+#: .\authentication\validators.py:47
 msgid "The password must contain at least one uppercase letter."
 msgstr "Parol kamida bitta katta harfdan iborat bo'lishi kerak."
 
-#: .\authentication\validators.py:48
+#: .\authentication\validators.py:49
 msgid "The password must contain at least one number."
 msgstr "Parolda kamida bitta raqam bo'lishi kerak."
 
-#: .\authentication\validators.py:50
-#| msgid "The password must contain at least one number."
+#: .\authentication\validators.py:51
 msgid "The password must contain at least one letter."
 msgstr "Parol kamida bitta harfdan iborat bo'lishi kerak."
 
 #: .\authentication\views.py:49 .\authentication\views.py:161
-#: .\authentication\views.py:226 .\authentication\views.py:455
+#: .\authentication\views.py:226 .\authentication\views.py:459
 #: .\child\views.py:131 .\jury\views.py:48 .\konkurs\views.py:305
 msgid "User not found"
 msgstr "Foydalanuvchi topilmadi"
@@ -121,7 +119,6 @@ msgid "Password is incorrect"
 msgstr "Parol noto'g'ri"
 
 #: .\authentication\views.py:145
-#| msgid "Password reset successfully."
 msgid "Logged out successfully"
 msgstr "Hisobdan muvaffaqiyatli chiqdi"
 
@@ -129,8 +126,8 @@ msgstr "Hisobdan muvaffaqiyatli chiqdi"
 msgid "Password set."
 msgstr "Parol o'rnatilgan."
 
-#: .\authentication\views.py:294 .\authentication\views.py:419
-#: .\authentication\views.py:492 .\authentication\views.py:517
+#: .\authentication\views.py:294 .\authentication\views.py:496
+#: .\authentication\views.py:521
 msgid "Try again 12 hours later"
 msgstr "12 soatdan keyin qayta urinib ko'ring"
 
@@ -139,12 +136,10 @@ msgid "Error occured while sending otp code"
 msgstr "OTP kodini yuborishda xatolik yuz berdi"
 
 #: .\authentication\views.py:309
-#| msgid "Jury successfully deleted"
 msgid "Otp successfully send"
 msgstr "Otp muvaffaqiyatli yuborildi"
 
 #: .\authentication\views.py:333
-#| msgid "Code verified."
 msgid "U already verified"
 msgstr "Siz allaqachon tasdiqlangansiz"
 
@@ -156,7 +151,7 @@ msgstr "OTP kod yuborildi"
 msgid "Make sure otp key is right"
 msgstr "otp kaliti to'g'ri ekanligiga ishonch hosil qiling"
 
-#: .\authentication\views.py:340
+#: .\authentication\views.py:340 .\authentication\views.py:419
 msgid "Come back an hours later"
 msgstr "Bir soatdan keyin qaytib keling"
 
@@ -164,16 +159,15 @@ msgstr "Bir soatdan keyin qaytib keling"
 msgid "otp code is wrong"
 msgstr "otp kodi noto'g'ri"
 
-#: .\authentication\views.py:347
+#: .\authentication\views.py:347 .\authentication\views.py:426
 msgid "Code is expired, get new Otp code"
 msgstr "Kod muddati tugagan, yangi OTP kodini oling"
 
 #: .\authentication\views.py:351
-#| msgid "User with this phone number does not exist."
 msgid "User does not exist"
 msgstr "Foydalanuvchi mavjud emas"
 
-#: .\authentication\views.py:363 .\authentication\views.py:424
+#: .\authentication\views.py:363 .\authentication\views.py:428
 msgid "Success"
 msgstr "Muvaffaqiyat"
 
@@ -185,8 +179,8 @@ msgstr "Bu raqam bilan foydalanuvchi topilmadi!!!"
 msgid "Error occured while sending otp"
 msgstr "Op. yuborishda xatolik yuz berdi"
 
-#: .\authentication\views.py:417 .\authentication\views.py:488
-#: .\authentication\views.py:513
+#: .\authentication\views.py:417 .\authentication\views.py:492
+#: .\authentication\views.py:517
 msgid "Otp key is wrong"
 msgstr "Otp kaliti noto'g'ri"
 
@@ -194,30 +188,28 @@ msgstr "Otp kaliti noto'g'ri"
 msgid "Otp code is wrong"
 msgstr "OTP kodi noto'g'ri"
 
-#: .\authentication\views.py:445
+#: .\authentication\views.py:449
 msgid "Otp token is wrong"
 msgstr "Otp tokeni noto'g'ri"
 
-#: .\authentication\views.py:448
-#| msgid "Code expired."
+#: .\authentication\views.py:452
 msgid "Token is expired"
 msgstr "Token muddati tugagan"
 
-#: .\authentication\views.py:463
+#: .\authentication\views.py:467
 msgid "success"
 msgstr "muvaffaqiyat"
 
-#: .\authentication\views.py:494 .\authentication\views.py:519
+#: .\authentication\views.py:498 .\authentication\views.py:523
 msgid "Try again a minute later"
 msgstr "Bir daqiqadan keyin qayta urinib ko'ring"
 
-#: .\authentication\views.py:506 .\authentication\views.py:531
-#| msgid "Failed to send message"
+#: .\authentication\views.py:510 .\authentication\views.py:535
 msgid "Failed to send otp code"
 msgstr "OTP kodini yuborib bo'lmadi"
 
-#: .\child\views.py:63 .\konkurs_admin\views.py:906
-#: .\konkurs_admin\views.py:1014
+#: .\child\views.py:63 .\konkurs_admin\views.py:910
+#: .\konkurs_admin\views.py:1018
 msgid "Comp is not found"
 msgstr "Musobaqa topilmadi"
 
@@ -234,8 +226,8 @@ msgid "Bola muvaffaqiyatli o'chirildi"
 msgstr "Bola muvaffaqiyatli o'chirildi"
 
 #: .\child\views.py:227 .\jury\views.py:122 .\jury\views.py:145
-#: .\konkurs\views.py:179 .\konkurs_admin\views.py:1010
-#: .\konkurs_admin\views.py:1171
+#: .\konkurs\views.py:179 .\konkurs_admin\views.py:1014
+#: .\konkurs_admin\views.py:1177
 msgid "Participant not found"
 msgstr "Ishtirokchi topilmadi"
 
@@ -257,19 +249,19 @@ msgstr ""
 "Hakamlar hay'ati ishingizga baho berdi. Siz o'z fikr-mulohazalaringizni "
 "ko'rishingiz mumkin"
 
-#: .\jury\views.py:84 .\jury\views.py:106 .\konkurs_admin\views.py:190
-#: .\konkurs_admin\views.py:208 .\konkurs_admin\views.py:391
-#: .\konkurs_admin\views.py:406 .\konkurs_admin\views.py:460
-#: .\konkurs_admin\views.py:520 .\konkurs_admin\views.py:580
-#: .\konkurs_admin\views.py:640 .\konkurs_admin\views.py:924
-#: .\konkurs_admin\views.py:974 .\konkurs_admin\views.py:1079
-#: .\konkurs_admin\views.py:1162 .\konkurs_admin\views.py:1379
-#: .\konkurs_admin\views.py:1408
+#: .\jury\views.py:84 .\jury\views.py:106 .\konkurs_admin\views.py:192
+#: .\konkurs_admin\views.py:210 .\konkurs_admin\views.py:393
+#: .\konkurs_admin\views.py:408 .\konkurs_admin\views.py:462
+#: .\konkurs_admin\views.py:522 .\konkurs_admin\views.py:584
+#: .\konkurs_admin\views.py:644 .\konkurs_admin\views.py:928
+#: .\konkurs_admin\views.py:978 .\konkurs_admin\views.py:1083
+#: .\konkurs_admin\views.py:1168 .\konkurs_admin\views.py:1385
+#: .\konkurs_admin\views.py:1414
 msgid "Competition not found"
 msgstr "Musobaqa topilmadi"
 
-#: .\jury\views.py:103 .\konkurs_admin\views.py:142
-#: .\konkurs_admin\views.py:371
+#: .\jury\views.py:103 .\konkurs_admin\views.py:144
+#: .\konkurs_admin\views.py:373
 msgid "Category not found"
 msgstr "Kategoriya topilmadi"
 
@@ -282,7 +274,6 @@ msgid "Assessment not found"
 msgstr "Baho topilmadi"
 
 #: .\jury\views.py:210
-#| msgid "You can not change this grade"
 msgid "You can not change this grade because Competition is finished"
 msgstr "Siz bu bahoni oʻzgartira olmaysiz, chunki tanlov tugagan"
 
@@ -291,7 +282,6 @@ msgid "You can not change this grade"
 msgstr "Siz bu bahoni o`zgartira olmaysiz"
 
 #: .\konkurs\serializers.py:280
-#| msgid "Competition not found"
 msgid "Competition is None"
 msgstr "Raqobat yo'q"
 
@@ -305,7 +295,7 @@ msgstr "%(name)s musobaqasi tugadi. Natijangizni ko'rishingiz mumkin"
 msgid "%(name)s competition is started."
 msgstr "%(name)s musobaqasi boshlandi."
 
-#: .\konkurs\views.py:164 .\konkurs_admin\views.py:1328
+#: .\konkurs\views.py:164 .\konkurs_admin\views.py:1334
 msgid "Comp not found"
 msgstr "Musobaqa topilmadi"
 
@@ -313,9 +303,9 @@ msgstr "Musobaqa topilmadi"
 msgid "Not found"
 msgstr "Topilmadi "
 
-#: .\konkurs\views.py:237 .\konkurs_admin\views.py:976
-#: .\konkurs_admin\views.py:1016 .\konkurs_admin\views.py:1081
-#: .\konkurs_admin\views.py:1381
+#: .\konkurs\views.py:237 .\konkurs_admin\views.py:980
+#: .\konkurs_admin\views.py:1020 .\konkurs_admin\views.py:1085
+#: .\konkurs_admin\views.py:1387
 msgid "Comp is not active"
 msgstr "Musobaqa faol emas"
 
@@ -325,12 +315,10 @@ msgstr "Xabar topilmadi "
 
 #: .\konkurs_admin\serializers.py:304 .\konkurs_admin\serializers.py:563
 #, python-format
-#| msgid "You've already marked this participant"
 msgid "You've already created %(place)s place"
 msgstr "Siz allaqachon %(place)s joy yaratgansiz"
 
 #: .\konkurs_admin\serializers.py:615
-#| msgid "New password and confirm password do not match."
 msgid "Passwords do not match"
 msgstr "Parollar mos kelmaydi"
 
@@ -375,89 +363,87 @@ msgstr "%(name)s tanlovi 3 kundan keyin boshlanadi!"
 msgid "%(comp_name)s competition ends in 3 days!. HURRY!!!"
 msgstr "%(comp_name)s tanlovi 3 kundan keyin tugaydi!. Shoshiling!!!"
 
-#: .\konkurs_admin\views.py:105 .\konkurs_admin\views.py:254
-#: .\konkurs_admin\views.py:307 .\konkurs_admin\views.py:362
-#: .\konkurs_admin\views.py:450 .\konkurs_admin\views.py:511
-#: .\konkurs_admin\views.py:570 .\konkurs_admin\views.py:631
-#: .\konkurs_admin\views.py:965 .\konkurs_admin\views.py:1070
-#: .\konkurs_admin\views.py:1370 .\konkurs_admin\views.py:1472
-#: .\konkurs_admin\views.py:1525 .\konkurs_admin\views.py:3090
-msgid "Size or Page is needed"
-msgstr "Size va Page kerak"
-
 #: .\konkurs_admin\views.py:107 .\konkurs_admin\views.py:256
 #: .\konkurs_admin\views.py:309 .\konkurs_admin\views.py:364
 #: .\konkurs_admin\views.py:452 .\konkurs_admin\views.py:513
-#: .\konkurs_admin\views.py:572 .\konkurs_admin\views.py:633
-#: .\konkurs_admin\views.py:967 .\konkurs_admin\views.py:1072
-#: .\konkurs_admin\views.py:1372 .\konkurs_admin\views.py:1474
-#: .\konkurs_admin\views.py:1527 .\konkurs_admin\views.py:3092
+#: .\konkurs_admin\views.py:574 .\konkurs_admin\views.py:635
+#: .\konkurs_admin\views.py:969 .\konkurs_admin\views.py:1074
+#: .\konkurs_admin\views.py:1376 .\konkurs_admin\views.py:1478
+#: .\konkurs_admin\views.py:1531 .\konkurs_admin\views.py:3096
+msgid "Size or Page is needed"
+msgstr "Size va Page kerak"
+
+#: .\konkurs_admin\views.py:109 .\konkurs_admin\views.py:258
+#: .\konkurs_admin\views.py:311 .\konkurs_admin\views.py:366
+#: .\konkurs_admin\views.py:454 .\konkurs_admin\views.py:515
+#: .\konkurs_admin\views.py:576 .\konkurs_admin\views.py:637
+#: .\konkurs_admin\views.py:971 .\konkurs_admin\views.py:1076
+#: .\konkurs_admin\views.py:1378 .\konkurs_admin\views.py:1480
+#: .\konkurs_admin\views.py:1533 .\konkurs_admin\views.py:3098
 msgid "page must be greater than 0 or must be integer"
 msgstr "page 0 dan katta bo'lishi yoki butun son bo'lishi kerak"
 
-#: .\konkurs_admin\views.py:110 .\konkurs_admin\views.py:259
-#: .\konkurs_admin\views.py:312 .\konkurs_admin\views.py:367
-#: .\konkurs_admin\views.py:455 .\konkurs_admin\views.py:516
-#: .\konkurs_admin\views.py:575 .\konkurs_admin\views.py:636
-#: .\konkurs_admin\views.py:970 .\konkurs_admin\views.py:1075
-#: .\konkurs_admin\views.py:1375 .\konkurs_admin\views.py:1477
-#: .\konkurs_admin\views.py:1530 .\konkurs_admin\views.py:3095
+#: .\konkurs_admin\views.py:112 .\konkurs_admin\views.py:261
+#: .\konkurs_admin\views.py:314 .\konkurs_admin\views.py:369
+#: .\konkurs_admin\views.py:457 .\konkurs_admin\views.py:518
+#: .\konkurs_admin\views.py:579 .\konkurs_admin\views.py:640
+#: .\konkurs_admin\views.py:974 .\konkurs_admin\views.py:1079
+#: .\konkurs_admin\views.py:1381 .\konkurs_admin\views.py:1483
+#: .\konkurs_admin\views.py:1536 .\konkurs_admin\views.py:3101
 msgid "page size must be greater than 0 or must be integer"
 msgstr "page size 0 dan katta bo'lishi yoki butun son bo'lishi kerak"
 
-#: .\konkurs_admin\views.py:210 .\konkurs_admin\views.py:1315
-#: .\konkurs_admin\views.py:2220 .\konkurs_admin\views.py:2387
-#: .\konkurs_admin\views.py:2813 .\konkurs_admin\views.py:2923
-#: .\konkurs_admin\views.py:3032 .\konkurs_admin\views.py:3140
+#: .\konkurs_admin\views.py:212 .\konkurs_admin\views.py:1321
+#: .\konkurs_admin\views.py:2226 .\konkurs_admin\views.py:2393
+#: .\konkurs_admin\views.py:2819 .\konkurs_admin\views.py:2929
+#: .\konkurs_admin\views.py:3038 .\konkurs_admin\views.py:3146
 msgid "Successfully deleted"
 msgstr "Muvaffaqiyatli oʻchirib tashlandi"
 
-#: .\konkurs_admin\views.py:462 .\konkurs_admin\views.py:522
-#: .\konkurs_admin\views.py:642
+#: .\konkurs_admin\views.py:464 .\konkurs_admin\views.py:524
+#: .\konkurs_admin\views.py:646
 msgid "This comp is not finished"
 msgstr "Bu musobaqa tugamadi"
 
-#: .\konkurs_admin\views.py:582
+#: .\konkurs_admin\views.py:586
 msgid "This com is not finished"
 msgstr "Bu musobaqa tugamadi"
 
-#: .\konkurs_admin\views.py:926
+#: .\konkurs_admin\views.py:930
 msgid "Competition successfully deleted"
 msgstr "Musobaqa muvaffaqiyatli oʻchirildi"
 
-#: .\konkurs_admin\views.py:1021
+#: .\konkurs_admin\views.py:1025
 #, python-format
 msgid "Dear %(participant_name)s."
 msgstr "Hurmatli %(participant_name)s."
 
-#: .\konkurs_admin\views.py:1022
+#: .\konkurs_admin\views.py:1026
 #, python-format
 msgid "You have an error to fill register or work for the %(comp_name)s"
 msgstr ""
 "Sizda registrni toʻldirish yoki %(comp_name)s bilan ishlashda xatolik yuz "
 "berdi"
 
-#: .\konkurs_admin\views.py:1029
+#: .\konkurs_admin\views.py:1033
 msgid "Invalid action"
 msgstr "Toto`g`ri action"
 
-#: .\konkurs_admin\views.py:1031
+#: .\konkurs_admin\views.py:1035
 #, python-format
 msgid "Request %(action)s"
 msgstr "So‘rov %(action)s"
 
-#: .\konkurs_admin\views.py:1190 .\konkurs_admin\views.py:1267
-#: .\konkurs_admin\views.py:1313
-#| msgid "User not found"
+#: .\konkurs_admin\views.py:1196 .\konkurs_admin\views.py:1273
+#: .\konkurs_admin\views.py:1319
 msgid "Winner not found"
 msgstr "G'olib topilmadi"
 
-#: .\konkurs_admin\views.py:1286
-#| msgid "Participant not found"
+#: .\konkurs_admin\views.py:1292
 msgid "Matching participant not found"
 msgstr "Mos ishtirokchi topilmadi"
 
-#: .\konkurs_admin\views.py:1290
+#: .\konkurs_admin\views.py:1296
 msgid ""
 "Participant is not belong to this competition!!!. Please, choose participant"
 " which belongs to current competition"
@@ -465,76 +451,68 @@ msgstr ""
 "Ishtirokchi bu tanlovga tegishli emas!!!. Iltimos, joriy tanlovga tegishli "
 "ishtirokchini tanlang"
 
-#: .\konkurs_admin\views.py:1295
+#: .\konkurs_admin\views.py:1301
 msgid "Participant must be marked and participants request must be accepted"
 msgstr ""
 "Ishtirokchi belgilanishi va ishtirokchilarning so'rovi qabul qilinishi kerak"
 
-#: .\konkurs_admin\views.py:1410
+#: .\konkurs_admin\views.py:1416
 msgid "Message cannot be empty"
 msgstr "Xabar boʻsh boʻlishi mumkin emas"
 
-#: .\konkurs_admin\views.py:1422
+#: .\konkurs_admin\views.py:1428
 msgid "It has no any other participants to send notification"
 msgstr "Unda bildirishnoma yuborish uchun boshqa ishtirokchilar yo'q"
 
-#: .\konkurs_admin\views.py:1428
+#: .\konkurs_admin\views.py:1434
 msgid "Thank you message sent to all participants"
 msgstr "Barcha ishtirokchilarga minnatdorchilik xati yuborildi"
 
-#: .\konkurs_admin\views.py:1555 .\konkurs_admin\views.py:1726
-#: .\konkurs_admin\views.py:1881 .\konkurs_admin\views.py:1899
+#: .\konkurs_admin\views.py:1561 .\konkurs_admin\views.py:1732
+#: .\konkurs_admin\views.py:1887 .\konkurs_admin\views.py:1905
 msgid "Jury not found"
 msgstr "Hakamlar hay'ati topilmadi"
 
-#: .\konkurs_admin\views.py:1901
+#: .\konkurs_admin\views.py:1907
 msgid "Jury successfully deleted"
 msgstr "Hakamlar hay’ati muvaffaqiyatli o‘chirildi"
 
-#: .\konkurs_admin\views.py:1918 .\konkurs_admin\views.py:2003
-#: .\konkurs_admin\views.py:2023
-#| msgid "Child not found"
+#: .\konkurs_admin\views.py:1924 .\konkurs_admin\views.py:2009
+#: .\konkurs_admin\views.py:2029
 msgid "SocialMedia not found"
 msgstr "Ijtimoiy tarmoq topilmadi"
 
-#: .\konkurs_admin\views.py:2025
-#| msgid "Child successfully deleted."
+#: .\konkurs_admin\views.py:2031
 msgid "Social media successfully deleted"
 msgstr "Ijtimoiy media muvaffaqiyatli oʻchirildi"
 
-#: .\konkurs_admin\views.py:2042 .\konkurs_admin\views.py:2057
-#: .\konkurs_admin\views.py:2198 .\konkurs_admin\views.py:2218
-#| msgid "Category not found"
+#: .\konkurs_admin\views.py:2048 .\konkurs_admin\views.py:2063
+#: .\konkurs_admin\views.py:2204 .\konkurs_admin\views.py:2224
 msgid "Contact Info not found"
 msgstr "Aloqa ma'lumotlari topilmadi"
 
-#: .\konkurs_admin\views.py:2237 .\konkurs_admin\views.py:2252
-#: .\konkurs_admin\views.py:2365 .\konkurs_admin\views.py:2385
-#| msgid "Assessment not found"
+#: .\konkurs_admin\views.py:2243 .\konkurs_admin\views.py:2258
+#: .\konkurs_admin\views.py:2371 .\konkurs_admin\views.py:2391
 msgid "About result not found"
 msgstr "Natija topilmadi"
 
-#: .\konkurs_admin\views.py:2404 .\konkurs_admin\views.py:2419
-#: .\konkurs_admin\views.py:2792 .\konkurs_admin\views.py:2811
-#| msgid "Comp is not found"
+#: .\konkurs_admin\views.py:2410 .\konkurs_admin\views.py:2425
+#: .\konkurs_admin\views.py:2798 .\konkurs_admin\views.py:2817
 msgid "About us not found"
 msgstr "Biz haqimizda topilmadi"
 
-#: .\konkurs_admin\views.py:2828 .\konkurs_admin\views.py:2843
-#: .\konkurs_admin\views.py:2902 .\konkurs_admin\views.py:2921
-#| msgid "Jury not found"
+#: .\konkurs_admin\views.py:2834 .\konkurs_admin\views.py:2849
+#: .\konkurs_admin\views.py:2908 .\konkurs_admin\views.py:2927
 msgid "Policy not found"
 msgstr "Siyosat topilmadi"
 
-#: .\konkurs_admin\views.py:2940 .\konkurs_admin\views.py:3011
-#: .\konkurs_admin\views.py:3030
-#| msgid "User not found"
+#: .\konkurs_admin\views.py:2946 .\konkurs_admin\views.py:3017
+#: .\konkurs_admin\views.py:3036
 msgid "Result image not found"
 msgstr "Natija tasviri topilmadi"
 
-#: .\konkurs_admin\views.py:3049 .\konkurs_admin\views.py:3119
-#: .\konkurs_admin\views.py:3138
-#| msgid "Comp is not found"
+#: .\konkurs_admin\views.py:3055 .\konkurs_admin\views.py:3125
+#: .\konkurs_admin\views.py:3144
 msgid "Contact us not found"
 msgstr "Biz bilan bog'lanish topilmadi"
 

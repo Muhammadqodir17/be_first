@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Winner, Notification
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 
 
 @receiver(post_save, sender=Winner)

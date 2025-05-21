@@ -2,7 +2,7 @@ import jwt
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 from .models import BlacklistedAccessToken
 
 

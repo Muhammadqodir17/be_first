@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from konkurs_admin.models import Notification
 from .models import Assessment
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 
 
 @receiver(post_save, sender=Assessment)
