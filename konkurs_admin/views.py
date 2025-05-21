@@ -523,7 +523,9 @@ class CompetitionViewSet(ViewSet):
         if comp.status != 2:
             return Response(data={'error': _('This comp is not finished')}, status=status.HTTP_400_BAD_REQUEST)
         participants = Participant.objects.filter(
-            competition=comp, action=2).annotate(grade=Max('assessment__grade')).order_by('-grade')
+            competition=comp, action=2).annotate(grade=Max('assessment__grade')).annotate(
+            sort_grade=Coalesce('grade', Value(-1))
+        ).order_by('-sort_grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
@@ -1084,7 +1086,7 @@ class CompetitionViewSet(ViewSet):
         participants = Participant.objects.filter(
             competition=comp, action=2).annotate(
             grade=Max('assessment__grade')).annotate(sort_grade=Coalesce('grade', Value(-1))
-            ).order_by('-sort_grade')
+                                                     ).order_by('-sort_grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
@@ -1292,12 +1294,12 @@ class CompetitionViewSet(ViewSet):
         if participant.competition != winner.competition:
             return Response(data={
                 'error': _('Participant is not belong to this competition!!!. '
-                         'Please, choose participant which belongs to current competition')},
+                           'Please, choose participant which belongs to current competition')},
                 status=status.HTTP_400_BAD_REQUEST)
 
         if participant.action != 2 and participant.marked_status != 2:
             return Response(data={'error': _('Participant must be marked and participants '
-                                           'request must be accepted')}, status=status.HTTP_400_BAD_REQUEST)
+                                             'request must be accepted')}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.validated_data['participant'] = participant
         serializer.save()
@@ -3142,6 +3144,3 @@ class ContactUsViewSet(ViewSet):
             return Response(data={'error': _('Contact us not found')}, status=status.HTTP_404_NOT_FOUND)
         contact_us.delete()
         return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
-
-
-
