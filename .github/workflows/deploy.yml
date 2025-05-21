@@ -50,8 +50,10 @@ jobs:
             echo "Connected to $(whoami)@$(hostname)"
             cd /var/www/be_first/ || { echo "Failed to cd to /var/www/be_first/"; exit 1; }
             git fetch origin main || { echo "Git fetch failed"; exit 1; }
+            git reset --hard HEAD || { echo "Git reset failed"; exit 1; }
+            git clean -fd || { echo "Git clean failed"; exit 1; }
             git checkout main || { echo "Git checkout failed"; exit 1; }
-            git pull origin main || { echo "Git pull failed"; exit 1; }
+            git pull --rebase origin main || { echo "Git pull failed"; exit 1; }
             if command -v docker-compose >/dev/null 2>&1; then
               docker-compose down || { echo "Docker-compose down failed"; exit 1; }
               docker-compose pull || { echo "Docker-compose pull failed"; exit 1; }
