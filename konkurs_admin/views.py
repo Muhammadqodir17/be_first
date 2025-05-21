@@ -3,6 +3,8 @@ from django.db.models import Q, Max
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import F
+from django.db.models.expressions import OrderBy
 from konkurs.models import (
     Competition,
     Participant,
@@ -1080,7 +1082,8 @@ class CompetitionViewSet(ViewSet):
         if comp.status != 1:
             return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
         participants = Participant.objects.filter(
-            competition=comp, action=2).annotate(grade=Max('assessment__grade')).order_by('-grade')
+            competition=comp, action=2).annotate(grade=Max('assessment__grade')
+                                                 ).order_by(OrderBy(F('grade').desc(), nulls_last=True))
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
@@ -1379,7 +1382,7 @@ class CompetitionViewSet(ViewSet):
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 1:
             return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
-        participants = Participant.objects.filter(competition=comp, winner=False)
+        participants = Participant.objects.filter(competition=comp, winner=False, action=2)
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
         serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
