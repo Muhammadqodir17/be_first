@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 from .utils import is_valid_tokens
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from .validators import (

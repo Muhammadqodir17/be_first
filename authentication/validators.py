@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 import re
 from rest_framework import serializers
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 
 def validate_uz_phone_number(phone_number: str):
     number_codes = ('99', '98', '97', '95', '94', '93', '91', '90', '77', '55', '33', '71')

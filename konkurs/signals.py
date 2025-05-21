@@ -7,7 +7,7 @@ from konkurs.models import (
     Competition,
     Participant
 )
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 
 
 @receiver(post_save, sender=Competition)

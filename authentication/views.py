@@ -1,6 +1,6 @@
 from rest_framework import status
 from datetime import datetime
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema

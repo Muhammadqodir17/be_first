@@ -17,7 +17,7 @@ from .serializers import (
 from rest_framework.response import Response
 from rest_framework import status
 from authentication.models import User
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 
 
 class JuryViewSet(ViewSet):

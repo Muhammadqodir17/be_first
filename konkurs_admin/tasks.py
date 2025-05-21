@@ -6,7 +6,7 @@ from config.wsgi import application
 from konkurs_admin.models import Notification
 from authentication.models import User
 from konkurs.models import Competition
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy  as _
 
 def send_notification_to_all_users(competition, message):
     users = User.objects.filter(role=1)  # Get all users

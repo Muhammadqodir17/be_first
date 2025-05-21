@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-20 13:25+0500\n"
-"PO-Revision-Date: 2025-05-20 14:43+0500\n"
+"POT-Creation-Date: 2025-05-21 18:05+0500\n"
+"PO-Revision-Date: 2025-05-21 18:26+0500\n"
 "Last-Translator: None None <None>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -33,7 +33,6 @@ msgid "Permission denied"
 msgstr "Доступ запрещен"
 
 #: .\authentication\serializers.py:27
-#| msgid "Inccorrect email format"
 msgid "Incorrect email format"
 msgstr "Неправильный формат электронной почты"
 
@@ -52,58 +51,54 @@ msgid "Tokens are already in blacklist"
 msgstr "Токены уже в черном списке"
 
 #: .\authentication\serializers.py:111
-#| msgid "New password and confirm password do not match."
 msgid "Password confirmation does not match."
 msgstr "Подтверждение пароля не совпадает."
 
 #: .\authentication\serializers.py:132
-#| msgid "New password and confirm password do not match."
 msgid "Confirm password does not match."
 msgstr "Подтвердите, пароль не совпадает."
 
-#: .\authentication\validators.py:10 .\authentication\validators.py:23
-msgid "Telefon raqamining uzuznligi 13 bo`lishi kerak!"
-msgstr "Номер телефона должен быть длиной 13 символов!"
-
-#: .\authentication\validators.py:12 .\authentication\validators.py:25
-msgid "Telefon raqami +998 bilan boshlanishi kerak!"
-msgstr "Номер телефона должен начинаться с +998!"
-
-#: .\authentication\validators.py:14 .\authentication\validators.py:27
-msgid "Telefon nomer kodi uzbek kodi emas"
-msgstr "Код телефонного номера не является узбекским кодом."
-
-#: .\authentication\validators.py:16 .\authentication\validators.py:29
+#: .\authentication\validators.py:10 .\authentication\validators.py:24
 msgid ""
 "Telefon raqami faqat butun sonlar(0,1,2,3,4,5,6,7,8,9) iborat bo`lishi "
 "kerak!"
 msgstr ""
 "Номер телефона должен состоять только из целых чисел (0,1,2,3,4,5,6,7,8,9)!"
 
-#: .\authentication\validators.py:34 .\authentication\validators.py:39
-#| msgid "The password must contain at least one number."
+#: .\authentication\validators.py:12 .\authentication\validators.py:30
+msgid "Telefon raqamining uzuznligi 13 bo`lishi kerak!"
+msgstr "Номер телефона должен быть длиной 13 символов!"
+
+#: .\authentication\validators.py:14 .\authentication\validators.py:26
+msgid "Telefon raqami +998 bilan boshlanishi kerak!"
+msgstr "Номер телефона должен начинаться с +998!"
+
+#: .\authentication\validators.py:16 .\authentication\validators.py:28
+msgid "Telefon nomer kodi uzbek kodi emas"
+msgstr "Код телефонного номера не является узбекским кодом."
+
+#: .\authentication\validators.py:35 .\authentication\validators.py:40
 msgid "This field must contain only letters."
 msgstr "Это поле должно содержать только буквы."
 
-#: .\authentication\validators.py:44
+#: .\authentication\validators.py:45
 msgid "The password must contain a minimum of 8 characters."
 msgstr "Пароль должен содержать не менее 8 символов."
 
-#: .\authentication\validators.py:46
+#: .\authentication\validators.py:47
 msgid "The password must contain at least one uppercase letter."
 msgstr "Пароль должен содержать хотя бы одну заглавную букву."
 
-#: .\authentication\validators.py:48
+#: .\authentication\validators.py:49
 msgid "The password must contain at least one number."
 msgstr "Пароль должен содержать хотя бы одну цифру."
 
-#: .\authentication\validators.py:50
-#| msgid "The password must contain at least one number."
+#: .\authentication\validators.py:51
 msgid "The password must contain at least one letter."
 msgstr "Пароль должен содержать хотя бы одну букву."
 
 #: .\authentication\views.py:49 .\authentication\views.py:161
-#: .\authentication\views.py:226 .\authentication\views.py:455
+#: .\authentication\views.py:226 .\authentication\views.py:459
 #: .\child\views.py:131 .\jury\views.py:48 .\konkurs\views.py:305
 msgid "User not found"
 msgstr "Пользователь не найден"
@@ -117,7 +112,6 @@ msgid "Password is incorrect"
 msgstr "Пароль неверный"
 
 #: .\authentication\views.py:145
-#| msgid "Password reset successfully."
 msgid "Logged out successfully"
 msgstr "Успешно вышел из системы"
 
@@ -125,8 +119,8 @@ msgstr "Успешно вышел из системы"
 msgid "Password set."
 msgstr "Пароль установлен."
 
-#: .\authentication\views.py:294 .\authentication\views.py:419
-#: .\authentication\views.py:492 .\authentication\views.py:517
+#: .\authentication\views.py:294 .\authentication\views.py:496
+#: .\authentication\views.py:521
 msgid "Try again 12 hours later"
 msgstr "Попробуйте еще раз через 12 часов."
 
@@ -135,12 +129,10 @@ msgid "Error occured while sending otp code"
 msgstr "Произошла ошибка при отправке одноразового пароля"
 
 #: .\authentication\views.py:309
-#| msgid "Jury successfully deleted"
 msgid "Otp successfully send"
 msgstr "OTP успешно отправлен"
 
 #: .\authentication\views.py:333
-#| msgid "Code verified."
 msgid "U already verified"
 msgstr "Вы уже проверены"
 
@@ -152,7 +144,7 @@ msgstr "Отправить одноразовый код"
 msgid "Make sure otp key is right"
 msgstr "Убедитесь, что одноразовый пароль указан правильно."
 
-#: .\authentication\views.py:340
+#: .\authentication\views.py:340 .\authentication\views.py:419
 msgid "Come back an hours later"
 msgstr "Возвращайтесь через час."
 
@@ -160,16 +152,15 @@ msgstr "Возвращайтесь через час."
 msgid "otp code is wrong"
 msgstr "Неправильный код otp"
 
-#: .\authentication\views.py:347
+#: .\authentication\views.py:347 .\authentication\views.py:426
 msgid "Code is expired, get new Otp code"
 msgstr "Код устарел, получите новый OTP-код"
 
 #: .\authentication\views.py:351
-#| msgid "User with this phone number does not exist."
 msgid "User does not exist"
 msgstr "Пользователь не существует"
 
-#: .\authentication\views.py:363 .\authentication\views.py:424
+#: .\authentication\views.py:363 .\authentication\views.py:428
 msgid "Success"
 msgstr "Успех"
 
@@ -181,8 +172,8 @@ msgstr "Пользователь с таким номером не найден!
 msgid "Error occured while sending otp"
 msgstr "Произошла ошибка при отправке одноразового пароля"
 
-#: .\authentication\views.py:417 .\authentication\views.py:488
-#: .\authentication\views.py:513
+#: .\authentication\views.py:417 .\authentication\views.py:492
+#: .\authentication\views.py:517
 msgid "Otp key is wrong"
 msgstr "Неправильный ключ OTP"
 
@@ -190,30 +181,28 @@ msgstr "Неправильный ключ OTP"
 msgid "Otp code is wrong"
 msgstr "Неправильный одноразовый код"
 
-#: .\authentication\views.py:445
+#: .\authentication\views.py:449
 msgid "Otp token is wrong"
 msgstr "Неверный токен OTP"
 
-#: .\authentication\views.py:448
-#| msgid "Code expired."
+#: .\authentication\views.py:452
 msgid "Token is expired"
 msgstr "Срок действия токена истек"
 
-#: .\authentication\views.py:463
+#: .\authentication\views.py:467
 msgid "success"
 msgstr "успех"
 
-#: .\authentication\views.py:494 .\authentication\views.py:519
+#: .\authentication\views.py:498 .\authentication\views.py:523
 msgid "Try again a minute later"
 msgstr "Попробуйте еще раз через минуту."
 
-#: .\authentication\views.py:506 .\authentication\views.py:531
-#| msgid "Failed to send message"
+#: .\authentication\views.py:510 .\authentication\views.py:535
 msgid "Failed to send otp code"
 msgstr "Не удалось отправить одноразовый код"
 
-#: .\child\views.py:63 .\konkurs_admin\views.py:906
-#: .\konkurs_admin\views.py:1014
+#: .\child\views.py:63 .\konkurs_admin\views.py:910
+#: .\konkurs_admin\views.py:1018
 msgid "Comp is not found"
 msgstr "Конкурентов не обнаружено"
 
@@ -230,8 +219,8 @@ msgid "Bola muvaffaqiyatli o'chirildi"
 msgstr "Ребенок успешно удален"
 
 #: .\child\views.py:227 .\jury\views.py:122 .\jury\views.py:145
-#: .\konkurs\views.py:179 .\konkurs_admin\views.py:1010
-#: .\konkurs_admin\views.py:1171
+#: .\konkurs\views.py:179 .\konkurs_admin\views.py:1014
+#: .\konkurs_admin\views.py:1177
 msgid "Participant not found"
 msgstr "Участник не найден"
 
@@ -251,19 +240,19 @@ msgstr "Английский"
 msgid "Jury graded your work. You can see your feedbacks"
 msgstr "Жюри оценило вашу работу. Вы можете увидеть свои отзывы"
 
-#: .\jury\views.py:84 .\jury\views.py:106 .\konkurs_admin\views.py:190
-#: .\konkurs_admin\views.py:208 .\konkurs_admin\views.py:391
-#: .\konkurs_admin\views.py:406 .\konkurs_admin\views.py:460
-#: .\konkurs_admin\views.py:520 .\konkurs_admin\views.py:580
-#: .\konkurs_admin\views.py:640 .\konkurs_admin\views.py:924
-#: .\konkurs_admin\views.py:974 .\konkurs_admin\views.py:1079
-#: .\konkurs_admin\views.py:1162 .\konkurs_admin\views.py:1379
-#: .\konkurs_admin\views.py:1408
+#: .\jury\views.py:84 .\jury\views.py:106 .\konkurs_admin\views.py:192
+#: .\konkurs_admin\views.py:210 .\konkurs_admin\views.py:393
+#: .\konkurs_admin\views.py:408 .\konkurs_admin\views.py:462
+#: .\konkurs_admin\views.py:522 .\konkurs_admin\views.py:584
+#: .\konkurs_admin\views.py:644 .\konkurs_admin\views.py:928
+#: .\konkurs_admin\views.py:978 .\konkurs_admin\views.py:1083
+#: .\konkurs_admin\views.py:1168 .\konkurs_admin\views.py:1385
+#: .\konkurs_admin\views.py:1414
 msgid "Competition not found"
 msgstr "Конкуренты не найдены"
 
-#: .\jury\views.py:103 .\konkurs_admin\views.py:142
-#: .\konkurs_admin\views.py:371
+#: .\jury\views.py:103 .\konkurs_admin\views.py:144
+#: .\konkurs_admin\views.py:373
 msgid "Category not found"
 msgstr "Категория не найдена"
 
@@ -276,7 +265,6 @@ msgid "Assessment not found"
 msgstr "Оценка не найдена"
 
 #: .\jury\views.py:210
-#| msgid "You can not change this grade"
 msgid "You can not change this grade because Competition is finished"
 msgstr "Вы не можете изменить эту оценку, так как конкурс завершен."
 
@@ -285,7 +273,6 @@ msgid "You can not change this grade"
 msgstr "Вы не можете изменить эту оценку."
 
 #: .\konkurs\serializers.py:280
-#| msgid "Competition not found"
 msgid "Competition is None"
 msgstr "Конкуренция отсутствует"
 
@@ -299,7 +286,7 @@ msgstr "%(name)s конкурс завершен. Вы можете увидет
 msgid "%(name)s competition is started."
 msgstr "Конкурс %(name)s начался."
 
-#: .\konkurs\views.py:164 .\konkurs_admin\views.py:1328
+#: .\konkurs\views.py:164 .\konkurs_admin\views.py:1334
 msgid "Comp not found"
 msgstr "Конкуренты не найдены"
 
@@ -307,9 +294,9 @@ msgstr "Конкуренты не найдены"
 msgid "Not found"
 msgstr "Не найдено"
 
-#: .\konkurs\views.py:237 .\konkurs_admin\views.py:976
-#: .\konkurs_admin\views.py:1016 .\konkurs_admin\views.py:1081
-#: .\konkurs_admin\views.py:1381
+#: .\konkurs\views.py:237 .\konkurs_admin\views.py:980
+#: .\konkurs_admin\views.py:1020 .\konkurs_admin\views.py:1085
+#: .\konkurs_admin\views.py:1387
 msgid "Comp is not active"
 msgstr "Конкурс не активен"
 
@@ -319,12 +306,10 @@ msgstr "Уведомление не найдено"
 
 #: .\konkurs_admin\serializers.py:304 .\konkurs_admin\serializers.py:563
 #, python-format
-#| msgid "You've already marked this participant"
 msgid "You've already created %(place)s place"
 msgstr "Вы уже создали %(place)s место"
 
 #: .\konkurs_admin\serializers.py:615
-#| msgid "New password and confirm password do not match."
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
@@ -368,88 +353,86 @@ msgstr "Конкурс %(name)s начнется через 3 дня!"
 msgid "%(comp_name)s competition ends in 3 days!. HURRY!!!"
 msgstr "Конкурс %(comp_name)s заканчивается через 3 дня!. СПЕШИТЕ!!!"
 
-#: .\konkurs_admin\views.py:105 .\konkurs_admin\views.py:254
-#: .\konkurs_admin\views.py:307 .\konkurs_admin\views.py:362
-#: .\konkurs_admin\views.py:450 .\konkurs_admin\views.py:511
-#: .\konkurs_admin\views.py:570 .\konkurs_admin\views.py:631
-#: .\konkurs_admin\views.py:965 .\konkurs_admin\views.py:1070
-#: .\konkurs_admin\views.py:1370 .\konkurs_admin\views.py:1472
-#: .\konkurs_admin\views.py:1525 .\konkurs_admin\views.py:3090
-msgid "Size or Page is needed"
-msgstr "Нужен размер или страница"
-
 #: .\konkurs_admin\views.py:107 .\konkurs_admin\views.py:256
 #: .\konkurs_admin\views.py:309 .\konkurs_admin\views.py:364
 #: .\konkurs_admin\views.py:452 .\konkurs_admin\views.py:513
-#: .\konkurs_admin\views.py:572 .\konkurs_admin\views.py:633
-#: .\konkurs_admin\views.py:967 .\konkurs_admin\views.py:1072
-#: .\konkurs_admin\views.py:1372 .\konkurs_admin\views.py:1474
-#: .\konkurs_admin\views.py:1527 .\konkurs_admin\views.py:3092
+#: .\konkurs_admin\views.py:574 .\konkurs_admin\views.py:635
+#: .\konkurs_admin\views.py:969 .\konkurs_admin\views.py:1074
+#: .\konkurs_admin\views.py:1376 .\konkurs_admin\views.py:1478
+#: .\konkurs_admin\views.py:1531 .\konkurs_admin\views.py:3096
+msgid "Size or Page is needed"
+msgstr "Нужен размер или страница"
+
+#: .\konkurs_admin\views.py:109 .\konkurs_admin\views.py:258
+#: .\konkurs_admin\views.py:311 .\konkurs_admin\views.py:366
+#: .\konkurs_admin\views.py:454 .\konkurs_admin\views.py:515
+#: .\konkurs_admin\views.py:576 .\konkurs_admin\views.py:637
+#: .\konkurs_admin\views.py:971 .\konkurs_admin\views.py:1076
+#: .\konkurs_admin\views.py:1378 .\konkurs_admin\views.py:1480
+#: .\konkurs_admin\views.py:1533 .\konkurs_admin\views.py:3098
 msgid "page must be greater than 0 or must be integer"
 msgstr "страница должна быть больше 0 или должна быть целым числом"
 
-#: .\konkurs_admin\views.py:110 .\konkurs_admin\views.py:259
-#: .\konkurs_admin\views.py:312 .\konkurs_admin\views.py:367
-#: .\konkurs_admin\views.py:455 .\konkurs_admin\views.py:516
-#: .\konkurs_admin\views.py:575 .\konkurs_admin\views.py:636
-#: .\konkurs_admin\views.py:970 .\konkurs_admin\views.py:1075
-#: .\konkurs_admin\views.py:1375 .\konkurs_admin\views.py:1477
-#: .\konkurs_admin\views.py:1530 .\konkurs_admin\views.py:3095
+#: .\konkurs_admin\views.py:112 .\konkurs_admin\views.py:261
+#: .\konkurs_admin\views.py:314 .\konkurs_admin\views.py:369
+#: .\konkurs_admin\views.py:457 .\konkurs_admin\views.py:518
+#: .\konkurs_admin\views.py:579 .\konkurs_admin\views.py:640
+#: .\konkurs_admin\views.py:974 .\konkurs_admin\views.py:1079
+#: .\konkurs_admin\views.py:1381 .\konkurs_admin\views.py:1483
+#: .\konkurs_admin\views.py:1536 .\konkurs_admin\views.py:3101
 msgid "page size must be greater than 0 or must be integer"
 msgstr "размер страницы должен быть больше 0 или должен быть целым числом"
 
-#: .\konkurs_admin\views.py:210 .\konkurs_admin\views.py:1315
-#: .\konkurs_admin\views.py:2220 .\konkurs_admin\views.py:2387
-#: .\konkurs_admin\views.py:2813 .\konkurs_admin\views.py:2923
-#: .\konkurs_admin\views.py:3032 .\konkurs_admin\views.py:3140
+#: .\konkurs_admin\views.py:212 .\konkurs_admin\views.py:1321
+#: .\konkurs_admin\views.py:2226 .\konkurs_admin\views.py:2393
+#: .\konkurs_admin\views.py:2819 .\konkurs_admin\views.py:2929
+#: .\konkurs_admin\views.py:3038 .\konkurs_admin\views.py:3146
 msgid "Successfully deleted"
 msgstr "Успешно удалено"
 
-#: .\konkurs_admin\views.py:462 .\konkurs_admin\views.py:522
-#: .\konkurs_admin\views.py:642
+#: .\konkurs_admin\views.py:464 .\konkurs_admin\views.py:524
+#: .\konkurs_admin\views.py:646
 msgid "This comp is not finished"
 msgstr "Этот конкурс не закончен"
 
-#: .\konkurs_admin\views.py:582
+#: .\konkurs_admin\views.py:586
 msgid "This com is not finished"
 msgstr "Этот ком не закончен"
 
-#: .\konkurs_admin\views.py:926
+#: .\konkurs_admin\views.py:930
 msgid "Competition successfully deleted"
 msgstr "Конкурс успешно удален"
 
-#: .\konkurs_admin\views.py:1021
+#: .\konkurs_admin\views.py:1025
 #, python-format
 msgid "Dear %(participant_name)s."
 msgstr "Уважаемый %(participant_name)s."
 
-#: .\konkurs_admin\views.py:1022
+#: .\konkurs_admin\views.py:1026
 #, python-format
 msgid "You have an error to fill register or work for the %(comp_name)s"
 msgstr ""
 "У вас есть ошибка при заполнении регистра или работе для %(comp_name)s"
 
-#: .\konkurs_admin\views.py:1029
+#: .\konkurs_admin\views.py:1033
 msgid "Invalid action"
 msgstr "Недопустимое действие"
 
-#: .\konkurs_admin\views.py:1031
+#: .\konkurs_admin\views.py:1035
 #, python-format
 msgid "Request %(action)s"
 msgstr "Запрос %(action)s"
 
-#: .\konkurs_admin\views.py:1190 .\konkurs_admin\views.py:1267
-#: .\konkurs_admin\views.py:1313
-#| msgid "User not found"
+#: .\konkurs_admin\views.py:1196 .\konkurs_admin\views.py:1273
+#: .\konkurs_admin\views.py:1319
 msgid "Winner not found"
 msgstr "Победитель не найден"
 
-#: .\konkurs_admin\views.py:1286
-#| msgid "Participant not found"
+#: .\konkurs_admin\views.py:1292
 msgid "Matching participant not found"
 msgstr "Соответствующий участник не найден"
 
-#: .\konkurs_admin\views.py:1290
+#: .\konkurs_admin\views.py:1296
 msgid ""
 "Participant is not belong to this competition!!!. Please, choose participant"
 " which belongs to current competition"
@@ -457,75 +440,67 @@ msgstr ""
 "Участник не принадлежит к этому конкурсу!!!. Пожалуйста, выберите участника,"
 " который принадлежит к текущему конкурсу"
 
-#: .\konkurs_admin\views.py:1295
+#: .\konkurs_admin\views.py:1301
 msgid "Participant must be marked and participants request must be accepted"
 msgstr "Участник должен быть отмечен, а запрос участника должен быть принят."
 
-#: .\konkurs_admin\views.py:1410
+#: .\konkurs_admin\views.py:1416
 msgid "Message cannot be empty"
 msgstr "Сообщение не может быть пустым"
 
-#: .\konkurs_admin\views.py:1422
+#: .\konkurs_admin\views.py:1428
 msgid "It has no any other participants to send notification"
 msgstr "Других участников для отправки уведомлений нет."
 
-#: .\konkurs_admin\views.py:1428
+#: .\konkurs_admin\views.py:1434
 msgid "Thank you message sent to all participants"
 msgstr "Благодарственное сообщение отправлено всем участникам"
 
-#: .\konkurs_admin\views.py:1555 .\konkurs_admin\views.py:1726
-#: .\konkurs_admin\views.py:1881 .\konkurs_admin\views.py:1899
+#: .\konkurs_admin\views.py:1561 .\konkurs_admin\views.py:1732
+#: .\konkurs_admin\views.py:1887 .\konkurs_admin\views.py:1905
 msgid "Jury not found"
 msgstr "Жюри не найдено"
 
-#: .\konkurs_admin\views.py:1901
+#: .\konkurs_admin\views.py:1907
 msgid "Jury successfully deleted"
 msgstr "Жюри успешно удалено"
 
-#: .\konkurs_admin\views.py:1918 .\konkurs_admin\views.py:2003
-#: .\konkurs_admin\views.py:2023
-#| msgid "Child not found"
+#: .\konkurs_admin\views.py:1924 .\konkurs_admin\views.py:2009
+#: .\konkurs_admin\views.py:2029
 msgid "SocialMedia not found"
 msgstr "Социальные сети не найдены"
 
-#: .\konkurs_admin\views.py:2025
-#| msgid "Child successfully deleted."
+#: .\konkurs_admin\views.py:2031
 msgid "Social media successfully deleted"
 msgstr "Социальные сети успешно удалены"
 
-#: .\konkurs_admin\views.py:2042 .\konkurs_admin\views.py:2057
-#: .\konkurs_admin\views.py:2198 .\konkurs_admin\views.py:2218
-#| msgid "Category not found"
+#: .\konkurs_admin\views.py:2048 .\konkurs_admin\views.py:2063
+#: .\konkurs_admin\views.py:2204 .\konkurs_admin\views.py:2224
 msgid "Contact Info not found"
 msgstr "Контактная информация не найдена"
 
-#: .\konkurs_admin\views.py:2237 .\konkurs_admin\views.py:2252
-#: .\konkurs_admin\views.py:2365 .\konkurs_admin\views.py:2385
-#| msgid "Assessment not found"
+#: .\konkurs_admin\views.py:2243 .\konkurs_admin\views.py:2258
+#: .\konkurs_admin\views.py:2371 .\konkurs_admin\views.py:2391
 msgid "About result not found"
 msgstr "О результате не найдено"
 
-#: .\konkurs_admin\views.py:2404 .\konkurs_admin\views.py:2419
-#: .\konkurs_admin\views.py:2792 .\konkurs_admin\views.py:2811
-#| msgid "Comp is not found"
+#: .\konkurs_admin\views.py:2410 .\konkurs_admin\views.py:2425
+#: .\konkurs_admin\views.py:2798 .\konkurs_admin\views.py:2817
 msgid "About us not found"
 msgstr "О нас не найдено"
 
-#: .\konkurs_admin\views.py:2828 .\konkurs_admin\views.py:2843
-#: .\konkurs_admin\views.py:2902 .\konkurs_admin\views.py:2921
-#| msgid "Jury not found"
+#: .\konkurs_admin\views.py:2834 .\konkurs_admin\views.py:2849
+#: .\konkurs_admin\views.py:2908 .\konkurs_admin\views.py:2927
 msgid "Policy not found"
 msgstr "Политика не найдена"
 
-#: .\konkurs_admin\views.py:2940 .\konkurs_admin\views.py:3011
-#: .\konkurs_admin\views.py:3030
-#| msgid "User not found"
+#: .\konkurs_admin\views.py:2946 .\konkurs_admin\views.py:3017
+#: .\konkurs_admin\views.py:3036
 msgid "Result image not found"
 msgstr "Результат изображения не найден"
 
-#: .\konkurs_admin\views.py:3049 .\konkurs_admin\views.py:3119
-#: .\konkurs_admin\views.py:3138
-#| msgid "Comp is not found"
+#: .\konkurs_admin\views.py:3055 .\konkurs_admin\views.py:3125
+#: .\konkurs_admin\views.py:3144
 msgid "Contact us not found"
 msgstr "Связаться с нами не удалось"
 
