@@ -416,11 +416,15 @@ class TestViewSet(ViewSet):
         if not otp_obj:
             return Response(data={"Error": _("Otp key is wrong")}, status=status.HTTP_400_BAD_REQUEST)
         if otp_obj.attempts > 2:
-            return Response(data={"error": _("Try again 12 hours later")}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"error": _("Come back an hours later")}, status=status.HTTP_400_BAD_REQUEST)
         if otp_obj.otp_code != otp_code:
             otp_obj.attempts += 1
             otp_obj.save(update_fields=['attempts'])
             return Response(data={"error": _("Otp code is wrong")}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not check_code_expire(otp_obj.created_at):
+            return Response(data={"error": _("Code is expired, get new Otp code")}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(data={"message": _("Success"), "token": otp_obj.otp_token}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
