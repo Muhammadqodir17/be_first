@@ -31,12 +31,12 @@ def validate_uz_phone_number_for_model(phone_number: str):
     return phone_number
 
 def validate_name(value: str):
-    if not re.match(r'^[A-Za-zА-Яа-яЁёЎўҚқҒғҲҳЪъІіʼ`\']+$', value):
+    if not re.fullmatch(r"[A-Za-zА-Яа-яЁёЎўҚқҒғҲҳЪъІіʼ'` ]+", value):
         raise serializers.ValidationError(_("This field must contain only letters."))
     return value
 
 def validate_name_for_model(value: str):
-    if not re.match(r'^[A-Za-zА-Яа-яЁёЎўҚқҒғҲҳЪъІіʼ`\']+$', value):
+    if not re.fullmatch(r"[A-Za-zА-Яа-яЁёЎўҚқҒғҲҳЪъІіʼ'` ]+", value):
         raise ValidationError(_("This field must contain only letters."))
     return value
 
