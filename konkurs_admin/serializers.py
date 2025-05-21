@@ -200,7 +200,7 @@ class GetJurySerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
         lang_options = settings.MODELTRANSLATION_LANGUAGES
-        data['academic_degree'] = dict(ACADEMIC_DEGREE).get(instance.academic_degree, 'Unknown')
+        # data['academic_degree'] = dict(ACADEMIC_DEGREE).get(instance.academic_degree, 'Unknown')
         if lang in lang_options:
             data['place_of_work'] = getattr(instance, f'place_of_work_{lang}')
             data['speciality'] = getattr(instance.category, f'speciality_{lang}')
