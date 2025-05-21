@@ -25,7 +25,7 @@ env_file = site_root(".env")
 if os.path.exists(env_file):  # pragma: no cover
     environ.Env.read_env(env_file=env_file)
 
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
