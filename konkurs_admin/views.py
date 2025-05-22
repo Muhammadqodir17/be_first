@@ -2253,10 +2253,10 @@ class AboutResultViewSet(ViewSet):
         tags=['admin']
     )
     def get_exist_about_result_by_id(self, request, *args, **kwargs):
-        about_result = SpecialAboutResultSerializer.objects.filter(id=kwargs['pk']).first()
+        about_result = AboutResult.objects.filter(id=kwargs['pk']).first()
         if about_result is None:
             return Response(data={'error': _('About result not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = AboutResultSerializer(about_result, context={'request': request})
+        serializer = SpecialAboutResultSerializer(about_result, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
