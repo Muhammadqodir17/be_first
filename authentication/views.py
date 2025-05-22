@@ -112,6 +112,7 @@ class LoginViewSet(ViewSet):
         refresh_token = RefreshToken.for_user(user)
         access_token = refresh_token.access_token
         access_token['role'] = user.role
+        access_token['is_active'] = user.is_active
 
         return Response(data={'refresh': str(refresh_token), 'access_token': str(access_token)},
                         status=status.HTTP_200_OK)
@@ -356,11 +357,11 @@ class TestViewSet(ViewSet):
         for obj in objs:
             obj.deleted_at = datetime.now()
             obj.save(update_fields=['deleted_at'])
-        refresh_token = RefreshToken.for_user(user)
-        access_token = refresh_token.access_token
-        access_token['role'] = user.role
+        # refresh_token = RefreshToken.for_user(user)
+        # access_token = refresh_token.access_token
+        # access_token['role'] = user.role
         return Response(
-            data={"message": _("Success"), 'refresh_token': str(refresh_token), 'access_token': str(access_token)},
+            data={"message": _("Success")},
             status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
