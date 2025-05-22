@@ -255,60 +255,6 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
         model = Participant
         fields = ['id', 'full_name', 'date_of_birth', 'age', 'study_place', 'works', 'grade']
 
-    # def get_works(self, obj):
-    #     works_instance = ChildWork.objects.filter(participant_id=obj.id, competition_id=obj.competition.id)
-    #     if works_instance:
-    #         request = self.context.get('request')
-    #         return ChildWorkSerializer(works_instance, many=True, context={'request': request}).data
-    #     return None
-    #
-    # def get_grade(self, obj):
-    #     grade_instance = Assessment.objects.filter(participant_id=obj.id, competition_id=obj.competition.id).first()
-    #     if grade_instance:
-    #         return grade_instance.grade
-    #     return None
-
-    def get_works(self, obj):
-        works_instance = ChildWork.objects.filter(participant=obj)
-        if works_instance:
-            request = self.context.get('request')
-            return ChildWorkSerializer(works_instance, many=True, context={'request': request}).data
-        return None
-
-    def get_grade(self, obj):
-        grade_instance = Assessment.objects.filter(participant=obj).first()
-        if grade_instance:
-            return grade_instance.grade
-        return None
-
-    def get_full_name(self, obj):
-        return f'{obj.child.first_name} {obj.child.last_name} {obj.child.middle_name}'
-
-    def get_study_place(self, obj):
-        return obj.child.place_of_study
-
-    def get_date_of_birth(self, obj):
-        return obj.child.date_of_birth
-
-    def get_age(self, obj):
-        today = date.today()
-        birthdate = obj.child.date_of_birth
-        age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
-        return age
-
-
-class TestSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField(source='get_full_name')
-    date_of_birth = serializers.SerializerMethodField(source='get_date_of_birth')
-    age = serializers.SerializerMethodField(source='get_age')
-    study_place = serializers.SerializerMethodField(source='get_study_place')
-    works = serializers.SerializerMethodField(source='get_works')
-    grade = serializers.SerializerMethodField(source='get_grade')
-
-    class Meta:
-        model = Participant
-        fields = ['id', 'full_name', 'date_of_birth', 'age', 'study_place', 'works', 'grade']
-
     def get_works(self, obj):
         works_instance = ChildWork.objects.filter(
             participant=obj.participant, competition__id=obj.competition.id
