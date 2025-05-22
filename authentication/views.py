@@ -462,6 +462,7 @@ class TestViewSet(ViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
+        serializer.validated_data['is_active'] = True
         obj.deleted_at = datetime.now()
         obj.save(update_fields=['deleted_at'])
         return Response(data={"detail": _("success")}, status=status.HTTP_200_OK)
