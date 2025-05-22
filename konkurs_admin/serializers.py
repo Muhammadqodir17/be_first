@@ -256,13 +256,13 @@ class ActiveParticipantSerializer(serializers.ModelSerializer):
         fields = ['id', 'full_name', 'date_of_birth', 'age', 'study_place', 'works', 'grade']
 
     def get_works(self, obj):
-        works_instance = ChildWork.objects.filter(participant=obj)
+        works_instance = ChildWork.objects.filter(participant=obj, competition=obj.competition)
         if works_instance:
             return ChildWorkSerializer(works_instance, many=True).data
         return None
 
     def get_grade(self, obj):
-        grade_instance = Assessment.objects.filter(participant=obj).first()
+        grade_instance = Assessment.objects.filter(participant=obj, competition=obj.competition).first()
         if grade_instance:
             return grade_instance.grade
         return None
