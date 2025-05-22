@@ -256,14 +256,14 @@ class ActiveParticipantSerializer(serializers.ModelSerializer):
         fields = ['id', 'full_name', 'date_of_birth', 'age', 'study_place', 'works', 'grade']
 
     def get_works(self, obj):
-        works_instance = ChildWork.objects.filter(participant=obj, competition=obj.competition)
+        works_instance = ChildWork.objects.filter(participant_id=obj.id, competition_id=obj.competition.id)
         if works_instance:
             request = self.context.get('request')
             return ChildWorkSerializer(works_instance, many=True, context={'request': request}).data
         return None
 
     def get_grade(self, obj):
-        grade_instance = Assessment.objects.filter(participant=obj, competition=obj.competition).first()
+        grade_instance = Assessment.objects.filter(participant_id=obj.id, competition_id=obj.competition.id).first()
         if grade_instance:
             return grade_instance.grade
         return None
@@ -297,14 +297,14 @@ class FinishedParticipantSerializer(serializers.ModelSerializer):
         fields = ['id', 'full_name', 'date_of_birth', 'age', 'study_place', 'works', 'grade']
 
     def get_works(self, obj):
-        works_instance = ChildWork.objects.filter(participant=obj, competition=obj.competition)
+        works_instance = ChildWork.objects.filter(participant_id=obj.id, competition_id=obj.competition.id)
         if works_instance:
             request = self.context.get('request')
             return ChildWorkSerializer(works_instance, many=True, context={'request': request}).data
         return None
 
     def get_grade(self, obj):
-        grade_instance = Assessment.objects.filter(participant=obj, competition=obj.competition).first()
+        grade_instance = Assessment.objects.filter(participant_id=obj.id, competition_id=obj.competition.id).first()
         if grade_instance:
             return grade_instance.grade
         return None
