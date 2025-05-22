@@ -268,7 +268,7 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
             participant__id=obj.id, participant__competition__id=obj.competition.id
         ).first()
         if grade_instance:
-            return GradeSerializer(grade_instance).data
+            return grade_instance.grade
         return None
 
     def get_full_name(self, obj):
