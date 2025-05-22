@@ -297,6 +297,28 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
         return age
 
 
+class TestSerializer(serializers.ModelSerializer):
+    works = serializers.SerializerMethodField(source='get_works')
+    grade = serializers.SerializerMethodField(source='get_grade')
+
+    class Meta:
+        model = Participant
+        fields = ['id', 'works', 'grade']
+
+    def get_grade(self, obj):
+        grade_instance = Assessment.objects.filter(participant=obj).first()
+        if grade_instance:
+            return grade_instance.grade
+        return None
+
+    def get_works(self, obj):
+        works_instance = ChildWork.objects.filter(participant=obj)
+        if works_instance:
+            request = self.context.get('request')
+            return ChildWorkSerializer(works_instance, many=True, context={'request': request}).data
+        return None
+
+
 class WinnerSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
