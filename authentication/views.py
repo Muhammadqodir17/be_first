@@ -113,6 +113,29 @@ class LoginViewSet(ViewSet):
         access_token = refresh_token.access_token
         access_token['role'] = user.role
         access_token['is_active'] = user.is_active
+        if user.is_active is False:
+            objs = OTPRegisterResend.objects.filter(otp_user=user, otp_type=1, deleted_at=None).order_by(
+                '-created_at')
+
+            if not checking_number_of_otp(objs):
+                return Response(data={"error": _("Try again 12 hours later")}, status=status.HTTP_400_BAD_REQUEST)
+
+            if checking_number_of_otp(objs) == 'delete':
+                objs = OTPRegisterResend.objects.filter(otp_user=user, otp_type=1, deleted_at=None)
+                for obj in objs:
+                    obj.deleted_at = datetime.now()
+                    obj.save(update_fields=['deleted_at'])
+
+            otp = OTPRegisterResend.objects.create(otp_user=user)
+            otp.save()
+
+            response = send_message_telegram(otp)
+            if response.status_code != 200:
+                otp.delete()
+                return Response(data={"error": _("Error occured while sending otp code")},
+                                status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"otp_key": otp.otp_key, 'type': 'register', 'message': _('Otp successfully send')},
+                            status=status.HTTP_200_OK)
 
         return Response(data={'refresh': str(refresh_token), 'access_token': str(access_token)},
                         status=status.HTTP_200_OK)
