@@ -471,7 +471,7 @@ class CompetitionViewSet(ViewSet):
         )
         paginator = self.pagination_class()
         paginated_participant = paginator.paginate_queryset(participant, request)
-        serializer = ActiveParticipantSerializer(paginated_participant, many=True, context={'request': request})
+        serializer = StatusParticipantSerializer(paginated_participant, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
