@@ -257,7 +257,7 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
 
     def get_works(self, obj):
         works_instance = ChildWork.objects.filter(
-            participant=obj, competition__id=obj.competition.id
+            participant=obj, competition__id=obj.competition
         )
         if works_instance:
             return ChildWorkSerializer(works_instance, many=True).data
@@ -265,7 +265,7 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
 
     def get_grade(self, obj):
         grade_instance = Assessment.objects.filter(
-            participant=obj.participant, participant__competition__id=obj.competition.id
+            participant=obj, participant__competition__id=obj.competition.id
         ).first()
         if grade_instance:
             return GradeSerializer(grade_instance).data
