@@ -258,7 +258,8 @@ class ActiveParticipantSerializer(serializers.ModelSerializer):
     def get_works(self, obj):
         works_instance = ChildWork.objects.filter(participant=obj, competition=obj.competition)
         if works_instance:
-            return ChildWorkSerializer(works_instance, many=True).data
+            request = self.context.get('request')
+            return ChildWorkSerializer(works_instance, many=True, context={'request': request}).data
         return None
 
     def get_grade(self, obj):
