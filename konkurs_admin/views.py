@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models.functions import Coalesce
 from django.db.models import Value
+
+from .serializers import TestSerializer
 from konkurs.models import (
     Competition,
     Participant,
@@ -529,7 +531,7 @@ class CompetitionViewSet(ViewSet):
         ).order_by('-sort_grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
-        serializer = StatusParticipantSerializer(paginated_participants, many=True, context={'request': request})
+        serializer = TestSerializer(paginated_participants, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -1090,7 +1092,7 @@ class CompetitionViewSet(ViewSet):
                                                      ).order_by('-sort_grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
-        serializer = StatusParticipantSerializer(paginated_participants, many=True, context={'request': request})
+        serializer = TestSerializer(paginated_participants, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
@@ -1391,7 +1393,7 @@ class CompetitionViewSet(ViewSet):
                                                      ).order_by('-sort_grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
-        serializer = StatusParticipantSerializer(paginated_participants, many=True, context={'request': request})
+        serializer = TestSerializer(paginated_participants, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
