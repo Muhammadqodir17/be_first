@@ -412,7 +412,7 @@ class TestViewSet(ViewSet):
         otp_key = request.data.get('otp_key')
         otp_code = request.data.get('otp_code')
 
-        otp_obj = OTPSetPassword.objects.filter(otp_key=otp_key, deleted_at=None).first()
+        otp_obj = OTPSetPassword.objects.filter(otp_key=otp_key, deleted_at=None).order_by('-created_at').first()
         if not otp_obj:
             return Response(data={"Error": _("Otp key is wrong")}, status=status.HTTP_400_BAD_REQUEST)
         if otp_obj.attempts > 2:
