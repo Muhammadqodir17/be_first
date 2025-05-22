@@ -269,14 +269,14 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
     #     return None
 
     def get_works(self, obj):
-        works_instance = ChildWork.objects.filter()
+        works_instance = ChildWork.objects.filter(participant=obj)
         if works_instance:
             request = self.context.get('request')
             return ChildWorkSerializer(works_instance, many=True, context={'request': request}).data
         return None
 
     def get_grade(self, obj):
-        grade_instance = Assessment.objects.filter().first()
+        grade_instance = Assessment.objects.filter(participant=obj).first()
         if grade_instance:
             return grade_instance.grade
         return None
