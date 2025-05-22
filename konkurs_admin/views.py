@@ -1386,10 +1386,12 @@ class CompetitionViewSet(ViewSet):
             return Response(data={'error': _('Competition not found')}, status=status.HTTP_400_BAD_REQUEST)
         if comp.status != 1:
             return Response(data={'error': _('Comp is not active')}, status=status.HTTP_400_BAD_REQUEST)
-        participants = Participant.objects.filter(competition=comp, winner=False, action=2)
+        participants = Participant.objects.filter(competition=comp, winner=False, action=2).annotate(
+            grade=Max('assessment__grade')).annotate(sort_grade=Coalesce('grade', Value(-1))
+                                                     ).order_by('-sort_grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
-        serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
+        serializer = StatusParticipantSerializer(paginated_participants, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
