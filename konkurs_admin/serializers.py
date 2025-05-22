@@ -331,7 +331,8 @@ class WinnerListSerializer(serializers.ModelSerializer):
             participant=obj.participant, competition__id=obj.competition.id
         )
         if works_instance:
-            return ChildWorkSerializer(works_instance, many=True).data
+            request = self.context.get('request')
+            return ChildWorkSerializer(works_instance, many=True, context={'request': request}).data
         return None
 
     def get_grade(self, obj):
