@@ -53,7 +53,9 @@ from .serializers import (
     ForUpdateWinnerSerializer,
     GetForUpdateWinnerSerializer,
     UpdateJurySerializer,
-    GetExistCompetitionByIdSerializer, GetCategorySerializer,
+    GetExistCompetitionByIdSerializer,
+    GetCategorySerializer,
+    FinishedParticipantSerializer,
 )
 from konkurs.serializers import (
     ResultImageSerializer,
@@ -528,7 +530,7 @@ class CompetitionViewSet(ViewSet):
         ).order_by('-sort_grade')
         paginator = self.pagination_class()
         paginated_participants = paginator.paginate_queryset(participants, request)
-        serializer = ActiveParticipantSerializer(paginated_participants, many=True, context={'request': request})
+        serializer = FinishedParticipantSerializer(paginated_participants, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(
