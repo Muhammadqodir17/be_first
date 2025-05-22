@@ -257,7 +257,7 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
 
     def get_works(self, obj):
         works_instance = ChildWork.objects.filter(
-            participant=obj.participant, competition__id=obj.competition.id
+            participant=obj, competition__id=obj.competition.id
         )
         if works_instance:
             return ChildWorkSerializer(works_instance, many=True).data
