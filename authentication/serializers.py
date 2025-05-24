@@ -39,6 +39,7 @@ class SetPasswordSerializer(serializers.Serializer):
         validate_password(new_pass)
         if new_pass != conf_pass:
             raise serializers.ValidationError(_('Password do not match'))
+        return data
 
     def save(self, **kwargs):
         user = self.context['request'].user
