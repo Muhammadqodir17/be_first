@@ -41,12 +41,14 @@ class SetPasswordSerializer(serializers.Serializer):
         old_pass = data['old_password']
         new_pass = data['new_password']
         conf_pass = data['confirm_password']
-        if data['password'] != make_password(old_pass):
+        request = self.context.get('request')
+        if request.user.password != make_password(old_pass):
             return serializers.ValidationError(_('Old password is wrong'))
         validate_password(new_pass)
         if new_pass != conf_pass:
             raise serializers.ValidationError(_('Password do not match'))
-        data['password'] = make_password(new_pass)
+        request.user.password.set_password(new_pass)
+        request.user.save(updated_fields=['password'])
         return data
 
 
