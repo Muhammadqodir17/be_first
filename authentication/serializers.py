@@ -33,23 +33,21 @@ class SetPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, required=True)
     confirm_password = serializers.CharField(write_only=True, required=True)
 
+    class Meta:
+        model = User
+        fields = ['id', 'old_password', 'new_password', 'confirm_password']
+
     def validate(self, data):
         old_pass = data['old_password']
         new_pass = data['new_password']
         conf_pass = data['confirm_password']
-        request = self.context.get('request')
-        if request.user.password != make_password(old_pass):
+        if data['password'] != make_password(old_pass):
             return serializers.ValidationError(_('Old password is wrong'))
         validate_password(new_pass)
         if new_pass != conf_pass:
             raise serializers.ValidationError(_('Password do not match'))
+        data['password'] = make_password(new_pass)
         return data
-
-    def save(self, **kwargs):
-        user = self.context['request'].user
-        user.set_password(self.validated_data['new_password'])
-        user.save()
-        return user
 
 
 class LogoutSerializer(serializers.Serializer):
