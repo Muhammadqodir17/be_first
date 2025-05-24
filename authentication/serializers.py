@@ -1,4 +1,6 @@
 from django.utils.translation import gettext_lazy as _
+from numpy.random import random_sample
+
 from .models import User, BlacklistedAccessToken
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
@@ -38,18 +40,19 @@ class SetPasswordSerializer(serializers.Serializer):
         fields = ['id', 'old_password', 'new_password', 'confirm_password']
 
     def validate(self, data):
-        old_pass = data['old_password']
-        new_pass = data['new_password']
-        conf_pass = data['confirm_password']
-        request = self.context.get('request')
-        if request.user.password != make_password(old_pass):
-            return serializers.ValidationError(_('Old password is wrong'))
-        validate_password(new_pass)
-        if new_pass != conf_pass:
-            raise serializers.ValidationError(_('Password do not match'))
-        request.user.password.set_password(new_pass)
-        request.user.save(updated_fields=['password'])
+        user = self.context['request'].user
+        if not user.check_password(data['old_password']):
+            raise serializers.ValidationError({'old_password': _('Old password is incorrect.')})
+        validate_password(data['new_password'])
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({'confirm_password': _('Passwords do not match.')})
         return data
+
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])
+        user.save(update_fields=['password'])
+        return user
 
 
 class LogoutSerializer(serializers.Serializer):
@@ -130,11 +133,12 @@ class TestSerializer(serializers.ModelSerializer):
         fields = ['id', 'password', 'confirm_password']
 
     def validate_password(self, value):
-        return validate_password(value)
+        validate_password(value)
+        return value
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:
-            serializers.ValidationError({'confirm_password': _('Confirm password does not match.')})
+            raise serializers.ValidationError({'confirm_password': _('Confirm password does not match.')})
         return data
 
     def save(self, **kwargs):
