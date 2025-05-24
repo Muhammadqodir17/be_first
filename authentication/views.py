@@ -272,7 +272,8 @@ class ResetPasswordViewSet(ViewSet):
         tags=['auth'],
     )
     def set_pass(self, request, *args, **kwargs):
-        serializer = SetPasswordSerializer(data=request.data, context={'request': request})
+        user = request.user
+        serializer = SetPasswordSerializer(user, data=request.data, partial=True, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
