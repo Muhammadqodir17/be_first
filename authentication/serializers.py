@@ -1,6 +1,3 @@
-from django.utils.translation import gettext_lazy as _
-from numpy.random import random_sample
-
 from .models import User, BlacklistedAccessToken
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
