@@ -274,6 +274,8 @@ class GallerySerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
         lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if instance.competition is None:
+            return serializers.ValidationError(_('Comp not found'))
         if lang in lang_options:
             data['competition'] = getattr(instance.competition, f'name_{lang}')
         else:
