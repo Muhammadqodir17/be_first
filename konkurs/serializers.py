@@ -264,10 +264,10 @@ class WorksSerializer(serializers.ModelSerializer):
         fields = ['id', 'competition', 'files']
 
 
-class GallerySerializer(serializers.ModelSerializer):
+class CompetitionNameSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ChildWork
-        fields = ['competition', 'files']
+        model = Competition
+        fields = ['id', 'name']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -275,8 +275,15 @@ class GallerySerializer(serializers.ModelSerializer):
         lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
         lang_options = settings.MODELTRANSLATION_LANGUAGES
         if lang in lang_options:
-            data['competition'] = getattr(instance.competition, f'name_{lang}')
+            data['name'] = getattr(instance, f'name_{lang}')
         return data
+
+
+class GallerySerializer(serializers.ModelSerializer):
+    competition = CompetitionNameSerializer(read_only=True)
+    class Meta:
+        model = ChildWork
+        fields = ['competition', 'files']
 
 
 class CompGallerySerializer(serializers.ModelSerializer):
