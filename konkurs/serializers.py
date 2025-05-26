@@ -275,7 +275,7 @@ class GallerySerializer(serializers.ModelSerializer):
         lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
         lang_options = settings.MODELTRANSLATION_LANGUAGES
         if lang in lang_options:
-            data['name'] = getattr(instance.competition, f'name_{lang}')
+            data['competition'] = getattr(instance.competition, f'name_{lang}')
         return data
 
 
