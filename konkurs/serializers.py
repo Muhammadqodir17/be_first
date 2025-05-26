@@ -277,10 +277,6 @@ class GallerySerializer(serializers.ModelSerializer):
         lang_options = settings.MODELTRANSLATION_LANGUAGES
         if lang in lang_options:
             data['competition'] = getattr(instance.competition, f'name_{lang}')
-        if instance.competition is None:
-            raise serializers.ValidationError(_('Competition is None'))
-        else:
-            data['competition'] = instance.competition.name
         return data
 
 
