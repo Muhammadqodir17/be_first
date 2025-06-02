@@ -222,16 +222,43 @@ class ChildWorkViewSet(ViewSet):  # *
         tags=['child'],
     )
     def create(self, request, *args, **kwargs):
-        participant = Participant.objects.filter(id=request.data['participant']).first()
+        participant_id = request.data.get('participant')
+        participant = Participant.objects.filter(id=participant_id).first()
+
         if participant is None:
-            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ChildWorkSerializer(data=request.data, context={'request': request})
+            return Response({'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
+
+        files = request.FILES.getlist('files')
+        if not files:
+            return Response({'error': _('No files uploaded')}, status=status.HTTP_400_BAD_REQUEST)
+
+        if files.size > 100 * 1024 * 1024:  # 10MB
+            return Response(data={"error": "File too large."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate ONE entry using serializer to check field logic
+        test_data = {
+            'participant': participant.id,
+            'competition': participant.competition.id,
+            'files': files[0]  # Just one file to test validation
+        }
+
+        serializer = ChildWorkSerializer(data=test_data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        files = request.FILES.getlist('files')
-        ChildWork.objects.bulk_create([
-            ChildWork(participant=participant, competition=participant.competition, files=file)
+
+        # Bulk create entries
+        child_works = [
+            ChildWork(
+                participant=participant,
+                competition=participant.competition,
+                files=file
+            )
             for file in files
-        ])
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        ]
+        ChildWork.objects.bulk_create(child_works)
+
+        # Optional: Return the serialized data (can be slow for 10,000 entries)
+        serialized_data = ChildWorkSerializer(child_works, many=True)
+
+        return Response(data=serialized_data.data, status=status.HTTP_201_CREATED)
+

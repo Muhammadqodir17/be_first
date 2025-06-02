@@ -101,14 +101,14 @@ class LoginViewSet(ViewSet):
             phone_number = data.get('username')
             validate_uz_phone_number(phone_number)
             user = User.objects.filter(phone_number=phone_number).first()
-            if user is None:
-                return Response({'message': _('User not found.')}, status=status.HTTP_404_NOT_FOUND)
+            # if user is None:
+            #     return Response({'message': _('User not found.')}, status=status.HTTP_404_NOT_FOUND)
         else:
             user = User.objects.filter(username=data.get('username')).first()
-            if user is None:
-                return Response({'message': _('User not found.')}, status=status.HTTP_404_NOT_FOUND)
-        if not user.check_password(data.get('password')):
-            return Response(data={'error': _('Password is incorrect')}, status=status.HTTP_400_BAD_REQUEST)
+            # if user is None:
+            #     return Response({'message': _('User not found.')}, status=status.HTTP_404_NOT_FOUND)
+        if not user.check_password(data.get('password')) or not user:
+            return Response(data={'error': _('Password or User is incorrect')}, status=status.HTTP_400_BAD_REQUEST)
         refresh_token = RefreshToken.for_user(user)
         access_token = refresh_token.access_token
         access_token['role'] = user.role
