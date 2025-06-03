@@ -232,9 +232,9 @@ class ChildWorkViewSet(ViewSet):  # *
         if not files:
             return Response({'error': _('No files uploaded')}, status=status.HTTP_400_BAD_REQUEST)
 
-        total_size = sum(file.size for file in files)
-        if total_size > 100 * 1024 * 1024:  # 100MB
-            return Response(data={"error": "File too large."}, status=status.HTTP_400_BAD_REQUEST)
+        # total_size = sum(file.size for file in files)
+        # if total_size > 100 * 1024 * 1024:  # 100MB
+        #     return Response(data={"error": "File too large."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Validate ONE entry using serializer to check field logic
         test_data = {
