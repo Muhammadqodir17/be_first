@@ -53,6 +53,7 @@ class CompetitionSerializer(serializers.ModelSerializer):
 
 class GetCompSerializer(serializers.ModelSerializer):
     participants = serializers.SerializerMethodField(source='get_participants')
+
     class Meta:
         model = Competition
         fields = ['id', 'name', 'comp_end_date', 'description', 'participants']
@@ -124,6 +125,7 @@ class ChildrenSerializer(serializers.ModelSerializer):
 
 class GetRegisteredChild(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(source='get_name')
+
     class Meta:
         model = Participant
         fields = ['id', 'name']
@@ -134,6 +136,7 @@ class GetRegisteredChild(serializers.ModelSerializer):
 
 class ChildSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
+
     class Meta:
         model = Child
         fields = ['id', 'first_name', 'last_name', 'middle_name', 'date_of_birth', 'age', 'place_of_study']
@@ -149,6 +152,7 @@ class ChildSerializer(serializers.ModelSerializer):
 class ParticipantSerializer(serializers.ModelSerializer):
     competition = CompetitionSerializer()
     child = ChildSerializer()
+
     class Meta:
         model = Participant
         fields = ['id', 'child', 'action', 'competition', 'physical_certificate', 'marked_status']
@@ -177,6 +181,7 @@ class CompSerializer(serializers.ModelSerializer):
 
 class CompParticipantSerializer(serializers.ModelSerializer):
     competition = CompSerializer()
+
     class Meta:
         model = Participant
         fields = ['competition']
@@ -184,6 +189,7 @@ class CompParticipantSerializer(serializers.ModelSerializer):
 
 class ActiveCompSerializer(serializers.ModelSerializer):
     participants = serializers.SerializerMethodField()
+
     class Meta:
         model = Competition
         fields = ['id', 'name', 'participants', 'comp_end_date', 'description']
@@ -205,6 +211,7 @@ class ActiveCompSerializer(serializers.ModelSerializer):
 
 class ActiveParticipantSerializer(serializers.ModelSerializer):
     competition = ActiveCompSerializer()
+
     class Meta:
         model = Participant
         fields = ['competition']
@@ -234,28 +241,34 @@ class GradeSerializer(serializers.ModelSerializer):
 
 class FinishedParticipantSerializer(serializers.ModelSerializer):
     competition = FinishedCompSerializer()
-    grade = serializers.SerializerMethodField()
-    certificate = serializers.SerializerMethodField()
+    grade = serializers.CharField(read_only=True)
+    certificate = serializers.CharField(read_only=True)
 
     class Meta:
         model = Participant
         fields = ['competition', 'grade', 'certificate']
 
-    def get_grade(self, obj):
-        grade_instance = Assessment.objects.filter(participant=obj, competition=obj.competition).first()
-        if grade_instance:
-            return GradeSerializer(grade_instance).data
-        return None
-
-    def get_certificate(self, obj):
-        winner = Winner.objects.filter(participant=obj, competition=obj.competition).first()
+    def to_representation(self, instance):
         request = self.context.get('request')
+        data = super().to_representation(instance)
+
+        grade_instance = Assessment.objects.filter(
+            participant=instance, competition=instance.competition
+        ).first()
+        data['grade'] = GradeSerializer(grade_instance).data if grade_instance else None
+
+        winner = Winner.objects.filter(
+            participant=instance, competition=instance.competition
+        ).first()
         if winner and winner.certificate:
             try:
-                return request.build_absolute_uri(winner.certificate.url)
+                data['certificate'] = request.build_absolute_uri(winner.certificate.url)
             except ValueError:
-                return None
-        return None
+                data['certificate'] = None
+        else:
+            data['certificate'] = None
+
+        return data
 
 
 class WorksSerializer(serializers.ModelSerializer):
@@ -292,6 +305,7 @@ class CompGallerySerializer(serializers.ModelSerializer):
 class GalleryDetailsSerializer(serializers.ModelSerializer):
     competition = CompGallerySerializer()
     files = serializers.SerializerMethodField(source='get_files')
+
     class Meta:
         model = Participant
         fields = ['competition', 'child', 'files']
@@ -379,6 +393,3 @@ class SubscribeCompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubscriptionModel
         fields = ['id', 'user', 'competition']
-
-
-
