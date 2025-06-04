@@ -238,12 +238,6 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Tashkent'
 
-CLICK_SERVICE_ID = "your-service-id"
-CLICK_MERCHANT_ID = "your-merchant-id"
-CLICK_SECRET_KEY = "your-secret-key"
-CLICK_ACCOUNT_MODEL = "payment.models.Order"
-CLICK_AMOUNT_FIELD = "total_amount"
-
 CELERY_BEAT_SCHEDULE = {
     'check_competition_notifications_every_minute': {
         'task': 'celery_tasks.tasks.check_competition_notifications',  # Full task path
