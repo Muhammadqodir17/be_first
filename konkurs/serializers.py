@@ -7,7 +7,7 @@ from konkurs_admin.models import (
     Notification,
     Winner,
     ResultImage,
-    WebCertificate
+    WebCertificate, SubscriptionModel
 )
 from .models import (
     Competition,
@@ -361,6 +361,24 @@ class ContactUsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactUs
         fields = ['id', 'email', 'replied']
+
+
+class GetSubscriptionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubscriptionModel
+        fields = ['id', 'competition']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['competition_id'] = instance.competition.id
+        data['competition'] = instance.competition.name
+        return data
+
+
+class SubscribeCompetitionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubscriptionModel
+        fields = ['id', 'user', 'competition']
 
 
 

@@ -17,6 +17,9 @@ from rest_framework.parsers import (
 )
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+
+from payment.models import PurchaseModel
+from payment.serializers import PurchaseSerializer, GetPurchaseSerializer
 from .models import (
     Notification,
     Winner,
@@ -3148,3 +3151,58 @@ class ContactUsViewSet(ViewSet):
             return Response(data={'error': _('Contact us not found')}, status=status.HTTP_404_NOT_FOUND)
         contact_us.delete()
         return Response(data={'message': _('Successfully deleted')}, status=status.HTTP_200_OK)
+
+
+class AdminPaymentViewSet(ViewSet):
+    pagination_class = CustomPagination
+
+    @swagger_auto_schema(
+        operation_description="Get all Categories",
+        operation_summary="Get all Categories",
+        manual_parameters=[
+            openapi.Parameter(
+                'page', openapi.IN_QUERY,
+                description="Page number (e.g., ?page=1)",
+                type=openapi.TYPE_INTEGER
+            ),
+            openapi.Parameter(
+                'page_size', openapi.IN_QUERY,
+                description="Number of items per page (e.g., ?page_size=10)",
+                type=openapi.TYPE_INTEGER
+            ),
+        ],
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'count': openapi.Schema(type=openapi.TYPE_INTEGER, description='Total competitions'),
+                    'total_pages': openapi.Schema(type=openapi.TYPE_INTEGER, description='Total pages available'),
+                    'current_page': openapi.Schema(type=openapi.TYPE_INTEGER, description='Current page number'),
+                    'page_size': openapi.Schema(type=openapi.TYPE_INTEGER, description='Number of items per page'),
+                    'next': openapi.Schema(type=openapi.TYPE_STRING, nullable=True, description='Next page URL'),
+                    'previous': openapi.Schema(type=openapi.TYPE_STRING, nullable=True,
+                                               description='Previous page URL'),
+                    'results': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(type=openapi.TYPE_OBJECT))
+                }
+            ),
+        },
+        tags=['admin']
+    )
+    def get(self, request, *args, **kwargs):
+        data = request.GET
+        page = data.get('page')
+        size = data.get('page_size')
+        if not page or not size:
+            return Response(data={'error': _('Size or Page is needed')}, status=status.HTTP_400_BAD_REQUEST)
+        if not page.isdigit() or int(page) < 1:
+            return Response(data={'error': _('page must be greater than 0 or must be integer')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not size.isdigit() or int(size) < 1:
+            return Response(data={'error': _('page size must be greater than 0 or must be integer')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        payments = PurchaseModel.objects.all()
+        paginator = self.pagination_class()
+        payment = paginator.paginate_queryset(payments, request)
+        serializer = GetPurchaseSerializer(payment, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)
+

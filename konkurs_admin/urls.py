@@ -9,7 +9,7 @@ from .views import (
     AboutUsViewSet,
     WebResultImageViewSet,
     ContactUsViewSet,
-    PolicyViewSet,
+    PolicyViewSet, AdminPaymentViewSet,
 )
 
 urlpatterns = [
@@ -131,4 +131,6 @@ urlpatterns = [
     path('update_contact_us/<int:pk>/', ContactUsViewSet.as_view({'patch': 'update'}),
          name='update_contact_us'),
     path('delete_contact_us/<int:pk>/', ContactUsViewSet.as_view({'delete': 'delete'}), name='delete_contact_us'),
+    # purchase
+    path('get_all_purchase/', AdminPaymentViewSet.as_view({'get': 'get'}), name='get_all_purchase'),
 ]

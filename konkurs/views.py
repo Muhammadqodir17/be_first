@@ -1,3 +1,5 @@
+from idlelib.autocomplete import completion_kwds
+
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,7 +17,7 @@ from konkurs_admin.models import (
     AboutUs,
     AboutResult,
     ContactInformation,
-    SocialMedia
+    SocialMedia, SubscriptionModel
 )
 from konkurs_admin.serializers import (
     PolicySerializer,
@@ -39,7 +41,7 @@ from .serializers import (
     GetCompSerializer,
     ContactUsSerializer,
     ResultImageSerializer,
-    WebCerSerializer,
+    WebCerSerializer, GetSubscriptionsSerializer, SubscribeCompetitionSerializer,
 )
 from .models import (
     Competition,
@@ -425,3 +427,64 @@ class DynamicInfoViewSet(ViewSet):
         social_media = SocialMedia.objects.all()
         serializer = WebSocialMediaSerializer(social_media, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class SubscriptionViewSet(ViewSet):
+    @swagger_auto_schema(
+        operation_description="Get all Subscriptions",
+        operation_summary="Get all Subscriptions",
+        responses={
+            200: GetSubscriptionsSerializer(),
+        },
+        tags=['competition']
+    )
+    def get_all(self, request, *args, **kwargs):
+        user = request.user
+        competition = SubscriptionModel.objects.filter(user=user)
+        serializer = GetSubscriptionsSerializer(competition, many=True)
+        return Response(data=serializer.data)
+
+    @swagger_auto_schema(
+        operation_description="Subscribe",
+        operation_summary="Subscribe",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'competition': openapi.Schema(type=openapi.TYPE_INTEGER, description='competition'),
+            },
+            required=['competition']
+        ),
+        responses={200: SubscribeCompetitionSerializer()},
+        tags=['competition'],
+    )
+    def subscription(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+        subs = SubscriptionModel.objects.filter(user=request.user, competition=request.data['competition']).first()
+        if subs.exist():
+            return Response(data={'error': 'You already subscribe this competition'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = SubscribeCompetitionSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Unsubscribe",
+        operation_summary="Unsubscribe",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'competition': openapi.Schema(type=openapi.TYPE_INTEGER, description='competition'),
+            },
+            required=['competition']
+        ),
+        responses={200: 'Successfully Unsubscribed'},
+        tags=['competition'],
+    )
+    def unsubscription(self, request, *args, **kwargs):
+        subs = SubscriptionModel.objects.filter(user=request.user, competition=request.data['competition']).first()
+        if subs is None:
+            return Response(data={'error': 'You did not subscribe this competition'}, status=status.HTTP_400_BAD_REQUEST)
+        subs.delete()
+        return Response(data={'message': 'Successfully Unsubscribed'}, status=status.HTTP_200_OK)
+

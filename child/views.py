@@ -23,6 +23,7 @@ from konkurs.models import (
     Competition
 )
 from django.utils.translation import gettext_lazy  as _
+from .tasks import bulk_works_create
 
 """ payment """
 from click_up import ClickUp
@@ -226,40 +227,23 @@ class ChildWorkViewSet(ViewSet):  # *
         participant = Participant.objects.filter(id=participant_id).first()
 
         if participant is None:
-            return Response({'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
         files = request.FILES.getlist('files')
         if not files:
-            return Response({'error': _('No files uploaded')}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('No files uploaded')}, status=status.HTTP_400_BAD_REQUEST)
 
-        # total_size = sum(file.size for file in files)
-        # if total_size > 100 * 1024 * 1024:  # 100MB
-        #     return Response(data={"error": "File too large."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Validate ONE entry using serializer to check field logic
         test_data = {
             'participant': participant.id,
             'competition': participant.competition.id,
-            'files': files[0]  # Just one file to test validation
+            'files': files[0]
         }
 
         serializer = ChildWorkSerializer(data=test_data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Bulk create entries
-        child_works = [
-            ChildWork(
-                participant=participant,
-                competition=participant.competition,
-                files=file
-            )
-            for file in files
-        ]
-        ChildWork.objects.bulk_create(child_works)
+        bulk_works_create.delay(participant, files)
 
-        # Optional: Return the serialized data (can be slow for 10,000 entries)
-        serialized_data = ChildWorkSerializer(child_works, many=True)
-
-        return Response(data=serialized_data.data, status=status.HTTP_201_CREATED)
+        return Response(data={'message': _('Successfully created')}, status=status.HTTP_201_CREATED)
 

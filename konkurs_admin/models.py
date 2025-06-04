@@ -119,5 +119,13 @@ class WebCertificate(BaseModel):
         return f'{self.data.year}' if self.data else "No Date"
 
 
+class SubscriptionModel(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user.first_name} {self.user.last_name}'
+
+
 
 

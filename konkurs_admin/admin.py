@@ -8,7 +8,7 @@ from .models import (
     AboutResult,
     ContactInformation,
     SocialMedia,
-    WebCertificate,
+    WebCertificate, SubscriptionModel,
 )
 
 admin.site.register(Notification)
@@ -21,3 +21,4 @@ admin.site.register(AboutUs)
 admin.site.register(AboutResult)
 admin.site.register(ContactInformation)
 admin.site.register(SocialMedia)
+admin.site.register(SubscriptionModel)

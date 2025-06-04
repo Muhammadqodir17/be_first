@@ -1,19 +1,20 @@
 from celery import shared_task
 from django.utils.timezone import now
 from datetime import timedelta
-
-from config.wsgi import application
-from konkurs_admin.models import Notification
+from konkurs_admin.models import Notification, SubscriptionModel
 from authentication.models import User
 from konkurs.models import Competition
 from django.utils.translation import gettext_lazy  as _
 
+
+@shared_task(name='celery_tasks.tasks.send_notification_to_all_users')
 def send_notification_to_all_users(competition, message):
-    users = User.objects.filter(role=1)  # Get all users
+    # users = User.objects.filter(role=1)  # Get all users
+    users = SubscriptionModel.objects.filter(user__role=1)
 
     notifications = [
-        Notification(user=user, competition=competition, message=message)
-        for user in users
+        Notification(user=sub.user, competition=competition, message=message)
+        for sub in users
     ]
 
     Notification.objects.bulk_create(notifications)
@@ -31,7 +32,7 @@ def check_competition_notifications():
         application_start_time__minute=current_time.minute
     )
     for app in app_start_in_3:
-        send_notification_to_all_users(
+        send_notification_to_all_users.delay(
             app,
             _("Registration for %(name)s will start in 3 days!") % {'name': app.name}
         )
