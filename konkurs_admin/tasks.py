@@ -1,7 +1,7 @@
 from celery import shared_task
 from django.utils.timezone import now
 from datetime import timedelta
-from konkurs_admin.models import Notification, SubscriptionModel
+from konkurs_admin.models import Notification
 from authentication.models import User
 from konkurs.models import Competition
 from django.utils.translation import gettext_lazy  as _
@@ -9,8 +9,8 @@ from django.utils.translation import gettext_lazy  as _
 
 @shared_task(name='celery_tasks.tasks.send_notification_to_all_users')
 def send_notification_to_all_users(competition, message):
-    # user = User.objects.filter(role=1)  # Get all users
-    users = SubscriptionModel.objects.filter(user__role=1)
+    users = User.objects.filter(role=1)  # Get all users
+    # users = SubscriptionModel.objects.filter(user__role=1)
 
     notifications = [
         Notification(user=sub.user, competition=competition, message=message)
