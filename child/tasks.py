@@ -5,7 +5,7 @@ from konkurs.models import ChildWork
 def bulk_works_create(participant, files):
     child_works = [
         ChildWork(
-            participant=participant,
+            participant_id=participant,
             competition=participant.competition,
             files=file
         )
