@@ -45,6 +45,7 @@ urlpatterns = [
     path('get_all_policy/', DynamicInfoViewSet.as_view({'get': 'get_all_policy'}), name='k_get_all_policy'),
     path('get_all_result_img/', DynamicInfoViewSet.as_view({'get': 'get_web_result_image'}),
          name='k_get_all_result_img'),
+
     # subscription
     path('get_all_subscription/', SubscriptionViewSet.as_view({'get': 'get_all_subscription'}),
          name='k_get_all_result_img'),
