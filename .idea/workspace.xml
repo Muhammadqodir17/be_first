@@ -4,35 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ca97af11-49a7-427c-abc9-5ff152d59fdf" name="Changes" comment="dynamic info added">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/authentication/middlewares.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/middlewares.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/authentication/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/authentication/migrations/0002_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/authentication/migrations/0003_user_place_of_work_en_user_place_of_work_ru_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/authentication/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/authentication/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/authentication/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/authentication/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/child/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/child/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/child/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jury/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jury/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/jury/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jury/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/jury/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jury/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/jury/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs/migrations/0002_competition_description_en_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs_admin/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs_admin/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs_admin/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs_admin/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs_admin/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs_admin/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs_admin/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/konkurs_admin/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/konkurs_admin/views.py" afterDir="false" />
-    </list>
+    <list default="true" id="ca97af11-49a7-427c-abc9-5ff152d59fdf" name="Changes" comment="dynamic info added" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -72,13 +44,16 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "development"
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.stylelint": "true",
+    "node.js.selected.package.stylelint": ""
   }
 }]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-a5bc9544c897-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.23654.177" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PY-243.26053.29" />
+        <option value="bundled-python-sdk-b1dbf8ef85a6-4df51de95216-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.26053.29" />
       </set>
     </attachedChunks>
   </component>
@@ -90,6 +65,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1746447191019</updated>
+      <workItem from="1747837658435" duration="141000" />
     </task>
     <task id="LOCAL-00001" summary="dynamic info added">
       <option name="closed" value="true" />
@@ -101,6 +77,9 @@
     </task>
     <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="dynamic info added" />
