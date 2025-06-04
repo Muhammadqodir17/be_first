@@ -233,7 +233,7 @@ class ChildWorkViewSet(ViewSet):  # *
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        bulk_works_create.delay(participant, files)
+        bulk_works_create.delay(participant.id, files)
 
         return Response(data={'message': _('Successfully created')}, status=status.HTTP_201_CREATED)
 
