@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import CardModel
+from .models import PurchaseModel
 
 
-admin.site.register(CardModel)
+
+admin.site.register(PurchaseModel)
+# admin.site.register(TransactionModel)
