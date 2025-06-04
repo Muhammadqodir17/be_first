@@ -74,7 +74,7 @@ class PaymentViewSet(ViewSet):
                 }
             ),
         },
-        tags=['admin'],
+        tags=['payment'],
     )
     def pay_create(self, request, *args, **kwargs):
         user = request.user
@@ -151,7 +151,7 @@ class PaymentViewSet(ViewSet):
                 }
             ),
         },
-        tags=['admin'],
+        tags=['payment'],
     )
     def pay_pre_apply(self, request, *args, **kwargs):
         token = atmos_token()
@@ -190,7 +190,7 @@ class PaymentViewSet(ViewSet):
             required=['transaction_id', 'otp', 'participant_id']
         ),
         responses={200: 'True'},
-        tags=['admin'],
+        tags=['payment'],
     )
     def pay_apply(self, request, *args, **kwargs):
         participant_id = request.data.get('participant_id')
