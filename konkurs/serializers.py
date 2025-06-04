@@ -242,13 +242,13 @@ class FinishedParticipantSerializer(serializers.ModelSerializer):
         fields = ['competition', 'grade', 'certificate']
 
     def get_grade(self, obj):
-        grade_instance = Assessment.objects.filter(participant=obj).first()
+        grade_instance = Assessment.objects.filter(participant=obj, competition=obj.competition).first()
         if grade_instance:
             return GradeSerializer(grade_instance).data
         return None
 
     def get_certificate(self, obj):
-        winner = Winner.objects.filter(participant=obj).first()
+        winner = Winner.objects.filter(participant=obj, competition=obj.competition).first()
         request = self.context.get('request')
         if winner and winner.certificate:
             try:
