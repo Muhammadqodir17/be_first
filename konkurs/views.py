@@ -461,7 +461,7 @@ class SubscriptionViewSet(ViewSet):
         request.data['user'] = request.user.id
         subs = SubscriptionModel.objects.filter(user=request.user, competition=request.data['competition']).first()
         if subs.exist():
-            return Response(data={'error': 'You already subscribe this competition'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('You already subscribe this competition')}, status=status.HTTP_400_BAD_REQUEST)
         serializer = SubscribeCompetitionSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -484,7 +484,7 @@ class SubscriptionViewSet(ViewSet):
     def unsubscription(self, request, *args, **kwargs):
         subs = SubscriptionModel.objects.filter(user=request.user, competition=request.data['competition']).first()
         if subs is None:
-            return Response(data={'error': 'You did not subscribe this competition'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('You did not subscribe this competition')}, status=status.HTTP_400_BAD_REQUEST)
         subs.delete()
-        return Response(data={'message': 'Successfully Unsubscribed'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('Successfully Unsubscribed')}, status=status.HTTP_200_OK)
 

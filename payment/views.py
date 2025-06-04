@@ -82,7 +82,7 @@ class PaymentViewSet(ViewSet):
         participant = Participant.objects.filter(id=participant_id).first()
 
         if not participant:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
         if PurchaseModel.objects.filter(user=user, participant=participant,
                                         competition=participant.competition).exists():
@@ -93,7 +93,7 @@ class PaymentViewSet(ViewSet):
         participant = Participant.objects.select_releted('competition').filter(id=participant_id).first()
 
         if participant is None:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
         response = requests.post(
             "https://partner.atmos.uz/merchant/pay/create",
@@ -197,7 +197,7 @@ class PaymentViewSet(ViewSet):
         participant = Participant.objects.filter(id=participant_id).first()
 
         if participant is None:
-            return Response(data={'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
         token = atmos_token()
         payload = {
@@ -223,7 +223,7 @@ class PaymentViewSet(ViewSet):
         purchase = PurchaseModel.objects.filter(user=participant.child.user, participant=participant,
                                                 competition=participant.competition).first()
         if purchase is None:
-            return Response(data={'error': 'Purchase not found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Purchase not found')}, status=status.HTTP_400_BAD_REQUEST)
         purchase.is_active = True
         purchase.save(updated_fields=['is_active'])
         return Response(data={'success': True}, status=status.HTTP_200_OK)
