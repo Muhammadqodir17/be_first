@@ -48,7 +48,7 @@ urlpatterns = [
          name='get_all_result_img'),
 
     # subscription
-    path('get_all_subscription/', SubscriptionViewSet.as_view({'get': 'get_all_subscription'}),
+    path('get_all_subscription/', SubscriptionViewSet.as_view({'get': 'get_all'}),
          name='get_all_subscription'),
     path('subscription/', SubscriptionViewSet.as_view({'post': 'subscription'}),
          name='subscription'),
