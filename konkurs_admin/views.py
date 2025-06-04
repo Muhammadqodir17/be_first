@@ -19,7 +19,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
 from payment.models import PurchaseModel
-from payment.serializers import PurchaseSerializer, GetPurchaseSerializer
+from payment.serializers import GetPurchaseSerializer
 from .models import (
     Notification,
     Winner,

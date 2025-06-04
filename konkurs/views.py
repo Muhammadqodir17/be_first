@@ -1,5 +1,3 @@
-from idlelib.autocomplete import completion_kwds
-
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -41,7 +39,9 @@ from .serializers import (
     GetCompSerializer,
     ContactUsSerializer,
     ResultImageSerializer,
-    WebCerSerializer, GetSubscriptionsSerializer, SubscribeCompetitionSerializer,
+    WebCerSerializer,
+    GetSubscriptionsSerializer,
+    SubscribeCompetitionSerializer,
 )
 from .models import (
     Competition,

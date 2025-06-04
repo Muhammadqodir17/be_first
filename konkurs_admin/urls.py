@@ -9,7 +9,8 @@ from .views import (
     AboutUsViewSet,
     WebResultImageViewSet,
     ContactUsViewSet,
-    PolicyViewSet, AdminPaymentViewSet,
+    PolicyViewSet,
+    AdminPaymentViewSet,
 )
 
 urlpatterns = [

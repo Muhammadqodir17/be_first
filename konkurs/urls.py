@@ -3,7 +3,8 @@ from .views import (
     CompetitionViewSet,
     MyCompetitionViewSet,
     ContactUsViewSet,
-    DynamicInfoViewSet, SubscriptionViewSet,
+    DynamicInfoViewSet,
+    SubscriptionViewSet,
 )
 
 urlpatterns = [
@@ -41,14 +42,14 @@ urlpatterns = [
          name='k_get_all_contact_info'),
     path('get_all_about_result/', DynamicInfoViewSet.as_view({'get': 'get_all_about_result'}),
          name='k_get_all_about_result'),
-    path('get_all_about_us/', DynamicInfoViewSet.as_view({'get': 'get_all_about_us'}), name='k_get_all_about_us'),
-    path('get_all_policy/', DynamicInfoViewSet.as_view({'get': 'get_all_policy'}), name='k_get_all_policy'),
+    path('get_all_about_us/', DynamicInfoViewSet.as_view({'get': 'get_all_about_us'}), name='get_all_about_us'),
+    path('get_all_policy/', DynamicInfoViewSet.as_view({'get': 'get_all_policy'}), name='get_all_policy'),
     path('get_all_result_img/', DynamicInfoViewSet.as_view({'get': 'get_web_result_image'}),
-         name='k_get_all_result_img'),
+         name='get_all_result_img'),
 
     # subscription
     path('get_all_subscription/', SubscriptionViewSet.as_view({'get': 'get_all_subscription'}),
-         name='k_get_all_result_img'),
+         name='get_all_subscription'),
     path('subscription/', SubscriptionViewSet.as_view({'post': 'subscription'}),
          name='subscription'),
     path('unsubscription/', SubscriptionViewSet.as_view({'post': 'unsubscription'}),
