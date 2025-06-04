@@ -51,6 +51,8 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
             '/api/v1/konkurs/get_grade_by_id/',
             '/api/v1/konkurs/get_notifications/',
             '/api/v1/konkurs/get_notification_by_id/',
+            '/api/v1/konkurs/subscription/',
+            '/api/v1/konkurs/unsubscription/',
         ]
         line = len(request.path)
         request_path = request.path
