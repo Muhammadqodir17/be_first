@@ -37,7 +37,7 @@ def atmos_token():
 
 def get_new_token_data() -> dict:
     response = requests.post(
-        'https://partner.atmos.uz/token',
+        'https://partner.',
         headers={
             'Authorization': f'Basic {getenv("ATMOS_AUTH")}',
             'Content-Type': 'application/x-www-form-urlencoded',
