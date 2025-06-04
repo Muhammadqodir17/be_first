@@ -234,8 +234,8 @@ class GradeSerializer(serializers.ModelSerializer):
 
 class FinishedParticipantSerializer(serializers.ModelSerializer):
     competition = FinishedCompSerializer()
-    grade = serializers.SerializerMethodField(source='get_grade')
-    certificate = serializers.SerializerMethodField(source='get_certificate')
+    grade = serializers.SerializerMethodField()
+    certificate = serializers.SerializerMethodField()
 
     class Meta:
         model = Participant
