@@ -459,8 +459,11 @@ class SubscriptionViewSet(ViewSet):
     )
     def subscription(self, request, *args, **kwargs):
         request.data['user'] = request.user.id
+        competition = Competition.objects.filter(id=request.data['competition']).first()
+        if competition is None:
+            return Response(data={'error': _('Competition not found')}, status=status.HTTP_404_NOT_FOUND)
         subs = SubscriptionModel.objects.filter(user=request.user, competition=request.data['competition']).first()
-        if subs.exist():
+        if subs:
             return Response(data={'error': _('You already subscribe this competition')}, status=status.HTTP_400_BAD_REQUEST)
         serializer = SubscribeCompetitionSerializer(data=request.data)
         if not serializer.is_valid():
