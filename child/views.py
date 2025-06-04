@@ -22,7 +22,7 @@ from konkurs.models import (
     Participant,
     Competition
 )
-from django.utils.translation import gettext_lazy  as _
+from django.utils.translation import gettext_lazy as _
 from .tasks import bulk_works_create
 
 
@@ -213,6 +213,8 @@ class ChildWorkViewSet(ViewSet):  # *
         tags=['child'],
     )
     def create(self, request, *args, **kwargs):
+        from django.core.files.storage import default_storage
+        from django.core.files.base import ContentFile
         participant_id = request.data.get('participant')
         participant = Participant.objects.filter(id=participant_id).first()
 
@@ -223,17 +225,12 @@ class ChildWorkViewSet(ViewSet):  # *
         if not files:
             return Response(data={'error': _('No files uploaded')}, status=status.HTTP_400_BAD_REQUEST)
 
-        test_data = {
-            'participant': participant.id,
-            'competition': participant.competition.id,
-            'files': files[0]
-        }
+        # Save files and collect saved paths
+        saved_paths = []
+        for file in files:
+            path = default_storage.save(f'child_works/{file.name}', ContentFile(file.read()))
+            saved_paths.append(path)
 
-        serializer = ChildWorkSerializer(data=test_data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        bulk_works_create.delay(participant.id, files)
+        bulk_works_create.delay(participant.id, saved_paths)
 
         return Response(data={'message': _('Successfully created')}, status=status.HTTP_201_CREATED)
-
