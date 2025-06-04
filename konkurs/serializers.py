@@ -279,7 +279,7 @@ class GallerySerializer(serializers.ModelSerializer):
                 data['competition'] = getattr(instance.competition, f'name_{lang}')
             else:
                 data['competition'] = instance.competition.name
-        data['competition'] = ''
+        data['competition'] = None
         return data
 
 
