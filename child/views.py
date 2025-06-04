@@ -25,16 +25,6 @@ from konkurs.models import (
 from django.utils.translation import gettext_lazy  as _
 from .tasks import bulk_works_create
 
-""" payment """
-from click_up import ClickUp
-from django.conf import settings
-
-click_up = ClickUp(
-    service_id=settings.CLICK_SERVICE_ID,
-    merchant_id=settings.CLICK_MERCHANT_ID
-)
-""" """
-
 
 class ChildViewSet(ViewSet):
     @swagger_auto_schema(
