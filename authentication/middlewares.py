@@ -54,6 +54,9 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
             '/api/v1/konkurs/get_all_subscription/',
             '/api/v1/konkurs/subscription/',
             '/api/v1/konkurs/unsubscription/',
+            '/api/v1/payment/pay_create/',
+            '/api/v1/payment/pay_pre_apply/',
+            '/api/v1/payment/pay_apply/',
         ]
         line = len(request.path)
         request_path = request.path
