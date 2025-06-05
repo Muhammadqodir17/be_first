@@ -230,8 +230,8 @@ SIMPLE_JWT = {
 #     'REFRESH_TOKEN_LIFETIME': timedelta(days=3)
 # }
 # """ for celery """
-CELERY_BROKER_URL = 'redis://localhost:6379'  # Redis broker
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'  # Redis broker
+CELERY_BROKER_URL = 'redis://redis-db:6379'  # Redis broker
+CELERY_RESULT_BACKEND = 'redis://redis-db:6379'  # Redis broker
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
