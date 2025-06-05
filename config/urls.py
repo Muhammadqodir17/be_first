@@ -47,7 +47,6 @@ check_competition_notifications.delay()
 
 urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
-    path('rosetta/', include('rosetta.urls')),
     # urls
     path('api/v1/konkurs/', include('konkurs.urls')),
     path('api/v1/auth/', include('authentication.urls')),
