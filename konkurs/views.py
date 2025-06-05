@@ -491,3 +491,37 @@ class SubscriptionViewSet(ViewSet):
         subs.delete()
         return Response(data={'message': _('Successfully Unsubscribed')}, status=status.HTTP_200_OK)
 
+
+class ForTestViewSet(ViewSet):
+    @swagger_auto_schema(
+        operation_description="Get active comps",
+        operation_summary="Get active comps",
+        responses={200: ActiveParticipantSerializer()},
+        tags=['competition'],
+    )
+    def get_active_comps_by_id(self, request, *args, **kwargs):
+        participant = Participant.objects.filter(competition__id=kwargs['pk']).first()
+        if participant is None:
+            return Response(data={'error': _('Not found')}, status=status.HTTP_404_NOT_FOUND)
+        if participant.competition.status == 1:
+            serializer = ActiveParticipantSerializer(participant, context={'request': request})
+        else:
+            return Response(data={'error': 'Competition is not active'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Get finished comps",
+        operation_summary="Get finished comps",
+        responses={200: FinishedParticipantSerializer()},
+        tags=['competition'],
+    )
+    def get_finished_comps_by_id(self, request, *args, **kwargs):
+        participant = Participant.objects.filter(competition__id=kwargs['pk']).first()
+        if participant is None:
+            return Response(data={'error': _('Not found')}, status=status.HTTP_404_NOT_FOUND)
+        if participant.competition.status == 2:
+            serializer = FinishedParticipantSerializer(participant, context={'request': request})
+        else:
+            return Response(data={'error': 'Competition is not finished'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
