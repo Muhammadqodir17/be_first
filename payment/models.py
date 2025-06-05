@@ -12,4 +12,4 @@ class PurchaseModel(models.Model):
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.user.first_name} {self.user.last_name}"
