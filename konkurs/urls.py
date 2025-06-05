@@ -54,8 +54,8 @@ urlpatterns = [
          name='subscription'),
     path('unsubscription/', SubscriptionViewSet.as_view({'post': 'unsubscription'}),
          name='unsubscription'),
-    path('get_active_comps_by_id/<int:pk>/', ForTestViewSet.as_view({'get': 'get_active_comps_by_id'}),
-         name='get_active_comps_by_id'),
-    path('get_finished_comps_by_id/<int:pk>/', ForTestViewSet.as_view({'get': 'get_finished_comps_by_id'}),
-         name='get_finished_comps_by_id'),
+    path('get_active_competitions_by_id/<int:pk>/', ForTestViewSet.as_view({'get': 'get_active_comps_by_id'}),
+         name='get_active_competitions_by_id'),
+    path('get_finished_competitions_by_id/<int:pk>/', ForTestViewSet.as_view({'get': 'get_finished_comps_by_id'}),
+         name='get_finished_competitions_by_id'),
 ]
