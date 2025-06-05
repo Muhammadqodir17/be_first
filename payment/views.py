@@ -7,14 +7,14 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from konkurs.models import Participant
-from config.settings import ATMOS_AUTH, STORE_ID
+from django.conf import settings
 from payment.models import PurchaseModel
 from payment.serializers import PurchaseSerializer
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
-s = ATMOS_AUTH
-store_id = STORE_ID
+s = settings.ATMOS_AUTH
+store_id = settings.STORE_ID
 
 
 class PaymentError(Exception):

@@ -1,7 +1,7 @@
 import random
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from config.settings import settings
+from django.conf import settings
 from datetime import datetime, timedelta
 import requests
 
