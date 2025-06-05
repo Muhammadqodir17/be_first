@@ -33,14 +33,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=%8)ppr16+_e#+t*dc(bp#q6&$1zf6te!#n=$wf$qt7#w^@8m)'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG")
 
 DOMAIN_NAME = env.str("DOMAIN_NAME")
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 # Application definition
 
@@ -142,7 +142,7 @@ AUTH_PASSWORD_VALIDATORS = [
 from django.utils.translation import gettext_lazy as _
 
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = env('LANGUAGE_CODE')
 
 LANGUAGES = (
     ('uz', _('Uzbek')),
@@ -159,7 +159,7 @@ LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
 
-TIME_ZONE = 'Asia/Tashkent'
+TIME_ZONE = env("TIME_ZONE")
 
 USE_I18N = True
 
@@ -187,8 +187,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=17),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=17),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=int(env("ACCESS_TOKEN_LIFETIME"))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(env("REFRESH_TOKEN_LIFETIME"))),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
@@ -230,8 +230,8 @@ SIMPLE_JWT = {
 #     'REFRESH_TOKEN_LIFETIME': timedelta(days=3)
 # }
 # """ for celery """
-CELERY_BROKER_URL = 'redis://redis-db:6379'  # Redis broker
-CELERY_RESULT_BACKEND = 'redis://redis-db:6379'  # Redis broker
+CELERY_BROKER_URL =  env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -268,6 +268,8 @@ try:
 except ImportError:
     pass
 
-BOT_ID = '7662698791:AAFF7tOLoXxRhLIwL5ltuEuxpsyqIm4UUKE'
-CHAT_ID = '-1002697239441'
-TELEGRAM_API_URL = "https://api.telegram.org/bot{}/sendMessage?text={}&chat_id={}"
+ATMOS_AUTH = env("ATMOS_AUTH")
+STORE_ID = env.int("STORE_ID")
+BOT_ID = env.int("BOT_ID")
+CHAT_ID = env("CHAT_ID")
+TELEGRAM_API_URL = env("TELEGRAM_API_URL")

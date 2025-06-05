@@ -1,16 +1,20 @@
 import requests
+import base64
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from django.utils.translation import gettext_lazy as _, get_language
-from os import getenv
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from konkurs.models import Participant
+from config.settings import ATMOS_AUTH, STORE_ID
 from payment.models import PurchaseModel
 from payment.serializers import PurchaseSerializer
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+
+s = ATMOS_AUTH
+store_id = STORE_ID
 
 
 class PaymentError(Exception):
@@ -36,10 +40,11 @@ def atmos_token():
 
 
 def get_new_token_data() -> dict:
+    tokenn = (base64.b64encode(s.encode()).decode())
     response = requests.post(
-        'https://partner.',
+        'https://partner.atmos.uz/token',
         headers={
-            'Authorization': f'Basic {getenv("ATMOS_AUTH")}',
+            'Authorization': f'Basic {tokenn}',
             'Content-Type': 'application/x-www-form-urlencoded',
             'Host': 'partner.atmos.uz'
         },
@@ -51,7 +56,7 @@ def get_new_token_data() -> dict:
             'token': token_data['access_token'],
             'expires': datetime.now() + timedelta(hours=1)
         }
-    raise Exception("Failed to obtain new token")
+    raise Exception("Failed to obtain new token", response.text)
 
 
 class PaymentViewSet(ViewSet):
@@ -90,7 +95,7 @@ class PaymentViewSet(ViewSet):
 
         token = atmos_token()
         participant_id = request.data['participant_id']
-        participant = Participant.objects.select_releted('competition').filter(id=participant_id).first()
+        participant = Participant.objects.filter(id=participant_id).first()
 
         if participant is None:
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
@@ -102,8 +107,8 @@ class PaymentViewSet(ViewSet):
                 'Content-Type': 'application/json'
             },
             json={
-                "amount": participant.competition.participation_fee,
-                "store_id": int(getenv("STORE_ID")),
+                "amount": round(participant.competition.participation_fee * 100),
+                "store_id": int(store_id),
                 "account": participant.child.user.id,
                 "lang": get_language(),
             }
@@ -114,14 +119,14 @@ class PaymentViewSet(ViewSet):
         if response.status_code != 200 or result['code'] != "OK":
             raise PaymentError(result["description"], result["code"])
         #
-        data = {
-            'user': request.user.id,
+        for_serializer_data = {
+            'user': participant.child.user.id,
             'participant': participant.id,
             'competition': participant.competition.id,
             'price': participant.competition.participation_fee,
         }
 
-        serializer = PurchaseSerializer(data=data)
+        serializer = PurchaseSerializer(data=for_serializer_data)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -155,21 +160,19 @@ class PaymentViewSet(ViewSet):
     )
     def pay_pre_apply(self, request, *args, **kwargs):
         token = atmos_token()
-        payload = {
-            "card_number": request.data['card_number'],
-            "expiry": request.data['card_expiry'],
-            "store_id": int(getenv("STORE_ID")),
-            "transaction_id": request.data['transaction_id'],
-            "lang": get_language()
-        }
-
         response = requests.post(
             'https://partner.atmos.uz/merchant/pay/pre-apply',
             headers={
                 'Authorization': f'Bearer {token}',
                 'Content-Type': 'application/json'
             },
-            json=payload
+            json={
+                "card_number": str(request.data['card_number']),
+                "expiry": str(request.data['card_expiry']),
+                "store_id": int(store_id),
+                "transaction_id": int(request.data['transaction_id']),
+                "lang": get_language(),
+            }
         )
         data = response.json()
         result = data.get("result", {})
@@ -199,11 +202,16 @@ class PaymentViewSet(ViewSet):
         if participant is None:
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
+        purchase = PurchaseModel.objects.filter(user=participant.child.user, participant=participant,
+                                                competition=participant.competition).first()
+        if purchase is None:
+            return Response(data={'error': _('Purchase not found')}, status=status.HTTP_400_BAD_REQUEST)
+
         token = atmos_token()
         payload = {
             "transaction_id": request.data['transaction_id'],
             "otp": request.data['otp'],
-            "store_id": int(getenv("STORE_ID")),
+            "store_id": int(store_id),
             "lang": get_language()
         }
         response = requests.post(
@@ -219,11 +227,6 @@ class PaymentViewSet(ViewSet):
 
         if response.status_code != 200 or result['code'] != "OK":
             raise PaymentError(result["description"], result["code"])
-
-        purchase = PurchaseModel.objects.filter(user=participant.child.user, participant=participant,
-                                                competition=participant.competition).first()
-        if purchase is None:
-            return Response(data={'error': _('Purchase not found')}, status=status.HTTP_400_BAD_REQUEST)
         purchase.is_active = True
-        purchase.save(updated_fields=['is_active'])
+        purchase.save(update_fields=['is_active'])
         return Response(data={'success': True}, status=status.HTTP_200_OK)
