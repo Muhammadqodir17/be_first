@@ -108,9 +108,9 @@ class LoginViewSet(ViewSet):
             # if user is None:
             #     return Response({'message': _('User not found.')}, status=status.HTTP_404_NOT_FOUND)
         if not user:
-            return Response(data={'error': _('Password or User is incorrect')}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Password or Username is incorrect')}, status=status.HTTP_400_BAD_REQUEST)
         if not user.check_password(data.get('password')):
-            return Response(data={'error': _('Password or User is incorrect')}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('Password or Username is incorrect')}, status=status.HTTP_400_BAD_REQUEST)
         refresh_token = RefreshToken.for_user(user)
         access_token = refresh_token.access_token
         access_token['role'] = user.role
