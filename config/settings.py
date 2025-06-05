@@ -270,6 +270,6 @@ except ImportError:
 
 ATMOS_AUTH = env("ATMOS_AUTH")
 STORE_ID = env("STORE_ID")
-BOT_ID = env("BOT_ID")
-CHAT_ID = env("CHAT_ID")
-TELEGRAM_API_URL = env("TELEGRAM_API_URL")
+BOT_ID = '7662698791:AAFF7tOLoXxRhLIwL5ltuEuxpsyqIm4UUKE'
+CHAT_ID = '-1002697239441'
+TELEGRAM_API_URL = "https://api.telegram.org/bot{}/sendMessage?text={}&chat_id={}"
