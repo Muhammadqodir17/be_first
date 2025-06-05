@@ -1,13 +1,10 @@
 import random
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from django.conf import settings
+from config.settings import BOT_ID, TELEGRAM_API_URL, CHAT_ID
 from datetime import datetime, timedelta
 import requests
 
-BOT_ID = settings.BOT_ID
-CHAT_ID = settings.CHAT_ID
-TELEGRAM_API_URL = settings.TELEGRAM_API_URL
 
 
 def is_valid_tokens(refresh_token, access_token):
