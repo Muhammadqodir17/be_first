@@ -82,14 +82,13 @@ class PaymentViewSet(ViewSet):
         tags=['payment'],
     )
     def pay_create(self, request, *args, **kwargs):
-        user = request.user
         participant_id = request.data.get('participant_id')
         participant = Participant.objects.filter(id=participant_id).first()
 
         if not participant:
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
-        if PurchaseModel.objects.filter(user=user, participant=participant,
+        if PurchaseModel.objects.filter(user=participant.child.user, participant=participant,
                                         competition=participant.competition).exists():
             return Response(data={'error': 'Already purchased'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -115,9 +114,8 @@ class PaymentViewSet(ViewSet):
         )
         data = response.json()
         result = data.get("result", {})
-
         if response.status_code != 200 or result['code'] != "OK":
-            raise PaymentError(result["description"], result["code"])
+            return Response(data={'error': result.get('description')}, status=status.HTTP_400_BAD_REQUEST)
         #
         for_serializer_data = {
             'user': participant.child.user.id,
@@ -142,9 +140,9 @@ class PaymentViewSet(ViewSet):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'card_number': openapi.Schema(type=openapi.TYPE_INTEGER, description='name'),
-                'card_expiry': openapi.Schema(type=openapi.TYPE_INTEGER, description='name_uz'),
-                'transaction_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='name_ru'),
+                'card_number': openapi.Schema(type=openapi.TYPE_STRING, description='card_number'),
+                'card_expiry': openapi.Schema(type=openapi.TYPE_STRING, description='card_expiry'),
+                'transaction_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='transaction_id'),
             },
             required=['card_number', 'card_expiry', 'transaction_id']
         ),
@@ -159,6 +157,10 @@ class PaymentViewSet(ViewSet):
         tags=['payment'],
     )
     def pay_pre_apply(self, request, *args, **kwargs):
+        expiry = str(request.data['card_expiry'])
+        month = expiry[:2]
+        year = expiry[3:]
+        res_expiry = year + month
         token = atmos_token()
         response = requests.post(
             'https://partner.atmos.uz/merchant/pay/pre-apply',
@@ -168,7 +170,7 @@ class PaymentViewSet(ViewSet):
             },
             json={
                 "card_number": str(request.data['card_number']),
-                "expiry": str(request.data['card_expiry']),
+                "expiry": str(res_expiry),
                 "store_id": int(store_id),
                 "transaction_id": int(request.data['transaction_id']),
                 "lang": get_language(),
@@ -177,8 +179,8 @@ class PaymentViewSet(ViewSet):
         data = response.json()
         result = data.get("result", {})
         if response.status_code != 200 or result['code'] != "OK":
-            raise PaymentError(result["description"], result["code"])
-        return Response(data={'transaction_id': request.data['transaction_id']}, status=status.HTTP_200_OK)
+            return Response(data={'error': result.get('description')}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={'transaction_id': int(request.data['transaction_id'])}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Pay Apply",
@@ -226,7 +228,7 @@ class PaymentViewSet(ViewSet):
         result = data.get("result", {})
 
         if response.status_code != 200 or result['code'] != "OK":
-            raise PaymentError(result["description"], result["code"])
+            return Response(data={'error': result.get('description')}, status=status.HTTP_400_BAD_REQUEST)
         purchase.is_active = True
         purchase.save(update_fields=['is_active'])
         return Response(data={'success': True}, status=status.HTTP_200_OK)
