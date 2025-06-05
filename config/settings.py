@@ -33,14 +33,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = 'django-insecure-=%8)ppr16+_e#+t*dc(bp#q6&$1zf6te!#n=$wf$qt7#w^@8m)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG")
+DEBUG = True
 
 DOMAIN_NAME = env.str("DOMAIN_NAME")
 
-ALLOWED_HOSTS = [env("ALLOWED_HOSTS")]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -142,7 +142,7 @@ AUTH_PASSWORD_VALIDATORS = [
 from django.utils.translation import gettext_lazy as _
 
 
-LANGUAGE_CODE = env('LANGUAGE_CODE')
+LANGUAGE_CODE = 'en-us'
 
 LANGUAGES = (
     ('uz', _('Uzbek')),
@@ -159,7 +159,7 @@ LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
 
-TIME_ZONE = env("TIME_ZONE")
+TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
 
@@ -187,8 +187,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=int(env("ACCESS_TOKEN_LIFETIME"))),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(env("REFRESH_TOKEN_LIFETIME"))),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=17),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=17),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
@@ -230,8 +230,8 @@ SIMPLE_JWT = {
 #     'REFRESH_TOKEN_LIFETIME': timedelta(days=3)
 # }
 # """ for celery """
-CELERY_BROKER_URL =  env("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
+CELERY_BROKER_URL = 'redis://localhost:6379'  # Redis broker
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'  # Redis broker
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -269,7 +269,7 @@ except ImportError:
     pass
 
 ATMOS_AUTH = env("ATMOS_AUTH")
-STORE_ID = env.int("STORE_ID")
+STORE_ID = env("STORE_ID")
 BOT_ID = env("BOT_ID")
 CHAT_ID = env("CHAT_ID")
 TELEGRAM_API_URL = env("TELEGRAM_API_URL")
