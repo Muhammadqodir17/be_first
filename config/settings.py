@@ -40,7 +40,7 @@ DEBUG = env.bool("DEBUG")
 
 DOMAIN_NAME = env.str("DOMAIN_NAME")
 
-ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+ALLOWED_HOSTS = [env("ALLOWED_HOSTS")]
 
 # Application definition
 
@@ -270,6 +270,6 @@ except ImportError:
 
 ATMOS_AUTH = env("ATMOS_AUTH")
 STORE_ID = env.int("STORE_ID")
-BOT_ID = env.int("BOT_ID")
+BOT_ID = env("BOT_ID")
 CHAT_ID = env("CHAT_ID")
 TELEGRAM_API_URL = env("TELEGRAM_API_URL")
