@@ -262,7 +262,7 @@ class FinishedParticipantSerializer(serializers.ModelSerializer):
         ).first()
         if winner and winner.certificate:
             try:
-                data['certificate'] = request.build_absolute_uri(winner.certificate.url)
+                data['certificate'] = True
                 # data['certificate'] = True
             except ValueError:
                 data['certificate'] = None
