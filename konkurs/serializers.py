@@ -263,6 +263,7 @@ class FinishedParticipantSerializer(serializers.ModelSerializer):
         if winner and winner.certificate:
             try:
                 data['certificate'] = request.build_absolute_uri(winner.certificate.url)
+                # data['certificate'] = True
             except ValueError:
                 data['certificate'] = None
         else:
@@ -292,7 +293,8 @@ class GallerySerializer(serializers.ModelSerializer):
                 data['competition'] = getattr(instance.competition, f'name_{lang}')
             else:
                 data['competition'] = instance.competition.name
-        data['competition'] = None
+        else:
+            data['competition'] = None
         return data
 
 
