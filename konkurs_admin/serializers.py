@@ -303,12 +303,6 @@ class WinnerSerializer(serializers.ModelSerializer):
         data['place'] = dict(PLACE).get(instance.place, 'Unknown')
         return data
 
-    def validate(self, data):
-        winner = Winner.objects.filter(place=data['place']).first()
-        if winner:
-            raise serializers.ValidationError(_("You've already created %(place)s place") % {'place': data['place']})
-        return data
-
     def validate_phone_number(self, data):
         return validate_uz_phone_number(data)
 
