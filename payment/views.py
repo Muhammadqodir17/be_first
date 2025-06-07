@@ -8,6 +8,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from konkurs.models import Participant
 from django.conf import settings
+
+from konkurs_admin.models import Winner
+from konkurs_admin.serializers import DownloadCertificateSerializer
 from payment.models import PurchaseModel
 from payment.serializers import PurchaseSerializer
 from drf_yasg import openapi
@@ -231,4 +234,40 @@ class PaymentViewSet(ViewSet):
             return Response(data={'error': result.get('description')}, status=status.HTTP_400_BAD_REQUEST)
         purchase.is_active = True
         purchase.save(update_fields=['is_active'])
+        participant.is_paid = True
+        participant.save(update_fields=['is_paid'])
         return Response(data={'success': True}, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Download Certificate",
+        operation_summary="Download Certificate",
+        manual_parameters=[
+            openapi.Parameter(
+                'participant', openapi.IN_QUERY,
+                type=openapi.TYPE_INTEGER,
+                description='participant_id',
+                required=True
+            )
+        ],
+        responses={200: DownloadCertificateSerializer()},
+        tags=['payment'],
+    )
+    def download_certificate(self, request, *args, **kwargs):
+        data = request.GET
+        participant = Participant.objects.filter(id=data.get('participant')).first()
+
+        if participant is None:
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
+
+        if participant.is_paid is False:
+            return Response(data={'ok': False}, status=status.HTTP_200_OK)
+
+        winner = Winner.objects.filter(participant=participant).first()
+        if winner is None:
+            return Response(data={'error': _('Winner not found')}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = DownloadCertificateSerializer(winner, context={'request': request})
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

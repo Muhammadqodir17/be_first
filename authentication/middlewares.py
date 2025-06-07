@@ -57,6 +57,7 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
             '/api/v1/payment/pay_create/',
             '/api/v1/payment/pay_pre_apply/',
             '/api/v1/payment/pay_apply/',
+            '/api/v1/payment/download_certificate/',
         ]
         line = len(request.path)
         request_path = request.path

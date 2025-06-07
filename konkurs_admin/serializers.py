@@ -637,3 +637,9 @@ class GetExistCompetitionByIdSerializer(serializers.ModelSerializer):
         data['category'] = instance.category.name
         data['status'] = dict(STATUS).get(instance.status, 'Unknown')
         return data
+
+
+class DownloadCertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Winner
+        fields = ['certificate']
