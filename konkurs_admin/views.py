@@ -1180,6 +1180,10 @@ class CompetitionViewSet(ViewSet):
                                                  child__date_of_birth=request.data['birth_date']).first()
         if participant is None:
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
+        winner = Winner.objects.filter(competition=comp, place=request.data['place']).first()
+        if winner:
+            return Response(data={'error': _("You've already created %(place)s place") % {'place': request.data['place']}},
+            status=status.HTTP_400_BAD_REQUEST)
         participant.winner = True
         participant.save()
         serializer.validated_data['competition'] = comp
