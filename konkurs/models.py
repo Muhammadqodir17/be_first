@@ -66,6 +66,7 @@ class Participant(BaseModel):
     action = models.IntegerField(choices=APPROVEMENT, default=1)
     marked_status = models.IntegerField(choices=MARKED_STATUS, default=1)
     winner = models.BooleanField(default=False)
+    is_paid = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.child}"
