@@ -16,6 +16,8 @@ from payment.serializers import PurchaseSerializer
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
+from payment.utils import validate_pan, validate_expiry
+
 s = settings.ATMOS_AUTH
 store_id = settings.STORE_ID
 
@@ -160,6 +162,8 @@ class PaymentViewSet(ViewSet):
         tags=['payment'],
     )
     def pay_pre_apply(self, request, *args, **kwargs):
+        validate_pan(request.data['card_number'])
+        validate_expiry(request.data['card_expiry'])
         expiry = str(request.data['card_expiry'])
         month = expiry[:2]
         year = expiry[3:]
@@ -267,7 +271,5 @@ class PaymentViewSet(ViewSet):
             return Response(data={'error': _('Winner not found')}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = DownloadCertificateSerializer(winner, context={'request': request})
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
