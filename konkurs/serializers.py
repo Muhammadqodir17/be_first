@@ -214,7 +214,12 @@ class ActiveParticipantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Participant
-        fields = ['competition']
+        fields = ['child', 'competition']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['child'] = f'{instance.child.first_name} {instance.child.last_name}'
+        return data
 
 
 class FinishedCompSerializer(serializers.ModelSerializer):
@@ -246,11 +251,12 @@ class FinishedParticipantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Participant
-        fields = ['competition', 'grade', 'certificate']
+        fields = ['child', 'competition', 'grade', 'certificate']
 
     def to_representation(self, instance):
-        request = self.context.get('request')
         data = super().to_representation(instance)
+        data['child'] = f'{instance.child.first_name} {instance.child.last_name}'
+        request = self.context.get('request')
         grade_instance = Assessment.objects.filter(
             participant=instance, competition=instance.competition
         ).first()
