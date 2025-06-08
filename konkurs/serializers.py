@@ -184,7 +184,7 @@ class CompParticipantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Participant
-        fields = ['competition']
+        fields = ['id', 'competition']
 
 
 class ActiveCompSerializer(serializers.ModelSerializer):
@@ -251,7 +251,6 @@ class FinishedParticipantSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         request = self.context.get('request')
         data = super().to_representation(instance)
-
         grade_instance = Assessment.objects.filter(
             participant=instance, competition=instance.competition
         ).first()
