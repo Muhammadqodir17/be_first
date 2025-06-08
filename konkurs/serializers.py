@@ -184,7 +184,12 @@ class CompParticipantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Participant
-        fields = ['id', 'competition']
+        fields = ['id', 'child', 'competition']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['child'] = f'{instance.child.first_name} {instance.child.last_name}'
+        return data
 
 
 class ActiveCompSerializer(serializers.ModelSerializer):
