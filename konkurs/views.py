@@ -500,7 +500,7 @@ class ForTestViewSet(ViewSet):
         tags=['competition'],
     )
     def get_active_comps_by_id(self, request, *args, **kwargs):
-        participant = Participant.objects.filter(competition__id=kwargs['pk']).first()
+        participant = Participant.objects.filter(id=kwargs['pk']).first()
         if participant is None:
             return Response(data={'error': _('Not found')}, status=status.HTTP_404_NOT_FOUND)
         if participant.competition.status == 1:
@@ -516,7 +516,7 @@ class ForTestViewSet(ViewSet):
         tags=['competition'],
     )
     def get_finished_comps_by_id(self, request, *args, **kwargs):
-        participant = Participant.objects.filter(competition__id=kwargs['pk']).first()
+        participant = Participant.objects.filter(id=kwargs['pk']).first()
         if participant is None:
             return Response(data={'error': _('Not found')}, status=status.HTTP_404_NOT_FOUND)
         if participant.competition.status == 2:
