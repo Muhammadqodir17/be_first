@@ -274,17 +274,17 @@ class PaymentViewSet(ViewSet):
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    @swagger_auto_schema(
-        operation_description="Get Payment Info",
-        operation_summary="Get Payment Info",
-        responses={
-            200: PurchaseInfoSerializer(),
-        },
-        tags=['payment']
-    )
-    def payment_info(self, request, *args, **kwargs):
-        purchase = PurchaseModel.objects.filter(participant__id=kwargs['pk']).first()
-        if purchase is None:
-            return Response(data={'error': 'Purchase not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = PurchaseInfoSerializer(purchase)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+    # @swagger_auto_schema(
+    #     operation_description="Get Payment Info",
+    #     operation_summary="Get Payment Info",
+    #     responses={
+    #         200: PurchaseInfoSerializer(),
+    #     },
+    #     tags=['payment']
+    # )
+    # def payment_info(self, request, *args, **kwargs):
+    #     purchase = PurchaseModel.objects.filter(participant__id=kwargs['pk']).first()
+    #     if purchase is None:
+    #         return Response(data={'error': 'Purchase not found'}, status=status.HTTP_404_NOT_FOUND)
+    #     serializer = PurchaseInfoSerializer(purchase)
+    #     return Response(data=serializer.data, status=status.HTTP_200_OK)
