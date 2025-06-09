@@ -33,14 +33,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=%8)ppr16+_e#+t*dc(bp#q6&$1zf6te!#n=$wf$qt7#w^@8m)'
+SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG")
 
 DOMAIN_NAME = env.str("DOMAIN_NAME")
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 # Application definition
 
@@ -187,8 +187,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=17),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=17),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=env.int("ACCESS_TOKEN_LIFETIME")),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=env.int("REFRESH_TOKEN_LIFETIME")),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
@@ -230,8 +230,8 @@ SIMPLE_JWT = {
 #     'REFRESH_TOKEN_LIFETIME': timedelta(days=3)
 # }
 # """ for celery """
-CELERY_BROKER_URL = 'redis://redis-db:6379'  # Redis broker
-CELERY_RESULT_BACKEND = 'redis://redis-db:6379'  # Redis broker
+CELERY_BROKER_URL = env.str("CELERY_BROKER_URL")  # Redis broker
+CELERY_RESULT_BACKEND = env.str("CELERY_RESULT_BACKEND")  # Redis broker
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -270,6 +270,6 @@ except ImportError:
 
 ATMOS_AUTH = env("ATMOS_AUTH")
 STORE_ID = env("STORE_ID")
-BOT_ID = '7662698791:AAFF7tOLoXxRhLIwL5ltuEuxpsyqIm4UUKE'
-CHAT_ID = '-1002697239441'
-TELEGRAM_API_URL = "https://api.telegram.org/bot{}/sendMessage?text={}&chat_id={}"
+BOT_ID = env.str("BOT_ID")
+CHAT_ID = env.str("CHAT_ID")
+TELEGRAM_API_URL = env.str("TELEGRAM_API_URL")
