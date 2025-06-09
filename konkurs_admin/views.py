@@ -66,7 +66,7 @@ from konkurs.serializers import (
 )
 from konkurs.models import ContactUs
 from .pagination import CustomPagination
-from django.utils.translation import gettext_lazy  as _
+from django.utils.translation import gettext_lazy as _
 
 
 class CategoryViewSet(ViewSet):
@@ -665,6 +665,12 @@ class CompetitionViewSet(ViewSet):
                 type=openapi.TYPE_FILE,
                 required=True,
                 description="image"
+            ), openapi.Parameter(
+                name='physical_certificate',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                required=True,
+                description="physical_certificate"
             ),
             openapi.Parameter(
                 name='name',
@@ -777,6 +783,19 @@ class CompetitionViewSet(ViewSet):
                 type=openapi.TYPE_STRING,
                 required=True,
                 description="rules",
+            ), openapi.Parameter(
+                name='prize',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description="prize",
+            ), openapi.Parameter(
+                name='participation_fee',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_NUMBER,
+                format='float',
+                required=True,
+                description="participation_fee",
             ),
         ],
         responses={201: CreateCompetitionSerializer()},
@@ -805,6 +824,11 @@ class CompetitionViewSet(ViewSet):
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_FILE,
                 description="image"
+            ),openapi.Parameter(
+                name='physical_certificate',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                description="physical_certificate"
             ),
             openapi.Parameter(
                 name='name',
@@ -904,6 +928,17 @@ class CompetitionViewSet(ViewSet):
                 in_=openapi.IN_FORM,
                 type=openapi.TYPE_INTEGER,
                 description="status",
+            ), openapi.Parameter(
+                name='prize',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="prize",
+            ), openapi.Parameter(
+                name='participation_fee',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_NUMBER,
+                format='float',
+                description="participation_fee",
             ),
         ],
         responses={200: CreateCompetitionSerializer()},
@@ -1182,8 +1217,9 @@ class CompetitionViewSet(ViewSet):
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
         winner = Winner.objects.filter(competition=comp, place=request.data['place']).first()
         if winner:
-            return Response(data={'error': _("You've already created %(place)s place") % {'place': request.data['place']}},
-            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                data={'error': _("You've already created %(place)s place") % {'place': request.data['place']}},
+                status=status.HTTP_400_BAD_REQUEST)
         participant.winner = True
         participant.save()
         serializer.validated_data['competition'] = comp
@@ -3209,4 +3245,3 @@ class AdminPaymentViewSet(ViewSet):
         payment = paginator.paginate_queryset(payments, request)
         serializer = GetPurchaseSerializer(payment, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
-
