@@ -136,10 +136,7 @@ class PaymentViewSet(ViewSet):
         serializer.save()
 
         return Response(
-            data={'transaction_id': data.get('transaction_id'),
-                  'amount': participant.competition.participation_fee,
-                  'competition': participant.competition.name,
-                  'participant': f'{participant.child.first_name} {participant.child.last_name}'},
+            data={'transaction_id': data.get('transaction_id'), 'amount': participant.competition.participation_fee},
             status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
