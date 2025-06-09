@@ -23,6 +23,8 @@ from authentication.models import (
     ACADEMIC_DEGREE
 )
 from django.contrib.auth.hashers import make_password
+
+from payment.models import PurchaseModel
 from .models import (
     Winner,
     PLACE,
@@ -222,7 +224,8 @@ class CreateCompetitionSerializer(serializers.ModelSerializer):
                   'comp_start_time',
                   'comp_end_date',
                   'comp_end_time', 'application_start_date', 'application_start_time',
-                  'application_end_date', 'application_end_time', 'rules', 'status']
+                  'application_end_date', 'application_end_time', 'rules', 'status', 'prize', 'participation_fee',
+                  'physical_certificate']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -624,7 +627,8 @@ class GetExistCompetitionByIdSerializer(serializers.ModelSerializer):
         fields = ['id', 'image', 'name', 'name_uz', 'name_ru', 'name_en', 'category', 'description',
                   'description_uz', 'description_ru', 'description_en', 'comp_start_date', 'comp_start_time',
                   'comp_end_date', 'comp_end_time', 'application_start_date', 'application_start_time',
-                  'application_end_date', 'application_end_time', 'rules', 'status']
+                  'application_end_date', 'application_end_time', 'rules', 'status', 'physical_certificate', 'prize',
+                  'participation_fee']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -637,3 +641,21 @@ class DownloadCertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Winner
         fields = ['certificate']
+
+
+class PurchaseInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseModel
+        fields = ['competition', 'participant', 'price']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['participant'] = f'{instance.participant.child.first_name} {instance.participant.child.last_name}'
+        request = self.context.get('request')
+        lang = request.headers.get('Accept-Language', settings.MODELTRANSLATION_DEFAULT_LANGUAGE)
+        lang_options = settings.MODELTRANSLATION_LANGUAGES
+        if lang in lang_options:
+            data['competition'] = getattr(instance.competition, f'name_{lang}')
+        else:
+            data['competition'] = instance.competition.name
+        return data

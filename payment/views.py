@@ -10,7 +10,7 @@ from konkurs.models import Participant
 from django.conf import settings
 
 from konkurs_admin.models import Winner
-from konkurs_admin.serializers import DownloadCertificateSerializer
+from konkurs_admin.serializers import DownloadCertificateSerializer, PurchaseInfoSerializer
 from payment.models import PurchaseModel
 from payment.serializers import PurchaseSerializer
 from drf_yasg import openapi
@@ -94,7 +94,7 @@ class PaymentViewSet(ViewSet):
             return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
 
         if PurchaseModel.objects.filter(user=participant.child.user, participant=participant,
-                                        competition=participant.competition).exists():
+                                        competition=participant.competition, is_active=True).exists():
             return Response(data={'error': 'Already purchased'}, status=status.HTTP_400_BAD_REQUEST)
 
         token = atmos_token()
@@ -136,7 +136,10 @@ class PaymentViewSet(ViewSet):
         serializer.save()
 
         return Response(
-            data={'transaction_id': data.get('transaction_id'), 'amount': participant.competition.participation_fee},
+            data={'transaction_id': data.get('transaction_id'),
+                  'amount': participant.competition.participation_fee,
+                  'competition': participant.competition.name,
+                  'participant': f'{participant.child.first_name} {participant.child.last_name}'},
             status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -273,3 +276,18 @@ class PaymentViewSet(ViewSet):
         serializer = DownloadCertificateSerializer(winner, context={'request': request})
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    # @swagger_auto_schema(
+    #     operation_description="Get Payment Info",
+    #     operation_summary="Get Payment Info",
+    #     responses={
+    #         200: PurchaseInfoSerializer(),
+    #     },
+    #     tags=['payment']
+    # )
+    # def payment_info(self, request, *args, **kwargs):
+    #     purchase = PurchaseModel.objects.filter(participant__id=kwargs['pk']).first()
+    #     if purchase is None:
+    #         return Response(data={'error': 'Purchase not found'}, status=status.HTTP_404_NOT_FOUND)
+    #     serializer = PurchaseInfoSerializer(purchase)
+    #     return Response(data=serializer.data, status=status.HTTP_200_OK)

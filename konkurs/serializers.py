@@ -123,15 +123,27 @@ class ChildrenSerializer(serializers.ModelSerializer):
                   'date_of_birth', 'place_of_study', 'degree_of_kinship']
 
 
+class WorksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildWork
+        fields = ['id', 'files']
+
+
 class GetRegisteredChild(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(source='get_name')
+    works = serializers.SerializerMethodField(source='get_works')
 
     class Meta:
         model = Participant
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'works']
 
     def get_name(self, data):
         return data.child.first_name
+
+    def get_works(self, data):
+        request = self.context.get('request')
+        works = ChildWork.objects.filter(participant__id=data.id)
+        return WorksSerializer(works, many=True, context={'request': request})
 
 
 class ChildSerializer(serializers.ModelSerializer):
@@ -271,11 +283,7 @@ class FinishedParticipantSerializer(serializers.ModelSerializer):
             participant=instance, competition=instance.competition
         ).first()
         if winner and winner.certificate:
-            try:
-                data['certificate'] = True
-                # data['certificate'] = True
-            except ValueError:
-                data['certificate'] = None
+            data['certificate'] = True
         else:
             data['certificate'] = None
 
