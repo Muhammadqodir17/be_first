@@ -34,7 +34,7 @@ from .models import (
     Policy,
     SocialMedia,
 )
-from django.utils.translation import gettext_lazy  as _
+from django.utils.translation import gettext_lazy as _
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -64,7 +64,6 @@ class GetCompetitionSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'category', 'description', 'application_start_date', 'application_start_time',
                   'application_end_date', 'application_end_time', 'status']
 
-
     def to_representation(self, instance):
         data = super().to_representation(instance)
         request = self.context.get('request')
@@ -79,13 +78,13 @@ class GetCompetitionSerializer(serializers.ModelSerializer):
         return data
 
 
-
 class GetCompetitionByIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'image', 'name', 'category', 'description', 'comp_start_date', 'comp_start_time',
                   'comp_end_date', 'comp_end_time', 'application_start_date', 'application_start_time',
-                  'application_end_date', 'application_end_time', 'rules', 'status']
+                  'application_end_date', 'application_end_time', 'rules', 'status', 'prize', 'participation_fee',
+                  'physical_certificate']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -563,7 +562,8 @@ class ForUpdateWinnerSerializer(serializers.ModelSerializer):
         if data.get('place'):
             winner = Winner.objects.filter(place=data['place']).first()
             if winner:
-                raise serializers.ValidationError(_("You've already created %(place)s place") % {'place': data['place']})
+                raise serializers.ValidationError(
+                    _("You've already created %(place)s place") % {'place': data['place']})
         return data
 
     def validate_phone_number(self, data):
