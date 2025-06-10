@@ -20,4 +20,5 @@ urlpatterns = [
     path('get_user_children/', ChildViewSet.as_view({'get': 'get_user_children'}), name='get_user_children'),
     # add work
     path('add_work/', ChildWorkViewSet.as_view({'post': 'create'}), name='add_work'),
+    path('delete_work/', ChildWorkViewSet.as_view({'delete': 'delete'}), name='add_work'),
 ]
