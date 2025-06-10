@@ -245,3 +245,20 @@ class ChildWorkViewSet(ViewSet):  # *
         ChildWork.objects.bulk_create(child_works)
 
         return Response(data={'message': _('Successfully created')}, status=status.HTTP_201_CREATED)
+
+    @swagger_auto_schema(
+        operation_description="Delete ChildWork",
+        operation_summary="Delete ChildWork",
+        responses={
+            200: 'Successfully Deleted',
+        },
+        tags=['child']
+    )
+    def delete(self, request, *args, **kwargs):
+        work = ChildWork.objects.filter(id=kwargs['pk']).first()
+        if work is None:
+            return Response(data={'error': _('ChildWork not found')}, status=status.HTTP_404_NOT_FOUND)
+        if work.participant.child.user != request.user:
+            return Response(data={'error': 'You can not delete this work'}, status=status.HTTP_400_BAD_REQUEST)
+        work.delete()
+        return Response(data={'message': 'ChildWork Successfully deleted'}, status=status.HTTP_200_OK)
