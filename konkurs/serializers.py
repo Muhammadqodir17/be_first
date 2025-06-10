@@ -146,7 +146,7 @@ class GetRegisteredChild(serializers.ModelSerializer):
     def get_works(self, data):
         request = self.context.get('request')
         works = ChildWork.objects.filter(participant__id=data.id)
-        return WorksSerializer(works, many=True, context={'request': request})
+        return WorksSerializer(works, many=True, context={'request': request}).data
 
 
 class ChildSerializer(serializers.ModelSerializer):
