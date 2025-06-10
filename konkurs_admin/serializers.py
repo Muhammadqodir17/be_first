@@ -252,6 +252,7 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
     study_place = serializers.SerializerMethodField(source='get_study_place')
     works = serializers.SerializerMethodField(source='get_works')
     grade = serializers.SerializerMethodField(source='get_grade')
+    comment = serializers.SerializerMethodField(source='get_comment')
 
     class Meta:
         model = Participant
@@ -272,6 +273,14 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
         ).first()
         if grade_instance:
             return grade_instance.grade
+        return None
+
+    def get_comment(self, obj):
+        grade_instance = Assessment.objects.filter(
+            participant__id=obj.id, participant__competition__id=obj.competition.id
+        ).first()
+        if grade_instance:
+            return grade_instance.comment
         return None
 
     def get_full_name(self, obj):
