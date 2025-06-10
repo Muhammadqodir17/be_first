@@ -56,7 +56,10 @@ class GetCompSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Competition
-        fields = ['id', 'name', 'comp_end_date', 'description', 'participants']
+        fields = ['id', 'name', 'category', 'description', 'prize', 'comp_start_date', 'comp_start_time',
+                  'comp_end_date', 'comp_end_time', 'application_start_date', 'application_start_time',
+                  'application_end_date', 'application_end_time', 'participation_fee', 'rules', 'physical_certificate',
+                  'image', 'status', 'participants']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
