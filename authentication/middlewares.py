@@ -29,6 +29,7 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
         target_urls = [
             '/api/v1/child/register_child_to_comp/',
             '/api/v1/child/add_work/',
+            '/api/v1/child/delete_work/',
             '/api/v1/child/create_child/',
             '/api/v1/child/update_child/',
             '/api/v1/child/get_child/',
