@@ -213,9 +213,6 @@ class ChildWorkViewSet(ViewSet):  # *
         tags=['child'],
     )
     def create(self, request, *args, **kwargs):
-        from django.core.files.storage import default_storage
-        from django.core.files.base import ContentFile
-
         participant_id = request.data.get('participant')
         participant = Participant.objects.filter(id=participant_id).first()
 
@@ -226,20 +223,26 @@ class ChildWorkViewSet(ViewSet):  # *
         if not files:
             return Response(data={'error': _('No files uploaded')}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Save files temporarily and collect their paths
-        file_paths = []
-        for file in files:
-            # Save file to storage
-            file_path = default_storage.save(f'temp/{file.name}', ContentFile(file.read()))
-            file_paths.append({
-                'path': file_path,
-                'name': file.name,
-                'content_type': file.content_type,
-                'size': file.size
-            })
+        test_data = {
+            'participant': participant.id,
+            'competition': participant.competition.id,
+            'files': files[0]
+        }
 
-        # Pass file paths instead of file objects
-        bulk_works_create.delay(participant.id, file_paths)
+        serializer = ChildWorkSerializer(data=test_data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # bulk_works_create.delay(participant.id, [file.name for file in files])
+        child_works = [
+            ChildWork(
+                participant=participant,
+                competition=participant.competition,
+                files=file
+            )
+            for file in files
+        ]
+        ChildWork.objects.bulk_create(child_works)
 
         return Response(data={'message': _('Successfully created')}, status=status.HTTP_201_CREATED)
 
