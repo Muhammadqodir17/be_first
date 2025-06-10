@@ -256,7 +256,7 @@ class StatusParticipantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Participant
-        fields = ['id', 'full_name', 'date_of_birth', 'age', 'study_place', 'works', 'grade']
+        fields = ['id', 'full_name', 'date_of_birth', 'age', 'study_place', 'works', 'grade', 'comment']
 
     def get_works(self, obj):
         works_instance = ChildWork.objects.filter(
