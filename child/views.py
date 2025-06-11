@@ -1,5 +1,3 @@
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from rest_framework.viewsets import ViewSet
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -253,13 +251,16 @@ class ChildWorkViewSet(ViewSet):  # *
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        saved_paths = []
-        for file in files:
-            file_path = default_storage.save(f'child_works/{file.name}', ContentFile(file.read()))
-            saved_paths.append(file_path)
-
         # bulk_works_create.delay(participant.id, [file.name for file in files])
-        bulk_works_create.delay(participant.id, saved_paths)
+        child_works = [
+            ChildWork(
+                participant=participant,
+                competition=participant.competition,
+                files=file
+            )
+            for file in files
+        ]
+        ChildWork.objects.bulk_create(child_works)
 
         return Response(data={'message': _('Successfully created')}, status=status.HTTP_201_CREATED)
 
