@@ -1,7 +1,11 @@
+import os
+
 import requests
 import base64
 from datetime import datetime, timedelta
 from dataclasses import dataclass
+
+from django.http import FileResponse
 from django.utils.translation import gettext_lazy as _, get_language
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -274,12 +278,15 @@ class PaymentViewSet(ViewSet):
         if winner is None:
             return Response(data={'error': _('Winner not found')}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = DownloadCertificateSerializer(winner, context={'request': request})
+        # serializer = DownloadCertificateSerializer(winner, context={'request': request})
 
-        response = Response(data=serializer.data, content_type='image/*' , status=status.HTTP_200_OK)
-        response.headers['Content-Disposition'] = 'attachment'
-        response.headers['filename'] = winner.certificate.name
-        return response
+        full_path = os.path.join(settings.MEDIA_ROOT, winner.certificate.url)
+        return FileResponse(open(full_path, 'rb'), as_attachment=True, filename='certificate.png')
+
+        # response = Response(data=serializer.data, content_type='image/*' , status=status.HTTP_200_OK)
+        # response.headers['Content-Disposition'] = 'attachment'
+        # response.headers['filename'] = winner.certificate.name
+        # return response
 
     # @swagger_auto_schema(
     #     operation_description="Get Payment Info",
