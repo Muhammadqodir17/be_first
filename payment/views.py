@@ -168,6 +168,10 @@ class PaymentViewSet(ViewSet):
         month = expiry[:2]
         year = expiry[3:]
         res_expiry = year + month
+        print('=' * 100)
+        print(res_expiry)
+        print((request.data['card_number']))
+        print('=' * 100)
         token = atmos_token()
         response = requests.post(
             'https://partner.atmos.uz/merchant/pay/pre-apply',
@@ -272,7 +276,9 @@ class PaymentViewSet(ViewSet):
 
         serializer = DownloadCertificateSerializer(winner, context={'request': request})
 
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        response = Response(data=serializer.data, status=status.HTTP_200_OK)
+        response.headers['Content-Disposition'] = 'attachment'
+        return response
 
     # @swagger_auto_schema(
     #     operation_description="Get Payment Info",
