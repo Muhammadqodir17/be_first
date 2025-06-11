@@ -278,7 +278,7 @@ class PaymentViewSet(ViewSet):
 
         response = Response(data=serializer.data, content_type='image/*' , status=status.HTTP_200_OK)
         response.headers['Content-Disposition'] = 'attachment'
-        print(dir(winner.certificate))
+        response.headers['filename'] = winner.certificate.name
         return response
 
     # @swagger_auto_schema(
