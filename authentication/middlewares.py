@@ -37,6 +37,7 @@ class CheckAuthenticationMiddleware(MiddlewareMixin):
             '/api/v1/child/get_children/',
             '/api/v1/child/delete_child/',
             '/api/v1/child/register_child_to_comp/',
+            '/api/v1/child/delete_registered_child/',
             '/api/v1/child/get_registered_child/',
             '/api/v1/child/add_work/',
             '/api/v1/auth/get_user/',

@@ -151,15 +151,16 @@ class ChildViewSet(ViewSet):
 
     @swagger_auto_schema(
         operation_description="Bola ma'lumotlarini o'chirish",
-        responses={204: 'Bola muvaffaqiyatli o\'chirildi'}
+        responses={200: 'Bola muvaffaqiyatli o\'chirildi'}
     )
-    def delete(self, request, pk=None):
-        try:
-            child = Child.objects.get(id=pk, user=request.user)
-            child.delete()
-            return Response({'message': _('Bola muvaffaqiyatli o\'chirildi')}, status=status.HTTP_204_NO_CONTENT)
-        except Child.DoesNotExist:
-            return Response({'error': _('Bola topilmadi')}, status=status.HTTP_404_NOT_FOUND)
+    def delete(self, request, *args, **kwargs):
+        child = Child.objects.filter(id=kwargs['pk']).first()
+        if child is None:
+            return Response(data={'error': _('Bola topilmadi')}, status=status.HTTP_404_NOT_FOUND)
+        if child.user != request.user:
+            return Response(data={'error': _('You can not delete this child')}, status=status.HTTP_400_BAD_REQUEST)
+        child.delete()
+        return Response(data={'message': _('Bola muvaffaqiyatli o\'chirildi')}, status=status.HTTP_200_OK)
 
 
 class RegisterChildToCompViewSet(ViewSet):
@@ -185,6 +186,23 @@ class RegisterChildToCompViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    @swagger_auto_schema(
+        operation_description="Delete Participant",
+        operation_summary="Delete Participant",
+        responses={
+            200: 'Successfully Deleted',
+        },
+        tags=['child']
+    )
+    def delete(self, request, *args, **kwargs):
+        participant = Participant.objects.filter(id=kwargs['pk']).first()
+        if participant is None:
+            return Response(data={'error': _('Participant not found')}, status=status.HTTP_404_NOT_FOUND)
+        if participant.child.user != request.user:
+            return Response(data={'error': _('You can not delete this Participant')}, status=status.HTTP_400_BAD_REQUEST)
+        participant.delete()
+        return Response(data={'message': _('Participant successfully deleted')}, status=status.HTTP_200_OK)
 
 
 class ChildWorkViewSet(ViewSet):  # *
@@ -259,6 +277,6 @@ class ChildWorkViewSet(ViewSet):  # *
         if work is None:
             return Response(data={'error': _('ChildWork not found')}, status=status.HTTP_404_NOT_FOUND)
         if work.participant.child.user != request.user:
-            return Response(data={'error': 'You can not delete this work'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': _('You can not delete this work')}, status=status.HTTP_400_BAD_REQUEST)
         work.delete()
-        return Response(data={'message': 'ChildWork Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(data={'message': _('ChildWork Successfully deleted')}, status=status.HTTP_200_OK)
