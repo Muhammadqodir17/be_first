@@ -279,8 +279,7 @@ class PaymentViewSet(ViewSet):
 
         # serializer = DownloadCertificateSerializer(winner, context={'request': request})
 
-        full_path = os.path.join(settings.MEDIA_ROOT, winner.certificate.url)
-        print(full_path)
+        full_path = str(settings.BASE_DIR) + winner.certificate.url.replace("/", "\\")
         return FileResponse(open(full_path, 'rb'), as_attachment=True, filename=winner.certificate.name)
 
         # response = Response(data=serializer.data, content_type='image/*' , status=status.HTTP_200_OK)
