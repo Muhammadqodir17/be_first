@@ -276,8 +276,9 @@ class PaymentViewSet(ViewSet):
 
         serializer = DownloadCertificateSerializer(winner, context={'request': request})
 
-        response = Response(data=serializer.data, status=status.HTTP_200_OK)
+        response = Response(data=serializer.data, content_type='image/*' , status=status.HTTP_200_OK)
         response.headers['Content-Disposition'] = 'attachment'
+        response.headers['filename'] = winner.certificate.filename
         return response
 
     # @swagger_auto_schema(
