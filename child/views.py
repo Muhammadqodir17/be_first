@@ -151,15 +151,16 @@ class ChildViewSet(ViewSet):
 
     @swagger_auto_schema(
         operation_description="Bola ma'lumotlarini o'chirish",
-        responses={204: 'Bola muvaffaqiyatli o\'chirildi'}
+        responses={200: 'Bola muvaffaqiyatli o\'chirildi'}
     )
-    def delete(self, request, pk=None):
-        try:
-            child = Child.objects.get(id=pk, user=request.user)
-            child.delete()
-            return Response({'message': _('Bola muvaffaqiyatli o\'chirildi')}, status=status.HTTP_204_NO_CONTENT)
-        except Child.DoesNotExist:
-            return Response({'error': _('Bola topilmadi')}, status=status.HTTP_404_NOT_FOUND)
+    def delete(self, request, *args, **kwargs):
+        child = Child.objects.filter(id=kwargs['pk']).first()
+        if child is None:
+            return Response(data={'error': _('Bola topilmadi')}, status=status.HTTP_404_NOT_FOUND)
+        if child.user != request.user:
+            return Response(data={'error': _('You can not delete this child')}, status=status.HTTP_400_BAD_REQUEST)
+        child.delete()
+        return Response(data={'message': _('Bola muvaffaqiyatli o\'chirildi')}, status=status.HTTP_200_OK)
 
 
 class RegisterChildToCompViewSet(ViewSet):
